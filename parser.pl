@@ -1,14 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                %
-%                                                                                %
-% Author: Ebrahim Azarisooreh                                                    %
-% E-mail: ebrahim.azarisooreh@gmail.com                                          %
-% IRC Nick: eazar001                                                             %
-% Title: Yes-Bot                                                                 %
-% Descripton: IRC Bot Parsing Module                                             %
-%                                                                                %
-%                                                                                %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Parsing module
+
 
 :- module(parser,
 	  [

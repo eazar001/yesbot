@@ -86,6 +86,10 @@ init_structs(Nick, Pass, Chan) :-
   asserta(Connect).
 
 
+%--------------------------------------------------------------------------------%
+
+% TODO : Implement dynamic extension backbone here
+
 init_extensions(Extensions) :-
   directory_files(extensions, Ms),
   exclude(call(core:non_file), Ms, Modules),

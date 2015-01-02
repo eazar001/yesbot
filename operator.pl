@@ -1,4 +1,8 @@
 
+%% Operator module that determines appropriate messaging templates for specific
+%% atoms which connote particular irc operations.
+
+
 :- module(operator, [msg/2, dbg/2]).
 
 
