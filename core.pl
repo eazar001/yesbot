@@ -108,26 +108,6 @@ remove_suffix(File, Extension) :-
 %--------------------------------------------------------------------------------%
 
 
-init_queue(Id) :-
-  message_queue_create(Id, [alias(mq)]),
-  thread_create(start_job(Id), _, []).
-
-
-start_job(Id) :-
-  repeat,
-  thread_get_message(Id, Goal),
-  (
-     catch(Goal, E, print_message(error, E)) ->
-       true
-     ;
-       print_message(error, goal_failed(Goal, worker(Id)))
-  ),
-  fail.
-
-post_job(Id, Goal) :-
-  thread_send_message(Id, Goal).
-
-
 % XXX TODO : Implement extension support in this section.
 
 %% read_server_loop(-Reply) is nondet.
@@ -143,8 +123,6 @@ read_server_loop(Reply) :-
   read_server(Reply, Stream),
   Reply = end_of_file, !.
 
-
-% XXX TODO : Implement async and sync processing here. User must have a choice.
 
 %% read_server(-Reply, +Stream) is det.
 %
@@ -164,6 +142,46 @@ read_server_handle(Reply) :-
   concurrent(2,
     [ run_det(process_server(Reply))
      ,run_det(format('~s~n', [Reply])) ], []).
+
+
+%--------------------------------------------------------------------------------%
+
+
+%% init_queue(+Id) is det.
+%
+% Initialize a message queue to store server lines to be processed in the future.
+% Server lines will be processed sequentially.
+
+init_queue(Id) :-
+  message_queue_create(Id, [alias(mq)]),
+  thread_create(start_job(Id), _, []).
+
+
+%% start_job(+Id) is nondet.
+%
+% Wait for any messages directed to the Id of the message queue. Fetch the
+% message from the thread and call Goal. Catch any errors and print the messages.
+% Keep thread alive to watch for new jobs to execute.
+
+start_job(Id) :-
+  repeat,
+  thread_get_message(Id, Goal),
+  (
+     catch(Goal, E, print_message(error, E)) ->
+       true
+     ;
+       print_message(error, goal_failed(Goal, worker(Id)))
+  ),
+  fail.
+
+
+%% post_job(+Id, +Goal) is det.
+%
+% Send goal to the Id of the queue so a thread can execute the job at the next
+% available opportunity.
+
+post_job(Id, Goal) :-
+  thread_send_message(Id, Goal).
 
 
 %--------------------------------------------------------------------------------%
