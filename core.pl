@@ -154,7 +154,7 @@ read_server_handle(Reply) :-
 
 init_queue(Id) :-
   message_queue_create(Id, [alias(mq)]),
-  thread_create(start_job(Id), _, []).
+  thread_create(start_job(Id), _, [alias(msg_handler)]).
 
 
 %% start_job(+Id) is nondet.
@@ -259,6 +259,8 @@ disconnect :-
   send_msg(quit),
   retractall(get_irc_stream(_)),
   retractall(connection(_,_,_,_,_,_)),
+  thread_signal(msg_handler, throw(thread_quit)),
+  message_queue_destroy(mq),
   close(Stream).
 
 
