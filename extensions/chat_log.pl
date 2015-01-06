@@ -13,10 +13,8 @@
 :- module(chat_log, [chat_log/4]).
 
 :- use_module(parser).
-:- thread_local known/3.
+:- dynamic known/3.
 
-
-% XXX TODO : This is still not thread-safe, serialize chat-logs at this point.
 
 %% chat_log(+Rest, +Nick, +Recip, +Chan) is semidet.
 %
@@ -33,14 +31,18 @@ chat_log(Rest, Nick, Chan, Chan) :-
   chat_log(Rest, Log),
   get_time(Time),
   stamp_date_time(Time, Date, local),
-  once(write_chat_line(Date, Nick, Log)).
+  write_chat_line(Date, Nick, Log).
 
 
 %% write_chat_line(+Date, +Nick, +Log) is det.
 %
-% This predicate is only deterministic due to the fact that it is meant to be
-% called once. It's only purpose is to write the chat logs to the correct files
-% using the correct naming scheme that reflects the point in time observed.
+% Write chat logs to the correct files using the correct naming scheme that
+% reflects the point in time observed. If the current day is not known then cut
+% and assert the current day. Afterwards, open a file for appending logs to. If
+% the day is known, then compared the stored day to the ascertained day. If they
+% match, proceed with the normal course of action. If they do not, assert the
+% newly ascertained day and retract the old one. Open a new file for appending
+% the new day's logs to.
 
 write_chat_line(Date, Nick, Log) :-
   format_time(atom(Filename), '%d-%b-%Y.txt', Date, posix),
@@ -48,7 +50,7 @@ write_chat_line(Date, Nick, Log) :-
   date_time_value(day, Date, Current_Day),
   (
      \+known(_, _, _),
-     asserta(known(yes, Current_Day, Filename))
+     asserta(known(yes, Current_Day, Filename)), !
   ;
      known(yes, Stored_Day, Filename),
        Current_Day = Stored_Day ->
