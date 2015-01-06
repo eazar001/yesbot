@@ -108,6 +108,26 @@ remove_suffix(File, Extension) :-
 %--------------------------------------------------------------------------------%
 
 
+init_queue(Id) :-
+  message_queue_create(Id, [alias(mq)]),
+  thread_create(start_job(Id), _, []).
+
+
+start_job(Id) :-
+  repeat,
+  thread_get_message(Id, Goal),
+  (
+     catch(Goal, E, print_message(error, E)) ->
+       true
+     ;
+       print_message(error, goal_failed(Goal, worker(Id)))
+  ),
+  fail.
+
+post_job(Id, Goal) :-
+  thread_send_message(Id, Goal).
+
+
 % XXX TODO : Implement extension support in this section.
 
 %% read_server_loop(-Reply) is nondet.
@@ -118,6 +138,7 @@ remove_suffix(File, Extension) :-
 
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
+  init_queue(_MQ),
   repeat,
   read_server(Reply, Stream),
   Reply = end_of_file, !.
@@ -136,14 +157,13 @@ read_server(Reply, Stream) :-
   (
      Reply = end_of_file, !
   ;
-     thread_create(read_server_handle(Reply), _, [])
+     post_job(mq, read_server_handle(Reply))
   ).
 
 read_server_handle(Reply) :-
   concurrent(2,
     [ run_det(process_server(Reply))
-     ,run_det(format('~s~n', [Reply])) ], []),
-  throw(done).
+     ,run_det(format('~s~n', [Reply])) ], []).
 
 
 %--------------------------------------------------------------------------------%
