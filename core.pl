@@ -88,6 +88,7 @@ init_structs(Nick, Pass, Chan) :-
 
 %--------------------------------------------------------------------------------%
 
+
 % TODO : Implement dynamic extension backbone here
 
 init_extensions(Extensions) :-
@@ -144,6 +145,7 @@ read_server_handle(Reply) :-
      ,run_det(format('~s~n', [Reply])) ], []),
   throw(done).
 
+
 %--------------------------------------------------------------------------------%
 
 
@@ -195,7 +197,7 @@ process_priv_msg(Msg) :-
 
 %% run_det(+Goal) is det.
 %
-% find all the solutions to an extensionized goal in order to precipitate the
+% Find all the solutions to an extensionized goal in order to precipitate the
 % result as unevaluated deterministic result. Used here for making extension
 % work concurrent.
 
