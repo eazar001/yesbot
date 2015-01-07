@@ -132,11 +132,13 @@ read_server_loop(Reply) :-
 
 read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
-  Reply = end_of_file ->
-    true
-  ;
-    post_job(mq, read_server_handle(Reply)).
-
+  (
+     Reply = end_of_file ->
+       true
+     ;
+       post_job(mq, read_server_handle(Reply))
+  ).
+  
 read_server_handle(Reply) :-
   concurrent(2,
     [ run_det(process_server(Reply))
