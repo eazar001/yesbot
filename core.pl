@@ -132,11 +132,10 @@ read_server_loop(Reply) :-
 
 read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
-  (
-     Reply = end_of_file, !
+  Reply = end_of_file ->
+    true
   ;
-     post_job(mq, read_server_handle(Reply))
-  ).
+    post_job(mq, read_server_handle(Reply)).
 
 read_server_handle(Reply) :-
   concurrent(2,
@@ -217,7 +216,7 @@ process_server(Reply) :-
 %
 % All extensions that deal specifically with handling private messages should be
 % implemented dynamically in this section. The extensions will be plugged into
-% a disjunctive swith that follows a successful parse of a private message.
+% an execution list that follows a successful parse of a private message.
 
 process_priv_msg(Msg) :-
   priv_msg(Nick, Recip_, Msg, Rest),
