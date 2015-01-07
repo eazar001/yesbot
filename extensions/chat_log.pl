@@ -48,9 +48,9 @@ write_chat_line(Date, Nick, Log) :-
   format_time(atom(Filename), '%d-%b-%Y.txt', Date, posix),
   format_time(atom(Stamp), '%T', Date, posix),
   date_time_value(day, Date, Current_Day),
+  working_directory(_Working, 'extensions/chat-logs'),
   (
      \+known(_, _, _),
-     working_directory(Current, 'extensions/chat-logs'),
      asserta(known(yes, Current_Day, Filename)), !
   ;
      known(yes, Stored_Day, Filename),
@@ -58,13 +58,11 @@ write_chat_line(Date, Nick, Log) :-
        true
      ;
        retractall(known(_, _, _)),
-       working_directory(Current, 'extensions/chat-logs'),
        asserta(known(yes, Current_Day, Filename))
   ),
   known(yes, _, Filename),
   open(Filename, append, Fstream, []),
-  format(Fstream, '~a <~s> | ~s~n', [Stamp, Nick, Log]),
+  format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log]),
   flush_output(Fstream),
   close(Fstream),
-  working_directory(Current, '../../').
-  
+  working_directory(_Return, '../../').
