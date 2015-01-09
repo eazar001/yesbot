@@ -29,6 +29,12 @@
 
 chat_log(Rest, Nick, Chan, Chan) :-
   chat_log(Rest, Log),
+  (
+     exists_directory('extensions/chat-logs') ->
+       true
+     ;
+       make_directory('extensions/chat-logs')
+  ),
   get_time(Time),
   stamp_date_time(Time, Date, local),
   write_chat_line(Date, Nick, Log).
