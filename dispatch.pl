@@ -20,7 +20,7 @@
 % Send pong private message back to a specified origin.
 
 send_msg(pong, Nick, Origin) :-
-  msg(pong, Msg),
+  cmd(pong, Msg),
   dbg(pong, Debug),
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Nick, Origin]),
@@ -32,7 +32,7 @@ send_msg(pong, Nick, Origin) :-
 % send a private message or notice in the form of a string to a specified target.
 
 send_msg(Type, Str, Target) :-
-  msg(Type, Msg),
+  cmd(Type, Msg),
   (
      Type = priv_msg
   ;
@@ -50,7 +50,7 @@ send_msg(Type, Str, Target) :-
 % message through the stream.
 
 send_msg(Type) :-
-  msg(Type, Msg),
+  cmd(Type, Msg),
   core:get_irc_stream(Stream),
   core:connection(Nick, Pass, Chan, HostName, ServerName, RealName),
   (
