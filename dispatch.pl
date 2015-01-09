@@ -2,7 +2,7 @@
 %% Message dispatching module
 
 
-:- module(dispatch, [send_msg/1, send_msg/3]).
+:- module(dispatch, [send_msg/1, send_msg/2, send_msg/3]).
 
 :- use_module(operator).
 
@@ -19,12 +19,12 @@
 %
 % Send pong private message back to a specified origin.
 
-send_msg(pong, Nick, Origin) :-
+send_msg(pong, Origin) :-
   cmd(pong, Msg),
   dbg(pong, Debug),
   core:get_irc_stream(Stream),
-  format(Stream, Msg, [Nick, Origin]),
-  format(Debug, [Nick, Origin]),
+  format(Stream, Msg, [Origin]),
+  format(Debug, [Origin]),
   flush_output(Stream).
 
 %% send_msg(+Type, +Str, +Target) is det.

@@ -199,11 +199,9 @@ post_job(Id, Goal) :-
 % implemented dynamically in this section.
 
 process_server(Reply) :-
-  connection(Nick, _Pass, _Chan,
-    _Hname, _Sname, _Rname),
   (
      ping_from(Reply, Origin) ->
-       send_msg(pong, Nick, Origin)
+       send_msg(pong, Origin)
      ;
        process_priv_msg(Reply)
   ).

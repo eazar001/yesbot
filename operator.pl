@@ -48,8 +48,8 @@ cmd(part, 'PART ~a\r~n').
 % PING [Recipient]
 cmd(ping, 'PING ~a\r~n').
 
-% PONG [Nick, Origin]
-cmd(pong, 'PONG ~a ~s\r~n').
+% PONG [Origin]
+cmd(pong, 'PONG ~s\r~n').
 
 % PASS [Pass]
 cmd(pass, 'PASS ~a\r~n').
@@ -72,5 +72,6 @@ cmd(quit, 'QUIT :disconnect\r\n').
 %--------------------------------------------------------------------------------%
 
 
-dbg(pong, 'PONG ~a ~s~n').
+% PONG [Origin]
+dbg(pong, 'PONG ~s~n').
 
