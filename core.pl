@@ -199,11 +199,12 @@ post_job(Id, Goal) :-
 % implemented dynamically in this section.
 
 process_server(Reply) :-
+  parse_line(Reply, Msg),
   (
-     ping_from(Reply, Origin) ->
+     Msg = msg("PING", [], Origin) ->
        send_msg(pong, Origin)
      ;
-       process_priv_msg(Reply)
+       true %process_priv_msg(Reply)
   ).
 
 

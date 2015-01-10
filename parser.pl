@@ -4,16 +4,15 @@
 
 :- module(parser,
 	  [
-	    has_link/4
+	    parse_line/2
+	   ,has_link/4
 	   ,chat_log/2
 	   ,priv_msg/4
 	   ,get_title/3
-	   ,ping_from/2
 	  ]).
 
 
 /*
-
 Documentation Source: http://www.networksorcery.com/enp/protocol/irc.htm
 Message syntax:
   
@@ -29,26 +28,7 @@ middle =	nospcrlfcl *( ":" / nospcrlfcl )
 trailing =	*( ":" / " " / nospcrlfcl )	
 SPACE =	%x20	; Whitespace.
 crlf =	%x0D %x0A	; Carriage return/linefeed.
-  
-*/
-
-
-%% is_prefix(+S0, -S) is semidet.
-%
-% This will succeed iff a message has a colon as its first character. The rest
-% of the message will be returned as the difference.
-
-is_prefix --> `:`.
-
-%% trailing(+S0, -S) is semidet.
-%
-% This will succeed iff a parameter has a colon as its first character. The
-% rest of the parameter will be returned as the difference.
-
-trailing --> `:`.
-
-
-%--------------------------------------------------------------------------------%
+*/  
 
 
 %% parse_line(+Line, -Msg) is det.
@@ -70,6 +50,8 @@ parse_line(Line, Msg) :-
 %
 % Msg output is of the format:
 % msg(prefix, command, [parameters...], trailing_parameter).
+% OR
+% msg(command, [parameters...], trailing_parameter).
 
 fmt_line(["", Main, Trailer], msg(Prefix, Cmd, Params, Trailer)) :-
   split_string(Main, " ", "", [Prefix,Cmd|Params]).
@@ -101,20 +83,6 @@ split_from_trailer(Line, Out) :-
 
 
 
-
-/*
-%--------------------------------------------------------------------------------%
-% irc/ping requests
-%--------------------------------------------------------------------------------%
-
-
-%% ping_from(+S0, -S) is semidet.
-%
-% Any string that starts with `PING :` will be deemed a ping request. The
-% information after successful parse up to this point will contain the origin
-% as the difference of the list of characters.
-
-ping_from --> `PING :`.
 
 
 %--------------------------------------------------------------------------------%
@@ -211,4 +179,3 @@ title([]) -->
 title([C|T]) -->
   [C], title(T).
 
-*/
