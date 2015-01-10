@@ -6,8 +6,6 @@
 	  [
 	    parse_line/2
 	   ,has_link/4
-	   ,chat_log/2
-	   ,priv_msg/4
 	   ,get_title/3
 	  ]).
 
@@ -46,17 +44,22 @@ parse_line(Line, Msg) :-
 %
 % Split a server message into (potentially) 3 parts. The message can be split
 % into a prefix, command, and some command parameters. However, the prefix
-% is optional, and the parameter list can be potentially empty.
+% is optional and the parameter list can potentially be empty.
 %
 % Msg output is of the format:
-% msg(prefix, command, [parameters...], trailing_parameter).
-% OR
-% msg(command, [parameters...], trailing_parameter).
+%
+% 1) msg(prefix, command, [parameters...], trailing_parameter).
+%
+% 2) msg(prefix, command, [parameters...]).
+%
+% 3) msg(command, [parameters...], trailing_parameter).
+%
+% 4) msg(command, [parameters...]).
 
-fmt_line(["", Main, Trailer], msg(Prefix, Cmd, Params, Trailer)) :-
+fmt_line([has_prefix, Main, Trailer], msg(Prefix, Cmd, Params, Trailer)) :-
   split_string(Main, " ", "", [Prefix,Cmd|Params]).
 
-fmt_line(["", Main], msg(Prefix, Cmd, Params)) :-
+fmt_line([has_prefix, Main], msg(Prefix, Cmd, Params)) :-
   split_string(Main, " ", "", [Prefix,Cmd|Params]).
 
 fmt_line([Main, Trailer], msg(Cmd, Params, Trailer)) :-
@@ -78,7 +81,35 @@ fmt_line([Main], msg(Cmd, Params)) :-
 % 4) [Main]
 
 split_from_trailer(Line, Out) :-
-  split_string(Line, ":", " ", Out).
+  split(First, Line, Trailer) ->
+    (
+       First = [58|Main] ->
+         Out = [has_prefix, Main, Trailer]
+       ;
+         Main = First,
+         Out = [Main, Trailer]
+    )
+  ;
+    split_(First, Line, []) ->
+      (
+         First = [58|Main] ->
+           Out = [has_prefix, Main]
+         ;
+           Main = First,
+           Out = [Main]
+      ).
+
+
+
+
+split([]) --> ` :`.
+split([M|Main]) -->
+  [M], split(Main).
+
+split_([]) --> [].
+split_([M|Main]) -->
+  [M], split_(Main).
+
 
 
 
@@ -89,50 +120,6 @@ split_from_trailer(Line, Out) :-
 % irc/private mesages
 %--------------------------------------------------------------------------------%
 
-
-%% priv_msg(-Nick, -Recip, +S0, -S) is semidet.
-%
-% Any string containing `PRIVMSG ` will be deemed a private message. The suffix
-% that follows `PRIVMSG ` will be returned as the difference. This difference will
-% then be parsed for a whitespaced cushioned sequence of readable characters.
-% These characters will be parsed and stored as NICK of the sender. The next
-% sequence of the former pattern will be determined the recipient of the message.
-% Finally, the actual message will be returned as the difference of the successful
-% parse.
-
-priv_msg(Nick, Recip) -->
-  `:`, priv_msg(Nick, Recip), !.
-
-priv_msg([], Recip) -->
-  `!`, priv_msg_get([], Recip), !.
-
-priv_msg([C|Nick], Recip) -->
-  [C], priv_msg(Nick, Recip).
-
-priv_msg_get(Nick, Recip) -->
-  `PRIVMSG `, priv_msg_rec(Nick, Recip), !.
-
-priv_msg_get(Nick, Recip) -->
-  [_], priv_msg_get(Nick, Recip).
-
-priv_msg_rec(_, []) --> [32|_], !.
-
-priv_msg_rec(Nick, [C|Recip]) -->
-  [C], priv_msg_rec(Nick, Recip).
-
-
-% XXX TODO : incorporate the parsing of https urls and and possibly
-% XXX the recognition of other protocols as well (research) --
-
-%% chat_log(+S0, -S) is semidet.
-%
-% A substring can be part of a chat transcript if it is a private message and
-% follows a colon. The sending NICK comes before a `!`, which precedes the
-% hostname of the sending NICK. This predicate should generally only be used after
-% a message has been parsed as a private message.
-
-chat_log --> `:`, !.
-chat_log --> [_], chat_log.
 
 has_link(http, [104,116,116,112,58,47,47|L]) -->
   `http://`, get_link(http, L), !.

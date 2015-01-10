@@ -194,8 +194,7 @@ post_job(Id, Goal) :-
 %
 % All processing of server message will be handled here. Pings will be handled by
 % responding with a pong to keep the connection alive. Anything else will be
-% processed as a private message. Finally, all server messages will be displayed
-% in raw form via stdout. Further server processing extensions should be
+% processed as an incoming message. Further server processing extensions should be
 % implemented dynamically in this section.
 
 process_server(Reply) :-
@@ -204,31 +203,42 @@ process_server(Reply) :-
      Msg = msg("PING", [], Origin) ->
        send_msg(pong, Origin)
      ;
-       true %process_priv_msg(Reply)
+       process_msg(Msg)
   ).
 
 
 %--------------------------------------------------------------------------------%
-% handle incoming private messages
+% handle incoming server messages
 %--------------------------------------------------------------------------------%
 
 
-%% process_priv_msg(+Msg) is nondet.
+%% process_msg(+Msg) is nondet.
 %
-% All extensions that deal specifically with handling private messages should be
+% All extensions that deal specifically with handling messages should be
 % implemented dynamically in this section. The extensions will be plugged into
 % an execution list that follows a successful parse of a private message.
 
+process_msg(Msg) :-
+  concurrent(2,
+    [ %run_det(link_shortener(Msg))
+     run_det(chat_log(Msg)) ], []).
+
+
+
+
+
+
+/*
 process_priv_msg(Msg) :-
-  priv_msg(Nick, Recip_, Msg, Rest),
-  atom_codes(Recip, Recip_),
+  x priv_msg(Nick, Recip_, Msg, Rest),
+  x atom_codes(Recip, Recip_),
   connection(_Nick, _Pass, Chan,
     _Hname, _Sname, _Rname),
   get_irc_stream(Stream),
   concurrent(2,
     [ run_det(link_shortener(Stream, Recip, Chan, Rest))
      ,run_det(chat_log(Rest, Nick, Recip, Chan)) ], []).
-
+*/
 
 %--------------------------------------------------------------------------------%
 

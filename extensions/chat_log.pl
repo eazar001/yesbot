@@ -10,7 +10,7 @@
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(chat_log, [chat_log/4]).
+:- module(chat_log, [chat_log/1]).
 
 :- use_module(parser).
 :- dynamic known/3.
@@ -25,10 +25,13 @@
 % logs will be stored in one file. The next day's chat transript will spawn the
 % existence of a new text file.
 %
-% This will succeed only if Nick and Recip are identical.
+% This will succeed only if Recip and Chan are identical.
 
-chat_log(Rest, Nick, Chan, Chan) :-
-  chat_log(Rest, Log),
+chat_log(Msg) :-
+  Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
+  core:connection(_, _, Ch, _, _, _),
+  atom_string(Ch, Chan),
+  split_string(Prefix, "!", "", [Nick|_]),
   (
      exists_directory('extensions/chat-logs') ->
        true
