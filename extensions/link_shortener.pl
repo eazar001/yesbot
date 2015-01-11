@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- module(link_shortener, [link_shortener/4]).
+:- module(link_shortener, [link_shortener/1]).
 
 :- use_module(dispatch).
 :- use_module(parser).
@@ -90,7 +90,7 @@ visit_url(Link, Reply) :-
 % XXX hence here it is obvious that we should transform the prefix to
 % XXX https rather than the dubious http.
 
-%% link_shortener(+Stream, +Recip, +Chan, +Rest) is semidet.
+%% link_shortener(+Msg) is semidet.
 %
 % This link shortener extension will first parse a message to determine whether
 % or not this message contains a link. If a link exists, it will determine to
@@ -101,8 +101,11 @@ visit_url(Link, Reply) :-
 %
 % This predicate will only succeed if Recip is identical to Chan
 
-link_shortener(Stream, Chan, Chan, Rest) :-
-  has_link(http, L, Rest, _),
+link_shortener(Msg) :-
+  Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
+  core:connection(_, _, Ch, _, _, _),
+  atom_string(Ch, Chan),
+  has_link(http, L, M, _),
   atom_codes(Link, L),
   length(L, N),
   (
@@ -122,6 +125,7 @@ link_shortener(Stream, Chan, Chan, Rest) :-
        get_title(Title, Reply, _),
        send_msg(priv_msg, Title, Chan)
   ),
+  core:get_irc_stream(Stream),
   flush_output(Stream).
 
 

@@ -16,7 +16,7 @@
 :- dynamic known/3.
 
 
-%% chat_log(+Rest, +Nick, +Recip, +Chan) is semidet.
+%% chat_log(+Msg) is semidet.
 %
 % Attempt to parse a reply from the server and determine whether or not the
 % current line is a valid line to store in an irc chat transcript. If it is, the

@@ -108,8 +108,6 @@ remove_suffix(File, Extension) :-
 %--------------------------------------------------------------------------------%
 
 
-% XXX TODO : Implement extension support in this section.
-
 %% read_server_loop(-Reply) is nondet.
 %
 % Read the server output one line at a time. Each line will be sent directly
@@ -188,8 +186,6 @@ post_job(Id, Goal) :-
 %--------------------------------------------------------------------------------%
 
 
-% XXX TODO : add server processing extension zone here as well
-
 %% process_server(+Reply) is nondet.
 %
 % All processing of server message will be handled here. Pings will be handled by
@@ -220,25 +216,9 @@ process_server(Reply) :-
 
 process_msg(Msg) :-
   concurrent(2,
-    [ %run_det(link_shortener(Msg))
-     run_det(chat_log(Msg)) ], []).
+    [ run_det(link_shortener(Msg))
+     ,run_det(chat_log(Msg)) ], []).
 
-
-
-
-
-
-/*
-process_priv_msg(Msg) :-
-  x priv_msg(Nick, Recip_, Msg, Rest),
-  x atom_codes(Recip, Recip_),
-  connection(_Nick, _Pass, Chan,
-    _Hname, _Sname, _Rname),
-  get_irc_stream(Stream),
-  concurrent(2,
-    [ run_det(link_shortener(Stream, Recip, Chan, Rest))
-     ,run_det(chat_log(Rest, Nick, Recip, Chan)) ], []).
-*/
 
 %--------------------------------------------------------------------------------%
 
