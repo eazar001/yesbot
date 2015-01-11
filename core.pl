@@ -20,7 +20,7 @@
 :- use_module(library(socket)).
 
 %--------------------------------------------------------------------------------%
-% connection details
+% Connection Details
 %--------------------------------------------------------------------------------%
 
 
@@ -104,7 +104,7 @@ remove_suffix(File, Extension) :-
 
 
 %--------------------------------------------------------------------------------%
-% server routing
+% Server Routing
 %--------------------------------------------------------------------------------%
 
 
@@ -134,7 +134,7 @@ read_server(Reply, Stream) :-
      Reply = end_of_file ->
        true
      ;
-       post_job(mq, read_server_handle(Reply))
+       thread_send_message(mq, read_server_handle(Reply))
   ).
   
 read_server_handle(Reply) :-
@@ -174,15 +174,6 @@ start_job(Id) :-
   fail.
 
 
-%% post_job(+Id, +Goal) is det.
-%
-% Send goal to the Id of the queue so a thread can execute the job at the next
-% available opportunity.
-
-post_job(Id, Goal) :-
-  thread_send_message(Id, Goal).
-
-
 %--------------------------------------------------------------------------------%
 
 
@@ -204,7 +195,7 @@ process_server(Reply) :-
 
 
 %--------------------------------------------------------------------------------%
-% handle incoming server messages
+% Handle Incoming Server Messages
 %--------------------------------------------------------------------------------%
 
 
@@ -220,9 +211,6 @@ process_msg(Msg) :-
      ,run_det(chat_log(Msg)) ], []).
 
 
-%--------------------------------------------------------------------------------%
-
-
 %% run_det(+Goal) is det.
 %
 % Find all the solutions to an extensionized goal in order to precipitate the
@@ -234,7 +222,7 @@ run_det(Goal) :-
 
 
 %--------------------------------------------------------------------------------%
-% cleanup/termination
+% Cleanup/Termination
 %--------------------------------------------------------------------------------%
 
 
