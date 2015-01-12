@@ -15,8 +15,6 @@
 :- use_module(config).
 :- use_module(parser).
 :- use_module(dispatch).
-:- use_module(extensions/chat_log).
-:- use_module(extensions/link_shortener).
 :- use_module(library(socket)).
 
 %--------------------------------------------------------------------------------%
@@ -90,15 +88,17 @@ init_structs(Nick, Pass, Chan) :-
 %--------------------------------------------------------------------------------%
 
 
-% TODO : Implement dynamic extension backbone here
-
 init_extensions :-
   directory_files(extensions, Ms0),
   exclude(call(core:non_file), Ms0, Ms1),
   include(core:is_extension, Ms1, Modules),
   maplist(core:make_goal, Modules, Extensions),
   length(Extensions, N),
-  asserta(extensions(Extensions, N)).
+  asserta(extensions(Extensions, N)),
+  maplist(import_extension_module, Extensions).
+
+import_extension_module(Extension) :-
+  use_module(extensions/Extension).
 
 non_file('.').
 non_file('..').
@@ -235,7 +235,7 @@ process_msg(Msg) :-
 % Concurrently call a list of extension predicates on the current message.
 
 run_det(Msg, Extension, E) :-
-  E = findall(_, call(core:Extension, Msg), _).
+  E = findall(_, call(Extension:Extension, Msg), _).
 
 
 %% run_det(+Goal) is det.
