@@ -28,7 +28,7 @@
 %
 % Open socket on host, port, nick, user, hostname, and servername that will all
 % be specified in the bot_config module. The socket stream that is established
-% will be asserted at the top level for access by anywhere in the program.
+% will be asserted at the top level for access from anywhere in the program.
 
 connect :-
   debug,
@@ -39,6 +39,7 @@ connect :-
   chan(Chan),
   setup_call_cleanup(
     (
+       init_extensions,
        init_structs(Nick, Pass, Chan),
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
@@ -91,16 +92,28 @@ init_structs(Nick, Pass, Chan) :-
 
 % TODO : Implement dynamic extension backbone here
 
-init_extensions(Extensions) :-
-  directory_files(extensions, Ms),
-  exclude(call(core:non_file), Ms, Modules),
-  maplist(core:remove_suffix, Modules, Extensions).
+init_extensions :-
+  directory_files(extensions, Ms0),
+  exclude(call(core:non_file), Ms0, Ms1),
+  include(core:is_extension, Ms1, Modules),
+  maplist(core:make_goal, Modules, Extensions),
+  length(Extensions, N),
+  asserta(extensions(Extensions, N)).
 
 non_file('.').
 non_file('..').
 
-remove_suffix(File, Extension) :-
-  once(sub_atom(File, _, _, 3, Extension)).
+is_extension(X) :-
+  atom_codes(X, Codes),
+  is_extension(Codes, []).
+
+is_extension --> `.pl`.
+is_extension --> [_], is_extension.
+  
+
+make_goal(File, Goal) :-
+  once(sub_atom(File, _, _, 3, F)),
+  Goal =.. [F].
 
 
 %--------------------------------------------------------------------------------%
@@ -122,7 +135,7 @@ read_server_loop(Reply) :-
   Reply = end_of_file, !.
 
 
-%% read_server(-Reply, +Stream) is det.
+%% read_server(-Reply, +Stream) is semidet.
 %
 % Translate server line to codes. If the codes are equivalent to EOF then succeed
 % and go back to the main loop for termination. If not then then display the
@@ -136,7 +149,13 @@ read_server(Reply, Stream) :-
      ;
        thread_send_message(mq, read_server_handle(Reply))
   ).
-  
+
+
+%% read_server_handle(+Reply) is semidet.
+%
+% Concurrently process server lines via loaded extensions and output the server
+% line to stdout for debugging.
+
 read_server_handle(Reply) :-
   concurrent(2,
     [ run_det(process_server(Reply))
@@ -181,8 +200,8 @@ start_job(Id) :-
 %
 % All processing of server message will be handled here. Pings will be handled by
 % responding with a pong to keep the connection alive. Anything else will be
-% processed as an incoming message. Further server processing extensions should be
-% implemented dynamically in this section.
+% processed as an incoming message. Further server processing extensions should
+% be implemented dynamically in this section.
 
 process_server(Reply) :-
   parse_line(Reply, Msg),
@@ -206,20 +225,27 @@ process_server(Reply) :-
 % an execution list that follows a successful parse of a private message.
 
 process_msg(Msg) :-
-  concurrent(2,
-    [ run_det(link_shortener(Msg))
-     ,run_det(chat_log(Msg)) ], []).
+  extensions(E0, N),
+  maplist(run_det(Msg), E0, Extensions),
+  concurrent(N, Extensions, []).
+
+
+%% run_det(+Msg, +Extension, -E) is det.
+%
+% Concurrently call a list of extension predicates on the current message.
+
+run_det(Msg, Extension, E) :-
+  E = findall(_, call(core:Extension, Msg), _).
 
 
 %% run_det(+Goal) is det.
 %
 % Find all the solutions to an extensionized goal in order to precipitate the
-% result as unevaluated deterministic result. Used here for making extension
+% result as an unevaluated deterministic result. Used here for making extension
 % work concurrent.
 
 run_det(Goal) :-
   findall(_, Goal, _).
-
 
 %--------------------------------------------------------------------------------%
 % Cleanup/Termination
@@ -237,6 +263,7 @@ disconnect :-
   send_msg(quit),
   retractall(get_irc_stream(_)),
   retractall(connection(_,_,_,_,_,_)),
+  retractall(extensions(_, _)),
   thread_signal(msg_handler, throw(thread_quit)),
   message_queue_destroy(mq),
   close(Stream).
