@@ -57,12 +57,14 @@ make_tiny(Link, Title, Tiny) :-
 % XXX these will aid in making things much more efficient
 
 visit_url(Link, Reply) :-
-  catch((http_open(Link, Stream, []),
-	 read_stream_to_codes(Stream, Reply),
-	 close(Stream)), E, N = no_error),
+  setup_call_catcher_cleanup(
+    http_open(Link, Stream, []),
+    read_stream_to_codes(Stream, Reply),
+    E = no_error,
+    close(Stream)),
   (
      % no problems here, succeed here
-     E = N, !
+     E = no_error, !
   ;
      % could not connect, fail here
      E = error(socket_error('Host not found'), _), !, fail
