@@ -47,9 +47,6 @@ connect :-
     disconnect).
 
 
-%--------------------------------------------------------------------------------%
-
-
 %% register_and_join is det.
 %
 % Present credentials and register user on the irc server.
@@ -59,9 +56,6 @@ register_and_join :-
   send_msg(user),
   send_msg(nick),
   send_msg(join).
-
-
-%--------------------------------------------------------------------------------%
 
 
 %% init_structs(+Nick, +Pass, +Chan) is det.
@@ -85,36 +79,67 @@ init_structs(Nick, Pass, Chan) :-
 
 
 %--------------------------------------------------------------------------------%
+% Extension loading
+%--------------------------------------------------------------------------------%
 
+%% init_extensions is det.
+%
+% Search directory for all files that end in '.pl'. Prompt the user to select
+% which ones should be loaded for this instance in time.
 
 init_extensions :-
   directory_files(extensions, Ms0),
   exclude(call(core:non_file), Ms0, Ms1),
   include(core:is_extension, Ms1, Modules),
-  maplist(core:make_goal, Modules, Extensions),
+  maplist(core:make_goal, Modules, Es),
+  prompt_ext(Es, Extensions),
   length(Extensions, N),
   asserta(extensions(Extensions, N)),
   maplist(import_extension_module, Extensions).
 
+
+%% Load an extension from the 'extensions' directory
 import_extension_module(Extension) :-
   use_module(extensions/Extension).
 
+%% Directory listings that will not be deemed modules
 non_file('.').
 non_file('..').
 
+
+%% All extension candidates end in '.pl'
 is_extension(X) :-
   atom_codes(X, Codes),
   is_extension(Codes, []).
 
 is_extension --> `.pl`.
 is_extension --> [_], is_extension.
-  
 
+
+%% transform files into goals per the rules of the system
 make_goal(File, Goal) :-
   once(sub_atom(File, _, _, 3, F)),
   Goal =.. [F].
 
 
+%% prompt_ext(+Es, -Ms) is det.
+%
+% Store all the modules that the user decided to load.
+
+prompt_ext([], _) :-
+  writeln('Warning : You have no extensions loaded.').
+
+prompt_ext([E|Es], Ms) :-
+  findall(M, prompt_ext_([E|Es], M), Ms).
+
+prompt_ext_(Es, Module) :-
+  writeln('Select the extensions you want to load.'),
+  format('Enter "y." for yes and "n." for no (without the quotes).~n', []),
+  select(Module, Es, _),
+  format('Load "~a" extension? > ', [Module]),
+  read(y).
+
+   
 %--------------------------------------------------------------------------------%
 % Server Routing
 %--------------------------------------------------------------------------------%
@@ -161,6 +186,23 @@ read_server_handle(Reply) :-
      ,run_det(format('~s~n', [Reply])) ], []).
 
 
+%% process_server(+Reply) is nondet.
+%
+% All processing of server message will be handled here. Pings will be handled by
+% responding with a pong to keep the connection alive. Anything else will be
+% processed as an incoming message. Further server processing extensions should
+% be implemented dynamically in this section.
+
+process_server(Reply) :-
+  parse_line(Reply, Msg),
+  (
+     Msg = msg("PING", [], Origin) ->
+       send_msg(pong, Origin)
+     ;
+       process_msg(Msg)
+  ).
+
+
 %--------------------------------------------------------------------------------%
 
 
@@ -193,26 +235,6 @@ start_job(Id) :-
 
 
 %--------------------------------------------------------------------------------%
-
-
-%% process_server(+Reply) is nondet.
-%
-% All processing of server message will be handled here. Pings will be handled by
-% responding with a pong to keep the connection alive. Anything else will be
-% processed as an incoming message. Further server processing extensions should
-% be implemented dynamically in this section.
-
-process_server(Reply) :-
-  parse_line(Reply, Msg),
-  (
-     Msg = msg("PING", [], Origin) ->
-       send_msg(pong, Origin)
-     ;
-       process_msg(Msg)
-  ).
-
-
-%--------------------------------------------------------------------------------%
 % Handle Incoming Server Messages
 %--------------------------------------------------------------------------------%
 
@@ -224,9 +246,12 @@ process_server(Reply) :-
 % an execution list that follows a successful parse of a private message.
 
 process_msg(Msg) :-
-  extensions(E0, N),
-  maplist(run_det(Msg), E0, Extensions),
-  concurrent(N, Extensions, []).
+  extensions(Es, N),
+  N > 0 ->
+    maplist(run_det(Msg), Es, Extensions),
+    concurrent(N, Extensions, [])
+  ;
+    true.
 
 
 %% run_det(+Msg, +Extension, -E) is det.
@@ -261,7 +286,7 @@ disconnect :-
   send_msg(quit),
   retractall(get_irc_stream(_)),
   retractall(connection(_,_,_,_,_,_)),
-  retractall(extensions(_, _)),
+  retractall(extensions(_,_)),
   thread_signal(msg_handler, throw(thread_quit)),
   message_queue_destroy(mq),
   close(Stream).

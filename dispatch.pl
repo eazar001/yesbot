@@ -12,7 +12,6 @@
 %--------------------------------------------------------------------------------%
 
 
-% XXX TODO : implement response/error retrieval
 % XXX NOTE : not all message types are accounted for yet
 
 %% send_msg(+Pong, +Nick, +Origin) is det.
