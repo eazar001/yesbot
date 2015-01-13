@@ -70,8 +70,13 @@ write_chat_line(Date, Nick, Log) :-
        asserta(known(yes, Current_Day, Filename))
   ),
   known(yes, _, Filename),
-  open(Filename, append, Fstream, []),
-  format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log]),
-  flush_output(Fstream),
-  close(Fstream),
-  working_directory(_Return, '../../').
+  setup_call_cleanup(
+    open(Filename, append, Fstream, []),
+    (
+       format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log]),
+       flush_output(Fstream),
+       working_directory(_Return, '../../')
+    ),
+    close(Fstream)
+  ).
+
