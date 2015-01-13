@@ -5,7 +5,7 @@
 % E-mail: ebrahim.azarisooreh@gmail.com                                          %
 % IRC Nick: eazar001                                                             %
 % Title: Yes-Bot chat-logging extension                                          %
-% Descripton: A chat-logging extension for the Yes-Bot IRC Bot                   %
+% Description: A chat-logging extension for the Yes-Bot IRC Bot                  %
 %                                                                                %
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -5,7 +5,7 @@
 % E-mail: ebrahim.azarisooreh@gmail.com                                          %
 % IRC Nick: eazar001                                                             %
 % Title: Yes-Bot Link Shortener Extension                                        %
-% Descripton: Tinyurl API Link Shortener for the Yes-Bot IRC Bot                 %
+% Description: Tinyurl API Link Shortener for the Yes-Bot IRC Bot                %
 %                                                                                %
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -5,7 +5,7 @@
 % E-mail: ebrahim.azarisooreh@gmail.com                                          %
 % IRC Nick: eazar001                                                             %
 % Title: Yes-Bot                                                                 %
-% Descripton: IRC Bot                                                            %
+% Description: IRC Bot                                                           %
 %                                                                                %
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -29,7 +29,6 @@
 % will be asserted at the top level for access from anywhere in the program.
 
 connect :-
-  debug,
   host(Host),
   port(Port),
   nick(Nick),
@@ -258,7 +257,6 @@ run_det(Goal) :-
 % to the irc server, and close the socket stream pair.
 
 disconnect :-
-  nodebug,
   get_irc_stream(Stream),
   send_msg(quit),
   retractall(get_irc_stream(_)),
