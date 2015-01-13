@@ -18,6 +18,7 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_ssl_plugin)).
 
+
 %--------------------------------------------------------------------------------%
 % Link Shortening
 %--------------------------------------------------------------------------------%
@@ -32,21 +33,31 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 % greater than or equal to 100 characters in length.
 
 make_tiny(Link, Title, Tiny) :-
-  visit_url(Link, Reply),
-  (
-     % host exists, but resource not grabbed by program
-     Reply = none,
-     Title = [], !
-  ;
-     % host exists, and the html resource has been grabbed
-     get_title(Title, Reply, _), !
-  ;
-     % host exists, but content grabbed is not html
-     Title = []
-  ),
+  url_get_line(Link, Title),
   tiny_form(F),
   string_concat(F, Link, Full),
   visit_url(Full, Tiny).
+
+
+url_get_line(Link, Title) :-
+  setup_call_cleanup(
+    http_open(Link, Stream,
+      [header('Content-Type', Type), cert_verify_hook(cert_verify)]),
+    (
+       atom_concat('text/html', _, Type) ->	      
+         repeat,
+         read_line_to_codes(Stream, Line),
+         (
+            Line = end_of_file ->
+	      Title = []
+	    ;
+              get_title(Title, Line, _), !
+         )
+       ;
+         Title = []
+    ),
+    close(Stream)
+  ).
 
 
 cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
@@ -55,14 +66,11 @@ cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
 
 %% visit_url(+Link, -Reply) is semidet.
 %
-% Visit link and extract the reply and status code.
-% XXX TODO : include the status code and response header
-% XXX For appropriate usage of the content-type etc.
-% XXX these will aid in making things much more efficient
+% Visit link and extract the reply.
 
 visit_url(Link, Reply) :-
   setup_call_catcher_cleanup(
-    http_open(Link, Stream, [cert_verify_hook(cert_verify)]),
+    http_open(Link, Stream, []),
     read_stream_to_codes(Stream, Reply),
     E = no_error,
     close(Stream)),
@@ -177,10 +185,13 @@ link_shortener(Msg) :-
        ),
        send_msg(priv_msg, Tiny, Chan)
      ;
-
-       visit_url(Link, Reply),
-       get_title(Title, Reply, _),
-       send_msg(priv_msg, Title, Chan)
+       url_get_line(Link, Title) ->
+       (
+          Title = [] ->
+	    true
+          ;
+	    send_msg(priv_msg, Title, Chan)
+       )
   ),
   core:get_irc_stream(Stream),
   flush_output(Stream).
