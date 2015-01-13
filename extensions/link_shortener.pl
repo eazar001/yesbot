@@ -49,6 +49,10 @@ make_tiny(Link, Title, Tiny) :-
   visit_url(Full, Tiny).
 
 
+cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
+  format(user_error, 'Accepting certificate~n', []).
+
+
 %% visit_url(+Link, -Reply) is semidet.
 %
 % Visit link and extract the reply and status code.
@@ -58,7 +62,7 @@ make_tiny(Link, Title, Tiny) :-
 
 visit_url(Link, Reply) :-
   setup_call_catcher_cleanup(
-    http_open(Link, Stream, []),
+    http_open(Link, Stream, [cert_verify_hook(cert_verify)]),
     read_stream_to_codes(Stream, Reply),
     E = no_error,
     close(Stream)),
@@ -142,19 +146,6 @@ title([C|T]) -->
 % Extension
 %--------------------------------------------------------------------------------%
 
-% XXX TODO : add support for https
-% XXX after implementing https, make sure that links that are
-% XXX inappropriately marked as http are converted to the https
-% variant by running a validation test with that variant, if and
-% only if the initial http variant wasn't producing a socket error
-% for the domain name.
-
-% XXX NOTE : http_open('http://www.yahoo.com', IN, []),
-% XXX read_stream_to_codes(In, Codes), format('~s', [Codes]), close(In).
-% XXX is an example of an http link that should be https, reason :
-% XXX ERROR: Unknown error term: ssl_error(ssl_verify)
-% XXX hence here it is obvious that we should transform the prefix to
-% XXX https rather than the dubious http.
 
 %% link_shortener(+Msg) is semidet.
 %
@@ -171,7 +162,7 @@ link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
   core:connection(_, _, Ch, _, _, _),
   atom_string(Ch, Chan),
-  has_link(http, L, M, _),
+  has_link(_, L, M, _),
   atom_codes(Link, L),
   length(L, N),
   (
