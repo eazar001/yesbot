@@ -40,7 +40,7 @@ swipl -q -O -t 'run' run.pl
 # Extending the bot #
 -------------------------------
 
-There are two demo plugins that come with the Yesbot. One is a basic chat-logging extension
+There are two demo plugins that come with Yesbot. One is a basic chat-logging extension
 and the other is a TinyURL powered link shortener. On startup Yesbot will ask you if you would
 like to load these extensions. Extensions for Yesbot are very simple. They are essentially
 Prolog predicates with the same name as their containing modules. All Yesbot extensions 
