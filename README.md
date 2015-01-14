@@ -10,14 +10,14 @@
 -------------------------
 
 The first required step is to configure the bot. Note that multiple channels are not explicitly supported
-at this moment. Here is a sample template for **config.pl**.
+at this moment. Here is a sample template for `config.pl`.
 
 ```
 #!prolog
 
 host('chat.freenode.net').
 port(6667).
-nick(yesbot).
+nick(mybotname).
 pass('mypasshere1234').
 chan('##math').
 
