@@ -39,12 +39,14 @@ make_tiny(Link, Title, Tiny) :-
   visit_url(Full, Tiny).
 
 
+%% NOTE : Should really handle headers that don't report content-type properly
+
 url_get_line(Link, Title) :-
   setup_call_cleanup(
     http_open(Link, Stream,
       [header('Content-Type', Type), cert_verify_hook(cert_verify)]),
     (
-       atom_concat('text/html', _, Type) ->	      
+       (atom_concat('text/html', _, Type) ; Type = '') ->
          repeat,
          read_line_to_codes(Stream, Line),
          (

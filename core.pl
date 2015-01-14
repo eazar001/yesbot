@@ -135,7 +135,7 @@ prompt_ext([E|Es], Ms) :-
 prompt_ext_(Es, Module) :-
   writeln('Select the extensions you want to load.'),
   format('Enter "y." for yes and "n." for no (without the quotes).~n', []),
-  select(Module, Es, _),
+  member(Module, Es),
   format('Load "~a" extension? > ', [Module]),
   read(y).
 
@@ -183,7 +183,7 @@ read_server(Reply, Stream) :-
 read_server_handle(Reply) :-
   concurrent(2,
     [ run_det(process_server(Reply))
-     ,run_det(format('~s~n', [Reply])) ], []).
+     ,format('~s~n', [Reply]) ], []).
 
 
 %% process_server(+Reply) is nondet.
