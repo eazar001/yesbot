@@ -31,7 +31,7 @@ chat_log(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
   core:connection(_, _, Ch, _, _, _),
   atom_string(Ch, Chan),
-  split_string(Prefix, "!", "", [Nick|_]),
+  prefix_id(Prefix, Nick, _, _),
   (
      exists_directory('extensions/chat-logs') ->
        true

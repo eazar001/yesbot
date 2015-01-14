@@ -257,6 +257,8 @@ process_msg(Msg) :-
 %% run_det(+Msg, +Extension, -E) is det.
 %
 % Concurrently call a list of extension predicates on the current message.
+% The extension predicates can possibly be nondet, but will still execute
+% concurrently without undue interruption.
 
 run_det(Msg, Extension, E) :-
   E = findall(_, call(Extension:Extension, Msg), _).
@@ -265,11 +267,12 @@ run_det(Msg, Extension, E) :-
 %% run_det(+Goal) is det.
 %
 % Find all the solutions to an extensionized goal in order to precipitate the
-% result as an unevaluated deterministic result. Used here for making extension
-% work concurrent.
+% result as an unevaluated deterministic result. Used here for deterministically
+% evaluating a possibly nondet or semidet prediciate concurrently.
 
 run_det(Goal) :-
   findall(_, Goal, _).
+
 
 %--------------------------------------------------------------------------------%
 % Cleanup/Termination

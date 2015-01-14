@@ -2,11 +2,17 @@
 %% Parsing module
 
 
-:- module(parser, [parse_line/2]).
+:- module(parser,
+	  [ parse_line/2
+	   ,prefix_id/2
+	   ,prefix_id/4 ]).
 
 
 /*
-Documentation Source: http://www.networksorcery.com/enp/protocol/irc.htm
+Source : http://www.networksorcery.com/enp/protocol/irc.htm
+Alternative Source : http://irchelp.org/irchelp/rfc/
+CTCP : http://irchelp.org/irchelp/rfc/ctcpspec.html
+
 Message syntax:
   
 message =	[ ":" prefix SPACE ] command [ params ] crlf	
@@ -33,6 +39,26 @@ crlf =	%x0D %x0A	; Carriage return/linefeed.
 parse_line(Line, Msg) :-
   split_from_trailer(Line, Out),
   once(fmt_line(Out, Msg)).
+
+
+%% prefix_id(+Prefix, -Servername) is semidet.
+%
+% Extract a servername from a msg prefix.
+
+prefix_id(Prefix, Servername) :-
+  split_string(Prefix, " ", "", [Servername|_]).
+
+
+%% prefix_id(+Prefix, -Nick, -User, -Host) is semidet.
+%
+% Extract the Nick, User, and Host portions of a prefix from a msg.
+
+prefix_id(Prefix, Nick, User, Host) :-
+  split_string(Prefix, "!", "", [Nick|[Rest]]),
+  split_string(Rest, "@", "", [User|[Host]]).
+
+
+%--------------------------------------------------------------------------------%
 
 
 %% fmt_line(+Line, -Msg) is det.
@@ -70,8 +96,8 @@ fmt_line([Main], msg(Cmd, Params)) :-
 % if a trailer does exist. These are the possibilities when operating
 % under the current IRC protocol:
 %
-% 1) ["", Main, Trailer]
-% 2) ["", Main]
+% 1) [has_prefix, Main, Trailer]
+% 2) [has_prefix, Main]
 % 3) [Main, Trailer]
 % 4) [Main]
 

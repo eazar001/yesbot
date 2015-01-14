@@ -13,7 +13,6 @@
 
 % Convenience commands for specific message relays.
 % XXX NOTE : Not all message types are implemented yet.
-% XXX TODO : Make decision as to what should be done wrt strings, atoms, etc.
 
 % NOTICE [Target, Notice]
 cmd(notice, 'NOTICE ~s :~s\r~n').
