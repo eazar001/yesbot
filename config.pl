@@ -15,7 +15,6 @@
 % connection constants
 %--------------------------------------------------------------------------------%
 
-% XXX TODO : fix constants to support multiple channels
 
 % constants for general server connection specs
 %host('chat.freenode.net').
