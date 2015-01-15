@@ -1,12 +1,12 @@
-# Yesbot #
+# Yesbot
 ================
-### An IRC Bot Written in Prolog ###
+### An IRC Bot Written in Prolog
 
 * Multi-threaded extensible bot with a "pluggable" system.
 * Extensions are assumed to be mutually exclusive and will run concurrently.
 * Written with the SWI Prolog implementation  -- [SWI Prolog Website](http://www.swi-prolog.org/)
 =========================
-# Configuration #
+# Configuration
 =========================
 
 The first required step is to configure the bot. Note that multiple channels are not explicitly supported
@@ -26,17 +26,17 @@ bot_realname(realname).
 
 ```
 
------------------------------
-# Running the bot #
------------------------------
+=================
+# Running the bot
+=================
 Execute the bot like such:
 ```prolog
 
 swipl -q -O -t 'run' run.pl
 ```
--------------------------------
-# Extending the bot #
--------------------------------
+===================
+# Extending the bot
+===================
 
 There are two demo plugins that come with Yesbot. One is a basic chat-logging extension
 and the other is a TinyURL powered link shortener. On startup Yesbot will ask you if you would
