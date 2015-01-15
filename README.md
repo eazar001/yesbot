@@ -1,19 +1,18 @@
 # Yesbot #
-----------------
+================
 ### An IRC Bot Written in Prolog ###
 
 * Multi-threaded extensible bot with a "pluggable" system.
 * Extensions are assumed to be mutually exclusive and will run concurrently.
 * Written with the SWI Prolog implementation  -- [SWI Prolog Website](http://www.swi-prolog.org/)
--------------------------
+=========================
 # Configuration #
--------------------------
+=========================
 
 The first required step is to configure the bot. Note that multiple channels are not explicitly supported
 at this moment. Here is a sample template for `config.pl`.
 
-```
-#!prolog
+```prolog
 
 host('chat.freenode.net').
 port(6667).
@@ -31,8 +30,7 @@ bot_realname(realname).
 # Running the bot #
 -----------------------------
 Execute the bot like such:
-```
-#!prolog
+```prolog
 
 swipl -q -O -t 'run' run.pl
 ```
