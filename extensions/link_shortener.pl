@@ -170,7 +170,7 @@ title([C|T]) -->
 
 link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
-  core:connection(_, _, Ch, _, _, _),
+  core:connection(_Nick, _Pass, Ch, _Hostname, _Servername, _Realname),
   atom_string(Ch, Chan),
   has_link(_, L, M, _),
   atom_codes(Link, L),
