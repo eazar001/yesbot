@@ -90,11 +90,8 @@ init_structs(Nick, Pass, Chan) :-
 % If not, the extensions directory is sourced and the user is prompted for action.
 
 preload_exists(Extensions) :-
-  current_predicate(preload/1) ->
-    preload(Extensions),
-    length(Extensions, N),
-    asserta(extensions(Extensions, N)),
-    maplist(import_extension_module, Extensions)
+  current_predicate(config:preload/1) ->
+    config:preload(Extensions)
   ;
     directory_files(extensions, Ms0),
     exclude(call(core:non_file), Ms0, Ms),
