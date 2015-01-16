@@ -1,6 +1,6 @@
 
 :- module(config,
-     [ host/1,
+     [ host/1
       ,port/1
       ,nick/1
       ,pass/1
@@ -8,7 +8,7 @@
       ,bot_hostname/1
       ,bot_servername/1
       ,bot_realname/1
-      ,preload/2 ]).
+      ,preload/1 ]).
 
 %--------------------------------------------------------------------------------%
 % Connection Constants
