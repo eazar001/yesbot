@@ -82,17 +82,34 @@ init_structs(Nick, Pass, Chan) :-
 % Extension loading
 %--------------------------------------------------------------------------------%
 
+
+%% preload_exists(-Extensions) is det.
+%
+% Check whether or not the preload setting is enabled in the configuration file.
+% If it is, then the extensions list will be the one predetermined by preload/1.
+% If not, the extensions directory is sourced and the user is prompted for action.
+
+preload_exists(Extensions) :-
+  current_predicate(preload/1) ->
+    preload(Extensions),
+    length(Extensions, N),
+    asserta(extensions(Extensions, N)),
+    maplist(import_extension_module, Extensions)
+  ;
+    directory_files(extensions, Ms0),
+    exclude(call(core:non_file), Ms0, Ms),
+    include(core:is_extension, Ms, Modules),
+    maplist(core:make_goal, Modules, Es),
+    prompt_ext(Es, Extensions).
+
+
 %% init_extensions is det.
 %
-% Search directory for all files that end in '.pl'. Prompt the user to select
-% which ones should be loaded for this instance in time.
+% Assert the extensions along with its length at the top level for access.
+% Import all the modules afterwards.
 
 init_extensions :-
-  directory_files(extensions, Ms0),
-  exclude(call(core:non_file), Ms0, Ms1),
-  include(core:is_extension, Ms1, Modules),
-  maplist(core:make_goal, Modules, Es),
-  prompt_ext(Es, Extensions),
+  preload_exists(Extensions),
   length(Extensions, N),
   asserta(extensions(Extensions, N)),
   maplist(import_extension_module, Extensions).
