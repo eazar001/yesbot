@@ -29,8 +29,9 @@
 
 chat_log(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
-  core:connection(_Nick, _Pass, Ch, _Hostname, _Servername, _Realname),
-  atom_string(Ch, Chan),
+  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  member(Ch, Chans),
+  atom_string(Ch, Chan), !,
   prefix_id(Prefix, Nick, _, _),
   (
      exists_directory('extensions/chat-logs') ->
