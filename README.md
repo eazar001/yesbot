@@ -6,7 +6,7 @@ Yesbot
 * Extensions are assumed to be mutually exclusive and will run concurrently.
 * Written with the SWI Prolog implementation -- [SWI Prolog Website](http://www.swi-prolog.org/)
 
-=============
+
 Configuration
 =============
 
@@ -27,7 +27,7 @@ bot_realname(realname).
 
 ```
 
-===============
+
 Running the bot
 ===============
 Execute the bot like such:
@@ -35,7 +35,7 @@ Execute the bot like such:
 
 swipl -q -O -t 'run' run.pl
 ```
-=================
+
 Extending the bot
 =================
 
