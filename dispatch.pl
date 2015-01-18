@@ -51,7 +51,7 @@ send_msg(Type, Str, Target) :-
 send_msg(Type) :-
   cmd(Type, Msg),
   core:get_irc_stream(Stream),
-  core:connection(Nick, Pass, Chan, HostName, ServerName, RealName),
+  core:connection(Nick, Pass, Chans, HostName, ServerName, RealName),
   (
      Type = pass,
      format(Stream, Msg, [Pass])
@@ -63,7 +63,7 @@ send_msg(Type) :-
      format(Stream, Msg, [Nick])
   ;
      Type = join,
-     format(Stream, Msg, [Chan])
+     maplist(format(Stream, Msg), Chans)
   ;
      Type = quit,
      write(Stream, Msg)
