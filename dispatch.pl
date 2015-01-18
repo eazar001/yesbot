@@ -64,8 +64,6 @@ send_msg(Type) :-
   ;
      Type = join,
      maplist(format(Stream, Msg), Chans)
-     %format(Stream, Msg, [Chan]),
-     
   ;
      Type = quit,
      write(Stream, Msg)
