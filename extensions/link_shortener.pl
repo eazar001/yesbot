@@ -40,8 +40,7 @@ link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
   core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Ch, Chans),
-  run_det((
-  atom_string(Ch, Chan),
+  atom_string(Ch, Chan), !,
   has_link(_, L, M, _),
   atom_codes(Link, L),
   length(L, N),
@@ -66,7 +65,7 @@ link_shortener(Msg) :-
        )
   ),
   core:get_irc_stream(Stream),
-  flush_output(Stream))).
+  flush_output(Stream).
 
 
 %--------------------------------------------------------------------------------%
