@@ -93,8 +93,7 @@ preload_exists(Extensions) :-
   current_predicate(config:preload/1) ->
     config:preload(Extensions)
   ;
-    directory_files(extensions, Ms0),
-    exclude(call(core:non_file), Ms0, Ms),
+    directory_files(extensions, Ms),
     include(core:is_extension, Ms, Modules),
     maplist(core:make_goal, Modules, Es),
     prompt_ext(Es, Extensions).
@@ -115,10 +114,6 @@ init_extensions :-
 %% Load an extension from the 'extensions' directory
 import_extension_module(Extension) :-
   use_module(extensions/Extension).
-
-%% Directory listings that will not be deemed modules
-non_file('.').
-non_file('..').
 
 
 %% All extension candidates end in '.pl'
