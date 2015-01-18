@@ -40,10 +40,10 @@ chat_log(Msg) :-
   ),
   get_time(Time),
   stamp_date_time(Time, Date, local),
-  write_chat_line(Date, Nick, Log).
+  write_chat_line(Date, Nick, Chan, Log).
 
 
-%% write_chat_line(+Date, +Nick, +Log) is det.
+%% write_chat_line(+Date, +Nick, +Chan, +Log) is det.
 %
 % Write chat logs to the correct files using the correct naming scheme that
 % reflects the point in time observed. If the current day is not known then cut
@@ -53,8 +53,9 @@ chat_log(Msg) :-
 % newly ascertained day and retract the old one. Open a new file for appending
 % the new day's logs to.
 
-write_chat_line(Date, Nick, Log) :-
-  format_time(atom(Filename), '%d-%b-%Y.txt', Date, posix),
+write_chat_line(Date, Nick, Chan, Log) :-
+  format_time(atom(Filename0), '-%d-%b-%Y.txt', Date, posix),
+  atom_concat(Chan, Filename0, Filename),
   format_time(atom(Stamp), '%T', Date, posix),
   date_time_value(day, Date, Current_Day),
   working_directory(_Working, 'extensions/chat-logs'),
