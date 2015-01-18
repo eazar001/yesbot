@@ -15,6 +15,7 @@
 :- use_module(config).
 :- use_module(parser).
 :- use_module(dispatch).
+:- use_module(utilities).
 :- use_module(library(socket)).
 
 %--------------------------------------------------------------------------------%
@@ -192,7 +193,7 @@ read_server(Reply, Stream) :-
 
 read_server_handle(Reply) :-
   concurrent(2,
-    [ run_det(process_server(Reply))
+    [ run_det(core:process_server(Reply))
      ,format('~s~n', [Reply]) ], []).
 
 
@@ -262,26 +263,6 @@ process_msg(Msg) :-
     concurrent(N, Extensions, [])
   ;
     true.
-
-
-%% run_det(+Msg, +Extension, -E) is det.
-%
-% Concurrently call a list of extension predicates on the current message.
-% The extension predicates can possibly be nondet, but will still execute
-% concurrently without undue interruption.
-
-run_det(Msg, Extension, E) :-
-  E = findall(_, call(Extension:Extension, Msg), _).
-
-
-%% run_det(+Goal) is det.
-%
-% Find all the solutions to an extensionized goal in order to precipitate the
-% result as an unevaluated deterministic result. Used here for deterministically
-% evaluating a possibly nondet or semidet prediciate concurrently.
-
-run_det(Goal) :-
-  findall(_, Goal, _).
 
 
 %--------------------------------------------------------------------------------%
