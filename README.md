@@ -10,9 +10,7 @@ Yesbot
 Configuration
 =============
 
-The first required step is to configure the bot. Note that multiple channels are not explicitly supported
-at this moment. Here is a sample template for `config.pl`.
-
+The first required step is to configure the bot. Here is a sample template for `config.pl`
 ```prolog
 
 host('chat.freenode.net').
@@ -20,13 +18,15 @@ port(6667).
 nick(mybotname).
 pass('mypasshere1234').
 chan('##math').
+chan('##prolog').
 
 bot_hostname(hostname).
 bot_servername(servername).
 bot_realname(realname).
 
+% Add this line for custom list of preloaded extensions
+preload([link_shortener, chat_log]).
 ```
-
 
 Running the bot
 ===============
