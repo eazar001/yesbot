@@ -54,7 +54,7 @@ send_msg(Type) :-
   core:connection(Nick, Pass, Chan, HostName, ServerName, RealName),
   (
      Type = pass,
-     format(Stream, Msg, [Pass, Chan])
+     format(Stream, Msg, [Pass])
   ;
      Type = user,
      format(Stream, Msg, [Nick, HostName, ServerName, RealName])
