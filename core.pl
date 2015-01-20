@@ -17,7 +17,6 @@
 :- use_module(dispatch).
 :- use_module(utilities).
 :- use_module(library(socket)).
-:- use_module(library(aggregate)).
 
 %--------------------------------------------------------------------------------%
 % Connection Details
@@ -178,12 +177,11 @@ read_server_loop(Reply) :-
 % hostname (should be on the line that is code 001).
 
 get_server_name(Stream) :-
-  between(1, 5, X),
+  repeat,
   read_line_to_codes(Stream, Reply),
   format('~s~n', [Reply]),
-  X = 5,
-  parse_line(Reply, msg(Server,_,_,_)),
-  asserta(get_irc_server(Server)).
+  parse_line(Reply, msg(Server, "001", _, _)),
+  asserta(get_irc_server(Server)), !.
 
 
 %% read_server(-Reply, +Stream) is semidet.
