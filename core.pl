@@ -205,14 +205,14 @@ read_server_handle(Reply) :-
 %
 % All processing of server message will be handled here. Pings will be handled by
 % responding with a pong to keep the connection alive. If the message is "001"
-% or a server "welcome", then a successfull connection to a server will be
+% or a server "welcome", then a successful connection to a server will be
 % assumed. In this case, all instances of get_irc_server/1 will be retracted,
 % and the new server will be asserted for use. It is important that this is
 % serialized with respect to process_msg/1 so as to avoid race conditions.
 % Anything else will be processed as an incoming message.
 
-process_server(Reply) :-
-  parse_line(Reply, Msg),
+process_server(Line) :-
+  parse_line(Line, Msg),
   (
      Msg = msg("PING", [], Origin),
      send_msg(pong, Origin)
