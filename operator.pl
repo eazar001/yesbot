@@ -3,7 +3,9 @@
 %% atoms which connote particular irc operations.
 
 
-:- module(operator, [cmd/2, dbg/2]).
+:- module(operator,
+	  [ cmd/2
+	   ,dbg/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -26,7 +28,7 @@ cmd(time, 'TIME ~a\r~n').
 % KICK [Chan, Target]
 cmd(kick, 'KICK ~a ~a\r~n').
 
-% INVITE [Recipient, Chan]
+% INVITE [Target, Chan]
 cmd(invite, 'INVITE ~a ~a\r~n').
 
 % NAMES [CSV] (a csv of channels)
@@ -44,10 +46,10 @@ cmd(user_mode, 'MODE ~a~a ~a\r~n').
 % PART [CSV] (a csv of channels)
 cmd(part, 'PART ~a\r~n').
 
-% PING [Recipient]
+% PING [Target]
 cmd(ping, 'PING ~a\r~n').
 
-% PONG [Origin]
+% PONG [Target]
 cmd(pong, 'PONG ~s\r~n').
 
 % PASS [Pass]
