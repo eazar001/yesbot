@@ -1,8 +1,15 @@
 
 %% Message dispatching module
+%
+% This is a switchboard for routing message types to the correct message
+% templates. Once the message template and respective substitution list is
+% unified with the type, the process is consummated by dispatching the
+% message through the stream.
 
-
-:- module(dispatch, [send_msg/1, send_msg/2, send_msg/3]).
+:- module(dispatch,
+	  [ send_msg/1,
+	    send_msg/2,
+	    send_msg/3 ]).
 
 :- use_module(operator).
 
@@ -12,23 +19,32 @@
 %--------------------------------------------------------------------------------%
 
 
-% XXX NOTE : not all message types are accounted for yet
+% NOTE : Not all message types are accounted for yet
+% NOTE : Not all message types below are implemented in the dispatch module
+% TODO : Consider giving these predicates more meaningful names.
 
-%% send_msg(+Pong, +Nick, +Origin) is det.
+
+%% send_msg(+Pong, +Nick, +Origin) is semidet.
 %
 % Send pong private message back to a specified origin.
 
-send_msg(pong, Origin) :-
-  cmd(pong, Msg),
-  dbg(pong, Debug),
+send_msg(Type, Target) :-
+  cmd(Type, Msg),
+  (
+     Type = ping
+  ;
+     Type = pong,
+     dbg(pong, Debug),
+     format(Debug, [Target])
+  ),
   core:get_irc_stream(Stream),
-  format(Stream, Msg, [Origin]),
-  format(Debug, [Origin]),
+  format(Stream, Msg, [Target]),
   flush_output(Stream).
 
-%% send_msg(+Type, +Str, +Target) is det.
+
+%% send_msg(+Type, +Str, +Target) is nondet.
 %
-% send a private message or notice in the form of a string to a specified target.
+% send a Str of Type to a specified Target.
 
 send_msg(Type, Str, Target) :-
   cmd(Type, Msg),
@@ -41,16 +57,31 @@ send_msg(Type, Str, Target) :-
   format(Stream, Msg, [Target, Str]),
   flush_output(Stream).
 
-%% send_msg(+Type) is semidet.
+
+%% send_msg(+Type, +Chan, +Target) is nondet.
 %
-% This is a switchboard for routing message types to the correct message
-% templates. Once the message template and respective substitution list is
-% unified with the type, the process is consummated by dispatching the
-% message through the stream.
+% Send a message of Type to Target in Chan.
+
+send_msg(Type, Chan, Target) :-
+  cmd(Type, Msg),
+  core:get_irc_stream(Stream),
+  (
+     Type = kick,
+     format(Stream, Msg, [Chan, Target])
+  ;
+     Type = invite,
+     format(Stream, Msg, [Target, Chan])
+  ).
+
+
+%% send_msg(+Type) is nondet.
+%
+% Send a message of Type.
 
 send_msg(Type) :-
   cmd(Type, Msg),
   core:get_irc_stream(Stream),
+  core:get_irc_server(Server),
   core:connection(Nick, Pass, Chans, HostName, ServerName, RealName),
   (
      Type = pass,
@@ -67,6 +98,9 @@ send_msg(Type) :-
   ;
      Type = quit,
      write(Stream, Msg)
+  ;
+     Type = time,
+     format(Stream, Msg, [Server])
   ),
   flush_output(Stream).
 
