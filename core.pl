@@ -18,6 +18,8 @@
 :- use_module(utilities).
 :- use_module(library(socket)).
 
+:- dynamic known/1.
+
 %--------------------------------------------------------------------------------%
 % Connection Details
 %--------------------------------------------------------------------------------%
@@ -181,7 +183,8 @@ get_server_name(Stream) :-
   read_line_to_codes(Stream, Reply),
   format('~s~n', [Reply]),
   parse_line(Reply, msg(Server, "001", _, _)),
-  asserta(get_irc_server(Server)), !.
+  asserta(get_irc_server(Server)),
+  asserta(known(irc_server)), !.
 
 
 %% read_server(-Reply, +Stream) is nondet.

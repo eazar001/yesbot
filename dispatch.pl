@@ -81,7 +81,12 @@ send_msg(Type, Chan, Target) :-
 send_msg(Type) :-
   cmd(Type, Msg),
   core:get_irc_stream(Stream),
-  core:get_irc_server(Server),
+  (
+     core:known(irc_server) ->
+       core:get_irc_server(Server)
+     ;
+       true
+  ),
   core:connection(Nick, Pass, Chans, HostName, ServerName, RealName),
   (
      Type = pass,
