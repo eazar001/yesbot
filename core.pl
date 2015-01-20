@@ -133,7 +133,7 @@ make_goal(File, Goal) :-
   Goal =.. [F].
 
 
-%% prompt_ext(+Es, -Ms) is det.
+%% prompt_ext(+Es, -Ms) is nondet.
 %
 % Store all the modules that the user decided to load.
 
@@ -184,7 +184,7 @@ get_server_name(Stream) :-
   asserta(get_irc_server(Server)), !.
 
 
-%% read_server(-Reply, +Stream) is semidet.
+%% read_server(-Reply, +Stream) is nondet.
 %
 % Translate server line to codes. If the codes are equivalent to EOF then succeed
 % and go back to the main loop for termination. If not then then display the
@@ -200,7 +200,7 @@ read_server(Reply, Stream) :-
   ).
 
 
-%% read_server_handle(+Reply) is semidet.
+%% read_server_handle(+Reply) is det.
 %
 % Concurrently process server lines via loaded extensions and output the server
 % line to stdout for debugging.

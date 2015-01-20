@@ -24,9 +24,9 @@
 % TODO : Consider giving these predicates more meaningful names.
 
 
-%% send_msg(+Pong, +Nick, +Origin) is semidet.
+%% send_msg(+Type, +Target) is nondet.
 %
-% Send pong private message back to a specified origin.
+% Send message of Type to a specified Target.
 
 send_msg(Type, Target) :-
   cmd(Type, Msg),
