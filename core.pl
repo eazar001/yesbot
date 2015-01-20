@@ -17,6 +17,7 @@
 :- use_module(dispatch).
 :- use_module(utilities).
 :- use_module(library(socket)).
+:- use_module(library(aggregate)).
 
 %--------------------------------------------------------------------------------%
 % Connection Details
@@ -165,9 +166,24 @@ prompt_ext_(Es, Module) :-
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
   init_queue(_MQ),
+  get_server_name(Stream),
   repeat,
   read_server(Reply, Stream),
   Reply = end_of_file, !.
+
+
+%% get_server_name(+Stream) is nondet.
+%
+% Print the first 5 lines from the server. On the 5th line, get the server
+% hostname (should be on the line that is code 001).
+
+get_server_name(Stream) :-
+  between(1, 5, X),
+  read_line_to_codes(Stream, Reply),
+  format('~s~n', [Reply]),
+  X = 5,
+  parse_line(Reply, msg(Server,_,_,_)),
+  asserta(get_irc_server(Server)).
 
 
 %% read_server(-Reply, +Stream) is semidet.
