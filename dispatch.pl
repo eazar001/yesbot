@@ -24,6 +24,18 @@
 % TODO : Consider giving these predicates more meaningful names.
 
 
+%% return_server(-Server) is nondet.
+%
+% If the server is known get the value from the core. If not, then the server is
+% 'unknown'.
+
+return_server(Server) :-
+  core:known(irc_server) ->
+    core:get_irc_server(Server)
+  ;
+    Server = unknown.
+
+
 %% send_msg(+Type, +Target) is nondet.
 %
 % Send message of Type to a specified Target.
@@ -81,12 +93,7 @@ send_msg(Type, Chan, Target) :-
 send_msg(Type) :-
   cmd(Type, Msg),
   core:get_irc_stream(Stream),
-  (
-     core:known(irc_server) ->
-       core:get_irc_server(Server)
-     ;
-       true
-  ),
+  return_server(Server),
   core:connection(Nick, Pass, Chans, HostName, ServerName, RealName),
   (
      Type = pass,
