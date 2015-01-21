@@ -19,7 +19,8 @@
 :- use_module(library(socket)).
 
 :- dynamic known/1.
-
+:- dynamic get_irc_server/1.
+  
 %--------------------------------------------------------------------------------%
 % Connection Details
 %--------------------------------------------------------------------------------%
@@ -173,20 +174,6 @@ read_server_loop(Reply) :-
   Reply = end_of_file, !.
 
 
-%% get_server_name(+Stream) is nondet.
-%
-% Print the first 5 lines from the server. On the 5th line, get the server
-% hostname (should be on the line that is code 001).
-
-get_server_name(Stream) :-
-  repeat,
-  read_line_to_codes(Stream, Reply),
-  format('~s~n', [Reply]),
-  parse_line(Reply, msg(Server, "001", _, _)),
-  asserta(get_irc_server(Server)),
-  asserta(known(irc_server)), !.
-
-
 %% read_server(-Reply, +Stream) is nondet.
 %
 % Translate server line to codes. If the codes are equivalent to EOF then succeed
@@ -217,17 +204,25 @@ read_server_handle(Reply) :-
 %% process_server(+Reply) is nondet.
 %
 % All processing of server message will be handled here. Pings will be handled by
-% responding with a pong to keep the connection alive. Anything else will be
-% processed as an incoming message. Further server processing extensions should
-% be implemented dynamically in this section.
+% responding with a pong to keep the connection alive. If the message is "001"
+% or a server "welcome", then a successful connection to a server will be
+% assumed. In this case, all instances of get_irc_server/1 will be retracted,
+% and the new server will be asserted for use. It is important that this is
+% serialized with respect to process_msg/1 so as to avoid race conditions.
+% Anything else will be processed as an incoming message.
 
-process_server(Reply) :-
-  parse_line(Reply, Msg),
+process_server(Line) :-
+  parse_line(Line, Msg),
   (
-     Msg = msg("PING", [], Origin) ->
-       send_msg(pong, Origin)
-     ;
-       process_msg(Msg)
+     Msg = msg("PING", [], Origin),
+     send_msg(pong, Origin)
+  ;
+     Msg = msg(Server, "001", _, _),
+     retractall(get_irc_server(_)),
+     asserta(get_irc_server(Server)),
+     asserta(known(irc_server))
+  ;
+     process_msg(Msg)
   ).
 
 
