@@ -168,7 +168,6 @@ prompt_ext_(Es, Module) :-
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
   init_queue(_MQ),
-  get_server_name(Stream),
   repeat,
   read_server(Reply, Stream),
   Reply = end_of_file, !.
