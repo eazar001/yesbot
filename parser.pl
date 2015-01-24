@@ -111,21 +111,15 @@ split_from_trailer(Line, Out) :-
          Out = [Main, Trailer]
     )
   ;
-    split_(First, Line, []) ->
-      (
-         First = [58|Main] ->
-           Out = [has_prefix, Main]
-         ;
-           Main = First,
-           Out = [Main]
-      ).
+    Line = [58|Main] ->
+      Out = [has_prefix, Main]
+    ;
+      Main = Line,
+      Out = [Main].
 
 
 split([]) --> ` :`.
 split([M|Main]) -->
   [M], split(Main).
 
-split_([]) --> [].
-split_([M|Main]) -->
-  [M], split_(Main).
 
