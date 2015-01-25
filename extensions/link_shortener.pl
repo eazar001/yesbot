@@ -104,7 +104,7 @@ url_get_line(Link, Title) :-
             Line = end_of_file ->
 	      Title = []
 	    ;
-              get_title(Title, Line, _), !
+              get_title(Line, Title), !
          )
        ;
          Title = []

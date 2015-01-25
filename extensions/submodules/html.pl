@@ -3,7 +3,7 @@
 
 :- module(html,
 	  [ has_link/4
-	   ,get_title/3 ]).
+	   ,get_title/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -37,38 +37,39 @@ get_link(_, []) --> [].
 
 
 %% html
-%% opening and closing title tag variations
-
-title_open(`<title>`).
-title_open(`<TITLE>`).
-title_open(`<Title>`).
-
-title_close(`</title>`).
-title_close(`</TITLE>`).
-title_close(`</Title>`).
 
 
-%% get_title(-D, +S0, -S) is semidet.
+%% get_title(+Msg, -Title) is semidet.
 %
 % Any sequence that contains the opening 'title' tag is consumed. The following
 % characters are parsed as the title until the closing tag is reached. The
 % characters are stored as a list as they are parsed.
 
-get_title(T) -->
-  {title_open(Tag)},
-  Tag, title(T), !.
+get_title(Msg, Title) :-
+  maplist(to_lower, Msg, Lower),
+  get_title_open(Lower, Msg, T, L),
+  get_title_close(L, T, Title), !.
 
-get_title(T) -->
-  [_], get_title(T).
 
-%% title(-D, +S0, -S) is semidet.
-%
-% Consume any sequence containing the closing title tag and succeed by closing
-% the list of stored contents that reside in the tag.
+%% Return all that follows <title>
 
-title([]) -->
-  {title_close(Tag)},
-  Tag, !.
+get_title_open([60,116,105,116,108,101|R0], [_,_,_,_,_,_|R1], T0, T) :-
+  once(get_title_open_(R0, R1, T0, T)).
 
-title([C|T]) -->
-  [C], title(T).
+get_title_open([_|R0], [_|R1], T0, T) :-
+  get_title_open(R0, R1, T0, T).
+
+
+get_title_open_([62|R0], [_|R1], R1, R0).
+
+get_title_open_([_|R0], [_|R1], T0, T) :-
+  get_title_open_(R0, R1, T0, T).
+
+
+%% Return all that precedes </title>
+get_title_close([60,47,116,105,116,108,101,62|_], _, []).
+
+get_title_close([_|R0], [R|R1], [R|T0]) :-
+  get_title_close(R0, R1, T0).
+
+
