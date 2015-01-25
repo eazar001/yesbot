@@ -33,7 +33,7 @@ Running the bot
 Execute the bot like such:
 ```prolog
 
-swipl -q -O -t 'run' run.pl
+swipl -q -O run.pl
 ```
 
 Extending the bot
