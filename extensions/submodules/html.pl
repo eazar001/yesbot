@@ -2,8 +2,8 @@
 %% Submodule for html related utilities
 
 :- module(html,
-	  [ has_link/4
-	   ,get_title/2 ]).
+     [ has_link/4
+      ,get_title/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -67,9 +67,71 @@ get_title_open_([_|R0], [_|R1], T0, T) :-
 
 
 %% Return all that precedes </title>
+
 get_title_close([60,47,116,105,116,108,101,62|_], _, []).
 
 get_title_close([_|R0], [R|R1], [R|T0]) :-
   get_title_close(R0, R1, T0).
+
+
+
+%--------------------------------------------------------------------------------%
+% Escape Codes
+%--------------------------------------------------------------------------------%
+
+
+html_unescape(E, U) :-
+  once(html_unescape(U0, E, [])),
+  flatten(U0, U).
+
+
+%% Unify with an escape sequence of arbitrary length. If there is a failure then
+%% parse one single character and continue the sequence recursively.
+
+html_unescape([]) --> [].
+html_unescape([C|Cs]) -->
+  escape_sequence([C|Cs]),
+  html_unescape(Cs).
+
+
+%% Parse out decimals in html entities
+
+html_unescape([L|Rest]) -->
+  escape_sequence_num(L),
+  html_unescape(Rest).
+
+
+%% Parse out special html entities
+
+html_unescape(Cs) -->
+  escape_sequence(Cs),
+  html_unescape([]).
+
+
+% Parse a single character
+
+html_unescape([C|Cs]) -->
+  [C], {\+member(C, [38,35,59])},
+  html_unescape(Cs).
+
+
+%% HTML escape sequences
+
+escape_sequence([32|_]) --> `&nbsp;`.
+escape_sequence([34|_]) --> `&quot;`.
+escape_sequence([38|_]) --> `&amp;`.
+escape_sequence([60|_]) --> `&lt;`.
+escape_sequence([62|_]) --> `&gt;`.
+
+
+escape_sequence_num([Dec]) -->
+  `&#`, escape_sequence_num(D),
+  {number_codes(Dec, D)}.
+
+
+escape_sequence_num([]) --> `;`.
+escape_sequence_num([C|Cs]) -->
+  [C], {\+member(C, [38,35,59])},
+  escape_sequence_num(Cs).
 
 

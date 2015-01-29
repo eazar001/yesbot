@@ -7,9 +7,9 @@
 % message through the stream.
 
 :- module(dispatch,
-	  [ send_msg/1,
-	    send_msg/2,
-	    send_msg/3 ]).
+     [ send_msg/1,
+       send_msg/2,
+       send_msg/3 ]).
 
 :- use_module(operator).
 

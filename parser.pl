@@ -3,9 +3,9 @@
 
 
 :- module(parser,
-	  [ parse_line/2
-	   ,prefix_id/2
-	   ,prefix_id/4 ]).
+     [ parse_line/2
+      ,prefix_id/2
+      ,prefix_id/4 ]).
 
 
 /*
