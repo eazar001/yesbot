@@ -141,7 +141,7 @@ escape_sequence_num([Dec]) -->
 
 escape_sequence_num([]) --> `;`.
 escape_sequence_num([C|Cs]) -->
-  [C], {\+member(C, [10,38,35,59])},
+  [C], {\+member(C, [38,35,59])},
   escape_sequence_num(Cs).
 
 
