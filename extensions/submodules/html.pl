@@ -3,7 +3,8 @@
 
 :- module(html,
      [ has_link/4
-      ,get_title/2 ]).
+      ,get_title/2
+      ,html_unescape/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -80,6 +81,10 @@ get_title_close([_|R0], [R|R1], [R|T0]) :-
 %--------------------------------------------------------------------------------%
 
 
+%% html_unescape(+E, -U) is nondet.
+%
+% Unescape a sequence of escaped HTML.
+
 html_unescape(E, U) :-
   once(html_unescape(U0, E, [])),
   flatten(U0, U).
@@ -126,12 +131,17 @@ escape_sequence([62|_]) --> `&gt;`.
 
 escape_sequence_num([Dec]) -->
   `&#`, escape_sequence_num(D),
-  {number_codes(Dec, D)}.
+  {
+     number_codes(10, D) ->
+       Dec = 32
+     ;
+       number_codes(Dec, D)
+  }.
 
 
 escape_sequence_num([]) --> `;`.
 escape_sequence_num([C|Cs]) -->
-  [C], {\+member(C, [38,35,59])},
+  [C], {\+member(C, [10,38,35,59])},
   escape_sequence_num(Cs).
 
 

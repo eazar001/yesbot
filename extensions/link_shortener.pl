@@ -53,7 +53,8 @@ link_shortener(Msg) :-
           Title = [] ->
             true
           ;
-            send_msg(priv_msg, Title, Chan)
+	    html_unescape(Title, T),
+            send_msg(priv_msg, T, Chan)
        ),
        send_msg(priv_msg, Tiny, Chan)
      ;
@@ -62,7 +63,8 @@ link_shortener(Msg) :-
           Title = [] ->
 	    true
           ;
-	    send_msg(priv_msg, Title, Chan)
+	    html_unescape(Title, T),
+	    send_msg(priv_msg, T, Chan)
        )
   ),
   core:get_irc_stream(Stream),
