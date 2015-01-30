@@ -4,7 +4,7 @@
       ,port/1
       ,nick/1
       ,pass/1
-      ,chan/1
+      ,chans/1
       ,bot_hostname/1
       ,bot_servername/1
       ,bot_realname/1 ]).
@@ -19,7 +19,7 @@
 %port(6667).
 %nick(mybot).
 %pass(passhere).
-%chan(
+%chans(
 %  [ '##prolog'
 %   ,'##math' ]).
 
