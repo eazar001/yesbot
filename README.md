@@ -17,7 +17,7 @@ host('chat.freenode.net').
 port(6667).
 nick(mybotname).
 pass('mypasshere1234').
-chan(
+chans(
   [ '##math'
    ,'##prolog' ]).
 
