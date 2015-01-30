@@ -18,7 +18,7 @@ port(6667).
 nick(mybotname).
 pass('mypasshere1234').
 chan(
-  [ '##math').
+  [ '##math'
    ,'##prolog' ]).
 
 bot_hostname(hostname).
