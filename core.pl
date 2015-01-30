@@ -69,7 +69,8 @@ register_and_join :-
 init_structs :-
   nick(N_),
   pass(P_),
-  chans(Chans),
+  chans(Chans_),
+  maplist(atom_string, Chans_, Chans),
   bot_hostname(Hn_),
   bot_servername(Sn_),
   bot_realname(Rn_),

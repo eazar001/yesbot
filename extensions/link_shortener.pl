@@ -40,8 +40,7 @@
 link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
   core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
-  member(Ch, Chans),
-  atom_string(Ch, Chan), !,
+  member(Chan, Chans), !,
   has_link(_, L, M, _),
   atom_codes(Link, L),
   length(L, N),
