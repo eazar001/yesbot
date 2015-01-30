@@ -19,8 +19,9 @@
 %port(6667).
 %nick(mybot).
 %pass(passhere).
-%chan('##prolog').
-%chan('##math').
+%chan(
+%  [ '##prolog'
+%   ,'##math' ]).
 
 % Constants for user registration specs
 %bot_hostname(hostname).
