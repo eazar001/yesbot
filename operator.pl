@@ -23,46 +23,46 @@ cmd(notice, 'NOTICE ~s :~s\r~n').
 cmd(priv_msg, 'PRIVMSG ~s :~s\r~n').
 
 % TIME [Server]
-cmd(time, 'TIME ~a\r~n').
+cmd(time, 'TIME ~s\r~n').
 
 % KICK [Chan, Target]
-cmd(kick, 'KICK ~a ~a\r~n').
+cmd(kick, 'KICK ~s ~s\r~n').
 
 % INVITE [Target, Chan]
-cmd(invite, 'INVITE ~a ~a\r~n').
+cmd(invite, 'INVITE ~s ~s\r~n').
 
 % NAMES [CSV] (a csv of channels)
-cmd(names, 'NAMES ~a\r~n').
+cmd(names, 'NAMES ~s\r~n').
 
 % LIST [CSV] (a csv of channels)
-cmd(list, 'LIST ~a\r~n').
+cmd(list, 'LIST ~s\r~n').
 
 % TOPIC [Chan, Topic]
-cmd(topic, 'TOPIC ~a ~a\r~n').
+cmd(topic, 'TOPIC ~s ~s\r~n').
 
 % MODE [+/-, Mode, NICK]
-cmd(user_mode, 'MODE ~a~a ~a\r~n').
+cmd(user_mode, 'MODE ~s~s ~s\r~n').
 
 % PART [CSV] (a csv of channels)
-cmd(part, 'PART ~a\r~n').
+cmd(part, 'PART ~s\r~n').
 
 % PING [Target]
-cmd(ping, 'PING ~a\r~n').
+cmd(ping, 'PING ~s\r~n').
 
 % PONG [Target]
 cmd(pong, 'PONG ~s\r~n').
 
 % PASS [Pass]
-cmd(pass, 'PASS ~a\r~n').
+cmd(pass, 'PASS ~s\r~n').
 
 % USER [Nick, HostName, ServerName, RealName]
-cmd(user, 'USER ~a ~a ~a :~a\r~n').
+cmd(user, 'USER ~s ~s ~s :~s\r~n').
 
 % NICK [Nick]
-cmd(nick, 'NICK ~a\r~n').
+cmd(nick, 'NICK ~s\r~n').
 
 % JOIN [Chan]
-cmd(join, 'JOIN ~a\r~n').
+cmd(join, 'JOIN ~s\r~n').
 
 % QUIT
 cmd(quit, 'QUIT :disconnect\r\n').
