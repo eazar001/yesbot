@@ -83,7 +83,8 @@ send_msg(Type, Chan, Target) :-
   ;
      Type = invite,
      format(Stream, Msg, [Target, Chan])
-  ).
+  ),
+  flush_output(Stream).
 
 
 %% send_msg(+Type) is nondet.
