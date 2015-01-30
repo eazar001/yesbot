@@ -35,12 +35,10 @@
 connect :-
   host(Host),
   port(Port),
-  nick(Nick),
-  pass(Pass),
   setup_call_cleanup(
     (
        init_extensions,
-       init_structs(Nick, Pass),
+       init_structs,
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
        asserta(get_irc_stream(Stream)),
@@ -62,25 +60,23 @@ register_and_join :-
   send_msg(join).
 
 
-%% init_structs(+Nick, +Pass) is det.
+%% init_structs is det.
 %
 % Assert the 'connection' structure at the top level so that access to important
 % user information is available at the top level throughout the program. All of
 % this information should be specified in the bot_config module.
 
-init_structs(Nick, Pass) :-
-  bot_hostname(HostName),
-  bot_servername(ServerName),
-  bot_realname(RealName),
+init_structs :-
+  nick(N_),
+  pass(P_),
   chans(Chans),
-  Connect = connection(
-    Nick
-   ,Pass
-   ,Chans
-   ,HostName
-   ,ServerName
-   ,RealName),
-  asserta(Connect).
+  bot_hostname(Hn_),
+  bot_servername(Sn_),
+  bot_realname(Rn_),
+  maplist(atom_string, [N_, P_, Hn_, Sn_, Rn_], Strs),
+  Strs = [N, P, Hn, Sn, Rn],
+  Connection =.. [connection, N, P, Chans, Hn, Sn, Rn],
+  asserta(Connection).
 
 
 %--------------------------------------------------------------------------------%
