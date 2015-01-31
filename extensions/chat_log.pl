@@ -74,10 +74,24 @@ write_chat_line(Date, Nick, Chan, Log) :-
   setup_call_cleanup(
     open(Filename, append, Fstream, []),
     (
-       format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log]),
+       (
+         get_action(Log, Action) ->
+           format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
+         ;
+           format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
+       ),
        flush_output(Fstream),
        working_directory(_Return, '../../')
     ),
     close(Fstream)
   ).
 
+
+%% get_action(+Log, -Action) is semidet.
+%
+% True if first and last element of code list is decimal code 1. This signifies
+% an action, which is part of CTCP.
+
+get_action([1|Log], Action) :-
+  selectchk(1, Log, Rest),
+  append(`ACTION`, Action, Rest).
