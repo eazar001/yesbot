@@ -38,6 +38,10 @@
 % This predicate will only succeed if Recip is identical to Chan
 
 link_shortener(Msg) :-
+  thread_create(ignore(link_shortener_(Msg)), _Id, [detached(true)]).
+
+
+link_shortener_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
   core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
@@ -52,7 +56,7 @@ link_shortener(Msg) :-
           Title = [] ->
             true
           ;
-	    html_unescape(Title, T),
+	    unescape_title(Title, T),
             send_msg(priv_msg, T, Chan)
        ),
        send_msg(priv_msg, Tiny, Chan)
@@ -62,13 +66,26 @@ link_shortener(Msg) :-
           Title = [] ->
 	    true
           ;
-	    html_unescape(Title, T),
+	    unescape_title(Title, T),
 	    send_msg(priv_msg, T, Chan)
        )
   ),
   core:get_irc_stream(Stream),
   flush_output(Stream).
 
+
+%% unescape_title(+Title, -T) is det.
+%
+% If the Title contains escape characters then format the title for appropriate
+% viewing by unescaping them. If there are no escape characters, then the
+% formatted title is simply the same as the original.
+
+unescape_title(Title, T) :-
+  html_unescape(Title, T) ->
+    true
+  ;
+    T = Title.
+  
 
 %--------------------------------------------------------------------------------%
 % Link Shortening
@@ -96,7 +113,9 @@ make_tiny(Link, Title, Tiny) :-
 url_get_line(Link, Title) :-
   setup_call_cleanup(
     http_open(Link, Stream,
-      [header('Content-Type', Type), cert_verify_hook(cert_verify)]),
+      [ header('Content-Type', Type)
+       ,cert_verify_hook(cert_verify)
+       ,timeout(20) ]),
     (
        (atom_concat('text/html', _, Type) ; Type = '') ->
          repeat,
@@ -124,7 +143,7 @@ cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
 
 visit_url(Link, Reply) :-
   setup_call_catcher_cleanup(
-    http_open(Link, Stream, []),
+    http_open(Link, Stream, [timeout(20)]),
     read_stream_to_codes(Stream, Reply),
     E = no_error,
     close(Stream)),
