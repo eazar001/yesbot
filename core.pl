@@ -281,7 +281,7 @@ process_msg(Msg) :-
 %% disconnect is det.
 %
 % Clean up top level information access structures, issue a disconnect command
-% to the irc server, and close the socket stream pair.
+% to the irc server, close the socket stream pair, and attempt to reconnect.
 
 disconnect :-
   get_irc_stream(Stream),
@@ -292,6 +292,7 @@ disconnect :-
   retractall(get_irc_server(_)),
   thread_signal(msg_handler, throw(thread_quit)),
   message_queue_destroy(mq),
-  close(Stream).
+  close(Stream),
+  connect.
 
 
