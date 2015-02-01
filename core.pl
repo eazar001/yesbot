@@ -290,7 +290,7 @@ disconnect :-
   retractall(connection(_,_,_,_,_,_)),
   retractall(extensions(_,_)),
   retractall(get_irc_server(_)),
-  thread_signal(msg_handler, throw(thread_quit)),
+  thread_detach(msg_handler),
   message_queue_destroy(mq),
   close(Stream),
   connect.
