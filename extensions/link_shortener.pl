@@ -100,7 +100,9 @@ make_tiny(Link, Title, Tiny) :-
 url_get_line(Link, Title) :-
   setup_call_cleanup(
     http_open(Link, Stream,
-      [header('Content-Type', Type), cert_verify_hook(cert_verify)]),
+      [ header('Content-Type', Type)
+       ,cert_verify_hook(cert_verify)
+       ,timeout(20) ]),
     (
        (atom_concat('text/html', _, Type) ; Type = '') ->
          repeat,
@@ -128,7 +130,7 @@ cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
 
 visit_url(Link, Reply) :-
   setup_call_catcher_cleanup(
-    http_open(Link, Stream, []),
+    http_open(Link, Stream, [timeout(20)]),
     read_stream_to_codes(Stream, Reply),
     E = no_error,
     close(Stream)),
