@@ -56,7 +56,7 @@ link_shortener_(Msg) :-
           Title = [] ->
             true
           ;
-	    html_unescape(Title, T),
+	    unescape_title(Title, T),
             send_msg(priv_msg, T, Chan)
        ),
        send_msg(priv_msg, Tiny, Chan)
@@ -66,13 +66,26 @@ link_shortener_(Msg) :-
           Title = [] ->
 	    true
           ;
-	    html_unescape(Title, T),
+	    unescape_title(Title, T),
 	    send_msg(priv_msg, T, Chan)
        )
   ),
   core:get_irc_stream(Stream),
   flush_output(Stream).
 
+
+%% unescape_title(+Title, -T) is det.
+%
+% If the Title contains escape characters then format the title for appropriate
+% viewing by unescaping them. If there are no escape characters, then the
+% formatted title is simply the same as the original.
+
+unescape_title(Title, T) :-
+  html_unescape(Title, T) ->
+    true
+  ;
+    T = Title.
+  
 
 %--------------------------------------------------------------------------------%
 % Link Shortening
