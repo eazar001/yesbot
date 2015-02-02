@@ -69,9 +69,7 @@ link_shortener_(Msg) :-
 	    unescape_title(Title, T),
 	    send_msg(priv_msg, T, Chan)
        )
-  ),
-  core:get_irc_stream(Stream),
-  flush_output(Stream).
+  ).
 
 
 %% unescape_title(+Title, -T) is det.
