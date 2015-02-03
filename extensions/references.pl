@@ -15,7 +15,7 @@
 :- use_module(dispatch).
 :- use_module(submodules/html).
 
-chan("#testeazarbot").
+chan("##prolog").
 
 references(Msg) :-
   chan(Chan),
