@@ -20,7 +20,9 @@
 
 :- dynamic known/1.
 :- dynamic get_irc_server/1.
-  
+:- dynamic get_irc_stream/1.
+:- dynamic connection/6.
+
 %--------------------------------------------------------------------------------%
 % Connection Details
 %--------------------------------------------------------------------------------%
@@ -84,22 +86,7 @@ init_structs :-
 % Extension Loading
 %--------------------------------------------------------------------------------%
 
-
-%% preload_exists(-Extensions) is det.
-%
-% Check whether or not the preload setting is enabled in the configuration file.
-% If it is, then the extensions list will be the one predetermined by preload/1.
-% If not, the extensions directory is sourced and the user is prompted for action.
-
-preload_exists(Extensions) :-
-  current_predicate(config:preload/1) ->
-    config:preload(Extensions)
-  ;
-    directory_files(extensions, Ms),
-    include(core:is_extension, Ms, Modules),
-    maplist(core:make_goal, Modules, Es),
-    prompt_ext(Es, Extensions).
-
+:- dynamic extensions/2.
 
 %% init_extensions is det.
 %
@@ -107,7 +94,7 @@ preload_exists(Extensions) :-
 % Import all the modules afterwards.
 
 init_extensions :-
-  preload_exists(Extensions),
+  desired_extensions(Extensions),
   length(Extensions, N),
   asserta(extensions(Extensions, N)),
   maplist(import_extension_module, Extensions).
@@ -150,7 +137,7 @@ prompt_ext_(Es, Module) :-
   format('Load "~a" extension? > ', [Module]),
   read(y).
 
-   
+
 %--------------------------------------------------------------------------------%
 % Server Routing
 %--------------------------------------------------------------------------------%
