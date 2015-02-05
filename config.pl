@@ -44,9 +44,9 @@
 	   'list of extensions to load').
 
 % Constants for user registration specs
-:- setting(bot_hostname, atom, use_host,
+:- setting(bot_hostname, atom, hostname,
 	   'User Registration host- name of local server.').
-:- setting(bot_servername, atom, use_host,
+:- setting(bot_servername, atom, servername,
     'User Registration server- usually same as host. Use use_host to make it same').
 :- setting(realname, atom, anonymous, 'Bot owner\'s real name').
 

@@ -10,24 +10,28 @@ Yesbot
 Configuration
 =============
 
-The first required step is to configure the bot. Here is a sample template for `config.pl`
-```prolog
+The first required step is to configure the bot using the settings tools in SWI-Prolog. 
 
-host('chat.freenode.net').
-port(6667).
-nick(mybotname).
-pass('mypasshere1234').
-chans(
-  [ '##math'
-   ,'##prolog' ]).
+Look at config.pl 
 
-bot_hostname(hostname).
-bot_servername(servername).
-bot_realname(realname).
+Any settings you need to change, you can change by 
 
-% Add this line for custom list of preloaded extensions
-preload([link_shortener, chat_log]).
-```
+?- setting(config:nick, examplebot).
+
+When done persist them with 
+
+?- save_settings.
+
+They'll be saved in a new file, settings.db, in your working directory.
+
+This file should not be added to git's managed files.
+
+settings.db can be edited manually if you desire.
+
+Do be aware that the default logs the bot onto ##prolog and ##math
+
+Please bot responsibly.
+
 
 Running the bot
 ===============
