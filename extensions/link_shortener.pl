@@ -120,15 +120,40 @@ url_get_line(Link, Title) :-
          read_line_to_codes(Stream, Line),
          (
             Line = end_of_file ->
-	      Title = []
+	      url_get_line_retry(Link, Title)
 	    ;
-              get_title(Line, Title), !
+	      get_title(Line, Title), !
          )
        ;
          Title = []
     ),
     close(Stream)
   ).
+
+
+url_get_line_retry(Link, Title) :-
+  url_get_all_lines(Link, Codes),
+  get_title(Codes, Title).
+
+
+url_get_all_lines(Link, Codes) :-
+  setup_call_cleanup(
+    http_open(Link, Stream,
+      [ header('Content-Type', Type)
+       ,cert_verify_hook(cert_verify)
+       ,timeout(20) ]),
+    (
+       (atom_concat('text/html', _, Type) ; Type = ''),
+       read_stream_to_codes(Stream, C),
+       maplist(call(link_shortener:change), C, Codes)
+    ),
+    close(Stream)
+  ).
+
+
+change(10, 32).
+change(X, X) :- X \= 10.
+
 
 
 cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
