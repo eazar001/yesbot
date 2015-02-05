@@ -106,7 +106,7 @@ make_tiny(Link, Title, Tiny) :-
   visit_url(Full, Tiny).
 
 
-%% NOTE : Should really handle headers that don't report content-type properly
+%% NOTE : Implement failsafe to stop parsing after 1024 chars
 
 url_get_line(Link, Title) :-
   setup_call_cleanup(
@@ -122,7 +122,7 @@ url_get_line(Link, Title) :-
             Line = end_of_file ->
 	      url_get_line_retry(Link, Title)
 	    ;
-	      get_title(Line, Title), !
+	      get_title(Line, Title)
          )
        ;
          Title = []
@@ -153,7 +153,6 @@ url_get_all_lines(Link, Codes) :-
 
 change(10, 32).
 change(X, X) :- X \= 10.
-
 
 
 cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-

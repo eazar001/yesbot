@@ -54,23 +54,34 @@ get_title(Msg, Title) :-
 
 %% Return all that follows <title>
 
-get_title_open([60,116,105,116,108,101|R0], [_,_,_,_,_,_|R1], T0, T) :-
+% Encounters title tag opening <title ..>
+get_title_open([60,116,105,116,108,101,32|R0], [_,_,_,_,_,_|R1], T0, T) :-
   once(get_title_open_(R0, R1, T0, T)).
 
+
+% ... Or encounters title tag opening <title>
+get_title_open([60,116,105,116,108,101,62|R0], [_,_,_,_,_,_,_|R1], R1, R0).
+
+
+% Parsing one char
 get_title_open([_|R0], [_|R1], T0, T) :-
   get_title_open(R0, R1, T0, T).
 
 
+% Encounters end of title tag opening <title ..>
 get_title_open_([62|R0], [_|R1], R1, R0).
 
+% Parsing one char
 get_title_open_([_|R0], [_|R1], T0, T) :-
   get_title_open_(R0, R1, T0, T).
 
 
 %% Return all that precedes </title>
 
+% Encounters title tag closing </title>
 get_title_close([60,47,116,105,116,108,101,62|_], _, []).
 
+% Parsing one char
 get_title_close([_|R0], [R|R1], [R|T0]) :-
   get_title_close(R0, R1, T0).
 
