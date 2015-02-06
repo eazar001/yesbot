@@ -120,14 +120,15 @@ url_get_line(Link, Title) :-
          read_line_to_codes(Stream, Line),
          (
             Line = end_of_file ->
-	      url_get_line_retry(Link, Title)
+	      R = retry(true)
 	    ;
-	      get_title(Line, Title)
+	      R = retry(false), get_title(Line, Title)
          )
        ;
          Title = []
     ),
-    close(Stream)
+    ((R = retry(true) -> url_get_line_retry(Link, Title) ; true),
+    close(Stream))
   ).
 
 

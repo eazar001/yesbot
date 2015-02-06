@@ -48,42 +48,48 @@ get_link(_, []) --> [].
 
 get_title(Msg, Title) :-
   maplist(to_lower, Msg, Lower),
-  get_title_open(Lower, Msg, T, L),
-  get_title_close(L, T, Title), !.
+  get_title_open(0, Lower, Msg, T, L),
+  get_title_close(0, L, T, Title), !.
 
 
 %% Return all that follows <title>
 
 % Encounters title tag opening <title ..>
-get_title_open([60,116,105,116,108,101,32|R0], [_,_,_,_,_,_|R1], T0, T) :-
-  once(get_title_open_(R0, R1, T0, T)).
+get_title_open(N, [60,116,105,116,108,101,32|R0], [_,_,_,_,_,_|R1], T0, T) :-
+  once(get_title_open_(N, R0, R1, T0, T)).
 
 
 % ... Or encounters title tag opening <title>
-get_title_open([60,116,105,116,108,101,62|R0], [_,_,_,_,_,_,_|R1], R1, R0).
+get_title_open(_N, [60,116,105,116,108,101,62|R0], [_,_,_,_,_,_,_|R1], R1, R0).
 
 
 % Parsing one char
-get_title_open([_|R0], [_|R1], T0, T) :-
-  get_title_open(R0, R1, T0, T).
+get_title_open(N, [_|R0], [_|R1], T0, T) :-
+  N =< 1048576,
+  N0 is N+1,
+  get_title_open(N0, R0, R1, T0, T).
 
 
 % Encounters end of title tag opening <title ..>
-get_title_open_([62|R0], [_|R1], R1, R0).
+get_title_open_(_N, [62|R0], [_|R1], R1, R0).
 
 % Parsing one char
-get_title_open_([_|R0], [_|R1], T0, T) :-
-  get_title_open_(R0, R1, T0, T).
+get_title_open_(N, [_|R0], [_|R1], T0, T) :-
+  N =< 1049088,
+  N0 is N+1,
+  get_title_open_(N0, R0, R1, T0, T).
 
 
 %% Return all that precedes </title>
 
 % Encounters title tag closing </title>
-get_title_close([60,47,116,105,116,108,101,62|_], _, []).
+get_title_close(_N, [60,47,116,105,116,108,101,62|_], _, []).
 
 % Parsing one char
-get_title_close([_|R0], [R|R1], [R|T0]) :-
-  get_title_close(R0, R1, T0).
+get_title_close(N, [_|R0], [R|R1], [R|T0]) :-
+  N =< 512,
+  N0 is N+1,
+  get_title_close(N0, R0, R1, T0).
 
 
 
