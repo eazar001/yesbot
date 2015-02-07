@@ -106,8 +106,6 @@ make_tiny(Link, Title, Tiny) :-
   visit_url(Full, Tiny).
 
 
-%% NOTE : Implement failsafe to stop parsing after 1024 chars
-
 url_get_line(Link, Title) :-
   setup_call_cleanup(
     http_open(Link, Stream,
@@ -129,7 +127,7 @@ url_get_line(Link, Title) :-
     ),
     ((R = retry(true) -> url_get_line_retry(Link, Title) ; true),
     close(Stream))
-  ).
+  ), !.
 
 
 url_get_line_retry(Link, Title) :-
