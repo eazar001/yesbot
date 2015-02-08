@@ -113,7 +113,13 @@ url_get_title(Link, Title) :-
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
     (
-       (atom_concat('text/html', _, Type), Opts = [max_errors(-1)]; Type = '', Opts = [max_errors(50)]) ->
+       (
+          atom_concat('text/html', _, Type),
+	  Opts = [max_errors(-1)]
+       ;
+	  Type = '',
+	  Opts = [max_errors(50)]
+       ) ->
          load_html(Stream, Structure, Opts),
          xpath_chk(Structure, //title, Tstruct),
          Tstruct = element(title, _, [T0]), string_codes(T0, T),
