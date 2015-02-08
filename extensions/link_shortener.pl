@@ -19,7 +19,7 @@
 :- use_module(submodules/html).
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_ssl_plugin)).
-
+:- use_module(library(xpath)).
 
 %--------------------------------------------------------------------------------%
 % Main Extension
@@ -61,7 +61,7 @@ link_shortener_(Msg) :-
        ),
        send_msg(priv_msg, Tiny, Chan)
      ;
-       url_get_line(Link, Title) ->
+       url_get_title(Link, Title) ->
        (
           Title = [] ->
 	    true
@@ -100,58 +100,35 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 % greater than or equal to 100 characters in length.
 
 make_tiny(Link, Title, Tiny) :-
-  url_get_line(Link, Title),
+  url_get_title(Link, Title),
   tiny_form(F),
   string_concat(F, Link, Full),
   visit_url(Full, Tiny).
 
 
-url_get_line(Link, Title) :-
+url_get_title(Link, Title) :-
   setup_call_cleanup(
     http_open(Link, Stream,
       [ header('Content-Type', Type)
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
     (
-       (atom_concat('text/html', _, Type) ; Type = '') ->
-         repeat,
-         read_line_to_codes(Stream, Line),
-         (
-            Line = end_of_file ->
-	      R = retry(true)
-	    ;
-	      R = retry(false), get_title(Line, Title)
-         )
+       (atom_concat('text/html', _, Type), Opts = [max_errors(-1)]; Type = '', Opts = [max_errors(50)]) ->
+         load_html(Stream, Structure, Opts),
+         xpath_chk(Structure, //title, Tstruct),
+         Tstruct = element(title, _, [T0]), string_codes(T0, T),
+         maplist(link_shortener:change, T, Title)
        ;
          Title = []
-    ),
-    ((R = retry(true) -> url_get_line_retry(Link, Title) ; true),
-    close(Stream))
-  ), !.
-
-
-url_get_line_retry(Link, Title) :-
-  url_get_all_lines(Link, Codes),
-  get_title(Codes, Title).
-
-
-url_get_all_lines(Link, Codes) :-
-  setup_call_cleanup(
-    http_open(Link, Stream,
-      [ header('Content-Type', Type)
-       ,cert_verify_hook(cert_verify)
-       ,timeout(20) ]),
-    (
-       (atom_concat('text/html', _, Type) ; Type = ''),
-       read_stream_to_codes(Stream, C),
-       maplist(call(link_shortener:change), C, Codes)
     ),
     close(Stream)
   ).
 
 
 change(10, 32).
-change(X, X) :- X \= 10.
+change(X, 32) :- X < 10.
+change(X, 63) :- X > 255.
+change(X, X) :- X > 10, X =< 255.
 
 
 cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
