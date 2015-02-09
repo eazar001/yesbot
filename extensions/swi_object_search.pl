@@ -28,29 +28,66 @@ swi_object_search(Msg) :-
 
 
 swi_object_search_(Msg) :-
+  setup_call_cleanup(
+    do_search(Msg, Link, Stream),
+    parse_structure(Link, Stream),
+    close(Stream)
+  ).
+
+do_search(Msg, Link, Stream) :-
+  chan(Chan),
   % Message should begin with the prefix ?search
   Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,101,97,114,99,104,32|C]),
   search_form(Form),
   string_codes(O, C),
   string_concat(Form, O, Link),
-  http_open(Link, Stream, [timeout(20)]),
-  load_html(Stream, Structure, [dialect(html5)]),
-  (
-    xpath_chk(Structure, //dt(@class=pubdef), Table) ->
-      xpath_chk(Table, //strong, Strong),
-      xpath_chk(Table, //var, Var),
-      Strong = element(strong, _, [Functor]),
-      Var = element(var, _, [Vars]),
-      split_string(Vars, ",", ",", Args),
-      Term =.. [Functor|Args],
-      term_string(Term, Str),
-      string_codes(Str, Codes),
-      delete(Codes, 34, O1),
-      selectchk(10, O1, Object),
-      send_msg(priv_msg, Object, Chan),
-      send_msg(priv_msg, Link, Chan)
-    ;
-      send_msg(priv_msg, "No matching object found", Chan)
-  ).
+  http_open(Link, Stream, [timeout(20)]).
 
+
+parse_structure(Link, Stream) :-
+  chan(Chan),
+  load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
+  found_object(Structure, Link, Chan).
   
+
+found_object(Structure, Link, Chan) :-
+  one_or_more(Link, Chan, Structure), !.
+
+found_object(Structure, Link, Chan) :-
+  zero(Link, Chan, Structure) ->
+    true
+  ;
+    send_msg(priv_msg, "No matching object found", Chan).
+
+
+zero(Link, Chan, Structure) :-
+  xpath_chk(Structure, //dt(@class=pubdef), Table),
+  xpath_chk(Table, //strong, Strong),
+  Strong = element(strong, _, [Functor]),
+  Term =.. [Functor],
+  term_string(Term, Object),
+  send_msg(priv_msg, Object, Chan),
+  send_msg(priv_msg, Link, Chan).
+
+
+one_or_more(Link, Chan, Structure) :-
+  xpath_chk(Structure, //dt(@class=pubdef), Table),
+  xpath_chk(Table, //strong, Strong),
+  xpath_chk(Table, //var, Var),
+  Strong = element(strong, _, [Functor]),
+  Var = element(var, _, [Vars]),
+  split_string(Vars, ",", ",", Args),
+  Term =.. [Functor|Args],
+  term_string(Term, Str),
+  string_codes(Str, Codes),
+  delete(Codes, 34, O1),
+  (
+     selectchk(10, O1, Object) ->
+       true
+     ;
+       Object = O1
+  ),
+  send_msg(priv_msg, Object, Chan),
+  send_msg(priv_msg, Link, Chan).
+
+
