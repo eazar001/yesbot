@@ -11,12 +11,6 @@
 %--------------------------------------------------------------------------------%
 
 
-%% NOTE : It is more robust to actually parse these tags from the whole stream
-%% using library(SGML). However, the disadvantage there is that you lose the
-%% ability to parse lazily and close the connection early. So in a module like
-%% this it is probably more beneficial to performance to implement in a way
-%% that resembles what is below.
-
 %% parse for existence of a link in a sequence of characters
 
 has_link(http, [104,116,116,112,58,47,47|L]) -->
