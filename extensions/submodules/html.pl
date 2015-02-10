@@ -10,6 +10,10 @@
 % Utilities for IRC/Private Mesages
 %--------------------------------------------------------------------------------%
 
+% Illegal chars
+illegal(60).
+illegal(62).
+illegal(34).
 
 %% parse for existence of a link in a sequence of characters
 
@@ -25,7 +29,8 @@ has_link(Protocol, L) -->
 get_link(_, []) --> [32|_], !.
 
 get_link(Protocol, [C|L]) -->
-  [C], get_link(Protocol, L).
+  [C], {\+illegal(C)},
+  get_link(Protocol, L).
 
 get_link(_, []) --> [].
 
