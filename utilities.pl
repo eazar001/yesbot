@@ -3,8 +3,8 @@
 
 
 :- module(utilities,
-	  [ run_det/1
-	   ,run_det/3 ]).
+     [ run_det/1
+      ,run_det/3 ]).
 
 
 %% run_det(+Msg, +Extension, -E) is det.

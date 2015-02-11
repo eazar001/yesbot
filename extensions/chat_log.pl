@@ -33,10 +33,11 @@ chat_log(Msg) :-
   member(Chan, Chans), !,
   prefix_id(Prefix, Nick, _, _),
   (
-     exists_directory('extensions/chat-logs') ->
-       true
-     ;
-       make_directory('extensions/chat-logs')
+     exists_directory('extensions/chat-logs')
+  ->
+     true
+  ;
+     make_directory('extensions/chat-logs')
   ),
   get_time(Time),
   stamp_date_time(Time, Date, local),
@@ -64,21 +65,25 @@ write_chat_line(Date, Nick, Chan, Log) :-
      asserta(known(yes, Current_Day, Filename)), !
   ;
      known(yes, Stored_Day, Filename),
-     Current_Day = Stored_Day ->
-       true
+     (
+        Current_Day = Stored_Day
+     ->
+        true
      ;
-       retractall(known(_, _, _)),
-       asserta(known(yes, Current_Day, Filename))
+        retractall(known(_, _, _)),
+        asserta(known(yes, Current_Day, Filename))
+     )
   ),
   known(yes, _, Filename),
   setup_call_cleanup(
     open(Filename, append, Fstream, []),
     (
        (
-         get_action(Log, Action) ->
-           format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
-         ;
-           format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
+	  get_action(Log, Action)
+       ->
+          format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
+       ;
+          format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
        ),
        flush_output(Fstream),
        working_directory(_Return, '../../')
