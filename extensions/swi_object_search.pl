@@ -54,10 +54,13 @@ found_object(Structure, Link, Chan) :-
   one_or_more(Link, Chan, Structure), !.
 
 found_object(Structure, Link, Chan) :-
-  zero(Link, Chan, Structure) ->
-    true
+  (
+     zero(Link, Chan, Structure)
+  ->
+     true
   ;
-    send_msg(priv_msg, "No matching object found", Chan).
+     send_msg(priv_msg, "No matching object found", Chan)
+  ).
 
 
 zero(Link, Chan, Structure) :-
@@ -82,10 +85,11 @@ one_or_more(Link, Chan, Structure) :-
   string_codes(Str, Codes),
   delete(Codes, 34, O1),
   (
-     selectchk(10, O1, Object) ->
-       true
-     ;
-       Object = O1
+     selectchk(10, O1, Object)
+  ->
+     true
+  ;
+     Object = O1
   ),
   send_msg(priv_msg, Object, Chan),
   send_msg(priv_msg, Link, Chan).
