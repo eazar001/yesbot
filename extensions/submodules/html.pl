@@ -91,10 +91,11 @@ escape_sequence([62|_]) --> `&gt;`.
 escape_sequence_num([Dec]) -->
   `&#`, escape_sequence_num(D),
   {
-     number_codes(10, D) ->
-       Dec = 32
-     ;
-       number_codes(Dec, D)
+     number_codes(10, D)
+  ->
+     Dec = 32
+  ;
+     number_codes(Dec, D)
   }.
 
 

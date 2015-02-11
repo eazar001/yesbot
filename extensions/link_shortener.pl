@@ -50,25 +50,30 @@ link_shortener_(Msg) :-
   length(L, N),
   (
      % shorten link if 100 or more characters in length
-     N >= 100 ->
-       make_tiny(Link, Title, Tiny),
-       (
-          Title = [] ->
-            true
-          ;
-	    unescape_title(Title, T),
-            send_msg(priv_msg, T, Chan)
-       ),
-       send_msg(priv_msg, Tiny, Chan)
+     (
+        N >= 100
+     ->
+        make_tiny(Link, Title, Tiny),
+        (
+	   Title = []
+	->
+           true
+	;
+	   unescape_title(Title, T),
+           send_msg(priv_msg, T, Chan)
+        ),
+        send_msg(priv_msg, Tiny, Chan)
      ;
-       url_get_title(Link, Title) ->
-       (
-          Title = [] ->
-	    true
-          ;
-	    unescape_title(Title, T),
-	    send_msg(priv_msg, T, Chan)
-       )
+        url_get_title(Link, Title) ->
+        (
+           Title = []
+        ->
+	   true
+        ;
+	   unescape_title(Title, T),
+	   send_msg(priv_msg, T, Chan)
+        )
+     )
   ).
 
 
@@ -79,10 +84,13 @@ link_shortener_(Msg) :-
 % formatted title is simply the same as the original.
 
 unescape_title(Title, T) :-
-  html_unescape(Title, T) ->
-    true
+  (
+     html_unescape(Title, T)
+  ->
+     true
   ;
-    T = Title.
+     T = Title
+  ).
   
 
 %--------------------------------------------------------------------------------%
@@ -119,13 +127,14 @@ url_get_title(Link, Title) :-
        ;
 	  Type = '',
 	  Opts = [max_errors(50)]
-       ) ->
-         load_html(Stream, Structure, Opts),
-         xpath_chk(Structure, //title, Tstruct),
-         Tstruct = element(title, _, [T0]), string_codes(T0, T),
-         maplist(link_shortener:change, T, Title)
-       ;
-         Title = []
+       )
+    ->
+       load_html(Stream, Structure, Opts),
+       xpath_chk(Structure, //title, Tstruct),
+       Tstruct = element(title, _, [T0]), string_codes(T0, T),
+       maplist(link_shortener:change, T, Title)
+    ;
+       Title = []
     ),
     close(Stream)
   ).

@@ -86,6 +86,7 @@ init_structs :-
 % Extension Loading
 %--------------------------------------------------------------------------------%
 
+
 :- dynamic extensions/2.
 
 %% init_extensions is det.
@@ -105,39 +106,6 @@ import_extension_module(Extension) :-
   use_module(extensions/Extension).
 
 
-%% All extension candidates end in '.pl'
-is_extension(X) :-
-  atom_codes(X, Codes),
-  is_extension(Codes, []).
-
-is_extension --> `.pl`.
-is_extension --> [_], is_extension.
-
-
-%% transform files into goals per the rules of the system
-make_goal(File, Goal) :-
-  once(sub_atom(File, _, _, 3, F)),
-  Goal =.. [F].
-
-
-%% prompt_ext(+Es, -Ms) is nondet.
-%
-% Store all the modules that the user decided to load.
-
-prompt_ext([], _) :-
-  writeln('Warning : You have no extensions loaded.').
-
-prompt_ext([E|Es], Ms) :-
-  findall(M, prompt_ext_([E|Es], M), Ms).
-
-prompt_ext_(Es, Module) :-
-  writeln('Select the extensions you want to load.'),
-  format('Enter "y." for yes and "n." for no (without the quotes).~n', []),
-  member(Module, Es),
-  format('Load "~a" extension? > ', [Module]),
-  read(y).
-
-
 %--------------------------------------------------------------------------------%
 % Server Routing
 %--------------------------------------------------------------------------------%
@@ -153,8 +121,8 @@ read_server_loop(Reply) :-
   get_irc_stream(Stream),
   init_queue(_MQ),
   repeat,
-  read_server(Reply, Stream),
-  Reply = end_of_file, !.
+    read_server(Reply, Stream),
+    Reply = end_of_file, !.
 
 
 %% read_server(-Reply, +Stream) is nondet.
@@ -166,10 +134,11 @@ read_server_loop(Reply) :-
 read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
   (
-     Reply = end_of_file ->
-       true
-     ;
-       thread_send_message(mq, read_server_handle(Reply))
+     Reply = end_of_file
+  ->
+     true
+  ;
+     thread_send_message(mq, read_server_handle(Reply))
   ).
 
 
@@ -230,14 +199,15 @@ init_queue(Id) :-
 
 start_job(Id) :-
   repeat,
-  thread_get_message(Id, Goal),
-  (
-     catch(Goal, E, print_message(error, E)) ->
+    thread_get_message(Id, Goal),
+    (
+       catch(Goal, E, print_message(error, E))
+    ->
        true
-     ;
+    ;
        print_message(error, goal_failed(Goal, worker(Id)))
-  ),
-  fail.
+    ),
+    fail.
 
 
 %--------------------------------------------------------------------------------%
@@ -253,11 +223,14 @@ start_job(Id) :-
 
 process_msg(Msg) :-
   extensions(Es, N),
-  N > 0 ->
-    maplist(run_det(Msg), Es, Extensions),
-    concurrent(N, Extensions, [])
+  (
+     N > 0
+  ->
+     maplist(run_det(Msg), Es, Extensions),
+     concurrent(N, Extensions, [])
   ;
-    true.
+     true
+  ).
 
 
 %--------------------------------------------------------------------------------%
