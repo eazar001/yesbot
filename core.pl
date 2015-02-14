@@ -10,7 +10,9 @@
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(core, []).
+:- module(core,
+     [ connect/0
+      ,disconnect/0 ]).
 
 :- use_module(config).
 :- use_module(parser).
@@ -243,7 +245,7 @@ process_msg(Msg) :-
 
 reconnect :-
   disconnect,
-  reconnect.
+  connect.
 
 
 %% disconnect is det.
