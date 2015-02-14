@@ -5,4 +5,6 @@
 
 :- use_module(core).
 
-run :- core:connect.
+run :-
+  thread_create(core:connect, Run, []),
+  thread_join(Run, _Status).

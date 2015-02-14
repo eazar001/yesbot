@@ -7,6 +7,11 @@
       ,run_det/3 ]).
 
 
+%--------------------------------------------------------------------------------%
+% Concurrency
+%--------------------------------------------------------------------------------%
+
+
 %% run_det(+Msg, +Extension, -E) is det.
 %
 % Concurrently call a list of extension predicates on the current message.
@@ -25,4 +30,37 @@ run_det(Msg, Extension, E) :-
 
 run_det(Goal) :-
   findall(_, Goal, _).
+
+
+%--------------------------------------------------------------------------------%
+% Connectivity/Timing
+%--------------------------------------------------------------------------------%
+
+
+check_connection(T0, T1, Limit, Pinged, Status) :-
+  repeat,
+    check_delta(T0, T1, Limit, Pinged, Status),
+    sleep(0.002).
+
+
+%% check_delta(+T0, +T1, +Limit, -Pinged, -Status) is det.
+%
+% Take inputs containing two time points with which the interval shall be
+% calculated. If the interval length exceeds the value of Limit and the server
+% has not pinged the client at this point in time, the Status will be changed
+% to "abort"; status is "continue" otherwise.
+
+check_delta(T0, T1, Limit, Pinged, Status) :-
+  (
+     Delta is T1 - T0,
+     Delta > Limit,
+     Pinged = false
+  ->
+     Status = abort
+  ;
+     Status = continue
+  ).
+
+
+
 

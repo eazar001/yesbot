@@ -43,6 +43,7 @@ connect :-
        init_structs,
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
+       asserta(get_tcp_socket(Socket)),
        asserta(get_irc_stream(Stream)),
        register_and_join
     ),
@@ -250,8 +251,12 @@ disconnect :-
   retractall(connection(_,_,_,_,_,_)),
   retractall(extensions(_,_)),
   retractall(get_irc_server(_)),
-  thread_detach(msg_handler),
+  retractall(known(_)),
   message_queue_destroy(mq),
+  thread_join(msg_handler, _),
+  get_tcp_socket(Socket)
+  tcp_close_socket(Socket),
+  retractall(get_socket(_)),
   close(Stream),
   connect.
 
