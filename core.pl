@@ -21,6 +21,7 @@
 :- dynamic known/1.
 :- dynamic get_irc_server/1.
 :- dynamic get_irc_stream/1.
+:- dynamic get_tcp_socket/1.
 :- dynamic connection/6.
 
 %--------------------------------------------------------------------------------%
