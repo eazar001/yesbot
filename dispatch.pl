@@ -30,11 +30,13 @@
 % 'unknown'.
 
 return_server(Server) :-
-  core:known(irc_server) ->
-    core:get_irc_server(Server)
+  (
+     core:known(irc_server)
+  ->
+     core:get_irc_server(Server)
   ;
-    Server = unknown.
-
+     Server = unknown
+  ).
 
 %% send_msg(+Type, +Target) is nondet.
 %
@@ -48,7 +50,7 @@ send_msg(Type, Target) :-
      Type = pong,
      dbg(pong, Debug),
      format(Debug, [Target])
-  ),
+  ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Target]),
   flush_output(Stream).
@@ -64,7 +66,7 @@ send_msg(Type, Str, Target) :-
      Type = priv_msg
   ;
      Type = notice
-  ),
+  ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Target, Str]),
   flush_output(Stream).
@@ -83,7 +85,7 @@ send_msg(Type, Chan, Target) :-
   ;
      Type = invite,
      format(Stream, Msg, [Target, Chan])
-  ),
+  ), !,
   flush_output(Stream).
 
 
@@ -114,7 +116,7 @@ send_msg(Type) :-
   ;
      Type = time,
      format(Stream, Msg, [Server])
-  ),
+  ), !,
   flush_output(Stream).
 
 

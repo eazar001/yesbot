@@ -4,6 +4,13 @@
 :- initialization(run).
 
 :- use_module(core).
+:- use_module(dispatch).
+
+
+% TBD: Run a separate interactive console parallel to the debugging messages.
 
 run :-
-  thread_create(core:connect, _Id, [detached(true)]).
+  connect.
+  %thread_create(connect, Connect, [detached(true)]),
+  %thread_signal(Connect, attach_console),
+  %thread_detach(Connect).
