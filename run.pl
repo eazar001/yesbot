@@ -5,12 +5,14 @@
 
 :- use_module(core).
 :- use_module(dispatch).
+:- use_module(operator).
 
 
-% TBD: Run a separate interactive console parallel to the debugging messages.
+% TBD: Look into interactor solutions that support readline; commmand-line editing
+% would be nice here.
 
 run :-
+  interactor,
   connect.
-  %thread_create(connect, Connect, [detached(true)]),
-  %thread_signal(Connect, attach_console),
-  %thread_detach(Connect).
+
+
