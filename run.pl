@@ -6,5 +6,4 @@
 :- use_module(core).
 
 run :-
-  thread_create(core:connect, Run, []),
-  thread_join(Run, _Status).
+  thread_create(core:connect, _Id, [detached(true)]).
