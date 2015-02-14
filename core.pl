@@ -48,7 +48,7 @@ connect :-
        register_and_join
     ),
     read_server_loop(_Reply),
-    disconnect
+    reconnect
   ).
 
 
@@ -57,10 +57,7 @@ connect :-
 % Present credentials and register user on the irc server.
 
 register_and_join :-
-  send_msg(pass),
-  send_msg(user),
-  send_msg(nick),
-  send_msg(join).
+  maplist(send_msg, [pass, user, nick, join]).
 
 
 %% init_structs is det.
@@ -239,6 +236,15 @@ process_msg(Msg) :-
 %--------------------------------------------------------------------------------%
 
 
+%% reconnect is semidet.
+%
+% Disconnect from the server, run cleanup routine, and attempt to reconnect.
+
+reconnect :-
+  disconnect,
+  reconnect.
+
+
 %% disconnect is det.
 %
 % Clean up top level information access structures, issue a disconnect command
@@ -254,10 +260,9 @@ disconnect :-
   retractall(known(_)),
   message_queue_destroy(mq),
   thread_join(msg_handler, _),
-  get_tcp_socket(Socket)
+  get_tcp_socket(Socket),
   tcp_close_socket(Socket),
   retractall(get_socket(_)),
-  close(Stream),
-  connect.
+  close(Stream).
 
 
