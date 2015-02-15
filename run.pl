@@ -8,11 +8,9 @@
 :- use_module(operator).
 
 
-% TBD: Look into interactor solutions that support readline; commmand-line editing
-% would be nice here.
-
 run :-
-  interactor,
-  connect.
+  thread_create(connect, Connect, []),
+  thread_signal(Connect, attach_console),
+  thread_detach(Connect).
 
 
