@@ -64,7 +64,7 @@ write_chat_line(Date, Nick, Chan, Log) :-
      \+known(_, _, _),
      asserta(known(yes, Current_Day, Filename)), !
   ;
-     known(yes, Stored_Day, Filename),
+     known(yes, Stored_Day, _),
      (
         Current_Day = Stored_Day
      ->
