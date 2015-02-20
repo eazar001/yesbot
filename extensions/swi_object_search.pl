@@ -70,6 +70,7 @@ zero(Link, Chan, Structure) :-
   Term =.. [Functor],
   term_string(Term, Object),
   send_msg(priv_msg, Object, Chan),
+  write_first_sentence(Structure),
   send_msg(priv_msg, Link, Chan).
 
 
@@ -92,6 +93,20 @@ one_or_more(Link, Chan, Structure) :-
      Object = O1
   ),
   send_msg(priv_msg, Object, Chan),
+  write_first_sentence(Structure),
   send_msg(priv_msg, Link, Chan).
 
 
+write_first_sentence(Structure) :-
+  chan(Chan),
+  xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
+  atom_codes(D, Codes),
+  (  first_sentence(Sentence, Codes, _)
+  -> send_msg(priv_msg, Sentence, Chan)
+  ;  send_msg(priv_msg, Codes, Chan)
+  ).
+
+
+first_sentence(`.`) --> `.`, !.
+first_sentence([C|Rest]) -->
+  [C], first_sentence(Rest).
