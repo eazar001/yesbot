@@ -8,7 +8,8 @@
       ,bot_hostname/1
       ,bot_servername/1
       ,bot_realname/1
-      ,desired_extensions/1 ]).
+      ,desired_extensions/1
+      ,time_limit/1 ]).
 
 :- use_module(library(settings)).
 
