@@ -8,7 +8,6 @@ emoticons(Msg) :-
   chan(Chan),
   Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,109,105,108,101,121,32|C]),
   emoticon_english(C, Eng),
-  send_msg(priv_msg, X, Chan).
   send_msg(priv_msg, Eng, Chan).
   
 
