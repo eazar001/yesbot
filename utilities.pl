@@ -4,8 +4,10 @@
 
 :- module(utilities,
      [ run_det/1
-      ,run_det/3 ]).
+      ,run_det/3
+      ,init_timer/1 ]).
 
+:- use_module(config).
 
 %--------------------------------------------------------------------------------%
 % Concurrency
@@ -37,30 +39,32 @@ run_det(Goal) :-
 %--------------------------------------------------------------------------------%
 
 
-check_connection(T0, T1, Limit, Pinged, Status) :-
-  repeat,
-    check_delta(T0, T1, Limit, Pinged, Status),
-    sleep(0.002).
-
-
-%% check_delta(+T0, +T1, +Limit, -Pinged, -Status) is det.
+%% init_timer(-Id) is semidet.
 %
-% Take inputs containing two time points with which the interval shall be
-% calculated. If the interval length exceeds the value of Limit and the server
-% has not pinged the client at this point in time, the Status will be changed
-% to "abort"; status is "continue" otherwise.
+% Initialize a message queue that stores one thread which acts as a timer that
+% checks connectivity of the bot when established interval has passed.
 
-check_delta(T0, T1, Limit, Pinged, Status) :-
-  (
-     Delta is T1 - T0,
-     Delta > Limit,
-     Pinged = false
-  ->
-     Status = abort
-  ;
-     Status = continue
-  ).
+init_timer(Id) :-
+  message_queue_create(Id, [alias(tq)]),
+  thread_create(check_pings(Id), _, [alias(ping_checker)]).
 
 
+%% check_pings(+Id) is nondet.
+% If Limit seconds has passed, then signal the connection threat to abort. If a
+% ping has been detected and the corresponding message is sent before the time
+% limit expires, then the goal will succeed and so will the rest of the predicate.
+% The thread will then return to its queue, reset its timer, and wait for another
+% ping signal.
+
+check_pings(Id) :-
+  time_limit(Limit),
+  repeat,
+    (
+       thread_get_message(Id, Goal, [timeout(Limit)])
+    ->
+       Goal
+    ;
+       thread_signal(ct, throw(abort))
+    ).
 
 

@@ -9,8 +9,7 @@
 
 
 run :-
-  thread_create(connect, Connect, []),
-  thread_signal(Connect, attach_console),
-  thread_detach(Connect).
+  thread_create(connect, Connect, [alias(ct)]),
+  thread_signal(Connect, attach_console).
 
 

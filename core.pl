@@ -121,6 +121,7 @@ import_extension_module(Extension) :-
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
   init_queue(_MQ),
+  init_timer(_TQ),
   repeat,
     read_server(Reply, Stream),
     Reply = end_of_file, !.
@@ -168,6 +169,7 @@ process_server(Line) :-
   parse_line(Line, Msg),
   (
      Msg = msg("PING", [], Origin),
+     thread_send_message(tq, true),
      send_msg(pong, Origin)
   ;
      Msg = msg(Server, "001", _, _),
@@ -182,7 +184,7 @@ process_server(Line) :-
 %--------------------------------------------------------------------------------%
 
 
-%% init_queue(+Id) is det.
+%% init_queue(-Id) is semidet.
 %
 % Initialize a message queue to store server lines to be processed in the future.
 % Server lines will be processed sequentially.
@@ -262,6 +264,8 @@ disconnect :-
   retractall(get_irc_server(_)),
   retractall(known(_)),
   message_queue_destroy(mq),
+  message_queue_destroy(tq),
+  thread_join(ping_checker, _),
   thread_join(msg_handler, _),
   get_tcp_socket(Socket),
   tcp_close_socket(Socket),
