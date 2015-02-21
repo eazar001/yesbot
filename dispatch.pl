@@ -121,6 +121,9 @@ send_msg(Type) :-
      format(Stream, Msg, [Server])
   ), !,
   flush_output(Stream),
-  thread_send_message(tq, true).
+  (  core:known(tq)
+  -> thread_send_message(tq, true)
+  ;  true
+  ).
 
 

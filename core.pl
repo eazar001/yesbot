@@ -122,6 +122,7 @@ read_server_loop(Reply) :-
   get_irc_stream(Stream),
   init_queue(_MQ),
   init_timer(_TQ),
+  asserta(known(tq)),
   repeat,
     read_server(Reply, Stream),
     Reply = end_of_file, !.
