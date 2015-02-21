@@ -53,7 +53,8 @@ send_msg(Type, Target) :-
   ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Target]),
-  flush_output(Stream).
+  flush_output(Stream),
+  thread_send_message(tq, true).
 
 
 %% send_msg(+Type, +Str, +Target) is nondet.
@@ -69,7 +70,8 @@ send_msg(Type, Str, Target) :-
   ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Target, Str]),
-  flush_output(Stream).
+  flush_output(Stream),
+  thread_send_message(tq, true).
 
 
 %% send_msg(+Type, +Chan, +Target) is nondet.
@@ -86,7 +88,8 @@ send_msg(Type, Chan, Target) :-
      Type = invite,
      format(Stream, Msg, [Target, Chan])
   ), !,
-  flush_output(Stream).
+  flush_output(Stream),
+  thread_send_message(tq, true).
 
 
 %% send_msg(+Type) is nondet.
@@ -117,6 +120,7 @@ send_msg(Type) :-
      Type = time,
      format(Stream, Msg, [Server])
   ), !,
-  flush_output(Stream).
+  flush_output(Stream),
+  thread_send_message(tq, true).
 
 
