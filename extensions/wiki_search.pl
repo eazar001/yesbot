@@ -35,7 +35,6 @@ wiki_search_(Msg) :-
   xpath_chk(Content, //p(normalize_space), P0),
   atom_codes(P0, P),
   maplist(wiki_search:change, P, Paragraph),
-  format('~s', [Paragraph]),
   send_msg(priv_msg, Paragraph, Chan).
 
 
