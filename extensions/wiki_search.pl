@@ -30,12 +30,19 @@ wiki_search_(Msg) :-
   append(Start, Query, L),
   Diff = End,
   string_codes(Link, L),
-  http_open(Link, Stream, [timeout(20)]),
-  load_html(Stream, Content, []),
-  xpath_chk(Content, //p(normalize_space), P0),
-  atom_codes(P0, P),
-  maplist(wiki_search:change, P, Paragraph),
-  send_msg(priv_msg, Paragraph, Chan).
+  setup_call_cleanup(
+    http_open(Link, Stream, [timeout(20)]),
+    (
+       load_html(Stream, Content, []),
+       xpath_chk(Content, //p(normalize_space), P0),
+       atom_codes(P0, P),
+       maplist(wiki_search:change, P, Paragraph),
+       send_msg(priv_msg, Link, Chan),
+       send_msg(priv_msg, Paragraph, Chan)
+
+    ),
+    close(Stream)
+  ).
 
 
 change(10, 32).
