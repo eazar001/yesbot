@@ -14,7 +14,8 @@
 
 
 % Convenience commands for specific message relays.
-% XXX NOTE : Not all message types are implemented yet.
+
+% FIXME: Not all message types are implemented yet.
 
 % NOTICE [Target, Notice]
 cmd(notice, 'NOTICE ~s :~s\r~n').
