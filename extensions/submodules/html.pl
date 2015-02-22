@@ -3,7 +3,8 @@
 
 :- module(html,
      [ has_link/4
-      ,html_unescape/2 ]).
+      ,html_unescape/2
+      ,change/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -103,5 +104,21 @@ escape_sequence_num([]) --> `;`.
 escape_sequence_num([C|Cs]) -->
   [C], {\+member(C, [38,35,59])},
   escape_sequence_num(Cs).
+
+
+% HACK: This is currently used for dealing with unicode chars by outright
+% rejecting them and replacing them with other supported chars. Proper unicode
+% solutions are needed.
+
+change(10, 32).
+change(X, 32) :-
+  X < 10.
+
+change(X, 63) :-
+  X > 255.
+
+change(X, X) :-
+  X > 10,
+  X =< 255.
 
 

@@ -5,7 +5,7 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
-
+:- use_module(submodules/html).
 
 chan("##prolog").
 dict_start(`http://dictionary.reference.com/browse/`).
@@ -34,16 +34,11 @@ dict_(Msg) :-
        load_html(Stream, Content, []),
        xpath_chk(Content, //div(@class='def-content', normalize_space), P0),
        atom_codes(P0, P),
-       maplist(dict:change, P, Paragraph),
+       maplist(change, P, Paragraph),
        send_msg(priv_msg, Link, Chan),
        send_msg(priv_msg, Paragraph, Chan)
     ),
     close(Stream)
   ).
 
-
-change(10, 32).
-change(X, 32) :- X < 10.
-change(X, 63) :- X > 255.
-change(X, X) :- X > 10, X =< 255.
 

@@ -6,6 +6,7 @@
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(dispatch).
+:- use_module(submodules/html).
 
 
 chan("##prolog").
@@ -36,17 +37,11 @@ wiki_search_(Msg) :-
        load_html(Stream, Content, []),
        xpath_chk(Content, //p(normalize_space), P0),
        atom_codes(P0, P),
-       maplist(wiki_search:change, P, Paragraph),
+       maplist(change, P, Paragraph),
        send_msg(priv_msg, Link, Chan),
        send_msg(priv_msg, Paragraph, Chan)
     ),
     close(Stream)
   ).
-
-
-change(10, 32).
-change(X, 32) :- X < 10.
-change(X, 63) :- X > 255.
-change(X, X) :- X > 10, X =< 255.
 
 

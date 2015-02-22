@@ -132,18 +132,12 @@ url_get_title(Link, Title) :-
        load_html(Stream, Structure, Opts),
        xpath_chk(Structure, //title, Tstruct),
        Tstruct = element(title, _, [T0]), string_codes(T0, T),
-       maplist(link_shortener:change, T, Title)
+       maplist(change, T, Title)
     ;
        Title = []
     ),
     close(Stream)
   ).
-
-
-change(10, 32).
-change(X, 32) :- X < 10.
-change(X, 63) :- X > 255.
-change(X, X) :- X > 10, X =< 255.
 
 
 cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
