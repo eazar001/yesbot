@@ -19,10 +19,7 @@
 %--------------------------------------------------------------------------------%
 
 
-% NOTE : Not all message types are accounted for yet
-% NOTE : Not all message types below are implemented in the dispatch module
-% TODO : Consider giving these predicates more meaningful names.
-
+% FIXME: Not all message types from operator are implemented yet.
 
 %% return_server(-Server) is nondet.
 %
