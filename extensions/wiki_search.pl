@@ -32,13 +32,13 @@ wiki_search_(Msg) :-
   Diff = End,
   string_codes(Link, L),
   setup_call_cleanup(
-    http_open(Link, Stream, [timeout(20)]),
+    http_open(Link, Stream, [timeout(20), final_url(URL)]),
     (
        load_html(Stream, Content, []),
        xpath_chk(Content, //p(normalize_space), P0),
        atom_codes(P0, P),
        maplist(change, P, Paragraph),
-       send_msg(priv_msg, Link, Chan),
+       send_msg(priv_msg, URL, Chan),
        send_msg(priv_msg, Paragraph, Chan)
     ),
     close(Stream)
