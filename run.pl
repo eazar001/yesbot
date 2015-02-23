@@ -8,11 +8,13 @@
 :- use_module(operator).
 
 % TBD: Currently extensions that are independent of message lines relayed by the
-% server are possible, but not explicitly supported with a convenient user
-% interface. These types of extensions are possible by coding scripts and calling
-% them via the interactor or a top level goal, however that is somewhat of a hack.
-% So at some point in time an interface that explicitly supports this should be
-% built.
+% server are possible, but must be done by building them as regular extensions
+% spawn detached threads independent of server messages. It is up to the user
+% how to further handle the life cycle of the extension. For example, one can
+% remove it from the extension list after execution and keep it persistently
+% running in the background or even run it as a one-shot extension. Nonetheless
+% this is a bit of a hack and could benefit from a convenient interface or some
+% more intuitive abstractions. Some extra documentation would also help.
 
 run :-
   thread_create(connect, Connect, [alias(ct)]),
