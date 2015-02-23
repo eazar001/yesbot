@@ -65,6 +65,7 @@ check_pings(Id) :-
        Goal
     ;
        thread_signal(ct, throw(abort))
-    ).
+    ),
+    fail.
 
 
