@@ -16,7 +16,6 @@
 :- use_module(submodules/html).
 
 chan("##prolog").
-
 references(Msg) :-
   chan(Chan),
   (

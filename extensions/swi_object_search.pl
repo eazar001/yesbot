@@ -37,10 +37,11 @@ swi_object_search_(Msg) :-
 do_search(Msg, Link, Stream) :-
   chan(Chan),
   % Message should begin with the prefix ?search
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,101,97,114,99,104,32|C]),
+  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,101,97,114,99,104,32|Rest]),
+  string_codes(Str, Rest),
+  normalize_space(string(C), Str),
   search_form(Form),
-  string_codes(O, C),
-  string_concat(Form, O, Link),
+  string_concat(Form, C, Link),
   http_open(Link, Stream, [timeout(20)]).
 
 
