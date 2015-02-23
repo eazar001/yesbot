@@ -21,7 +21,7 @@
 % concurrently without undue interruption.
 
 run_det(Msg, Extension, E) :-
-  E = findall(_, call(Extension:Extension, Msg), _).
+  E = ignore(((call(Extension:Extension, Msg), fail))).
 
 
 %% run_det(+Goal) is det.
@@ -31,7 +31,7 @@ run_det(Msg, Extension, E) :-
 % evaluating a possibly nondet or semidet prediciate concurrently.
 
 run_det(Goal) :-
-  findall(_, Goal, _).
+  ignore((Goal, fail)).
 
 
 %--------------------------------------------------------------------------------%
