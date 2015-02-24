@@ -7,7 +7,7 @@
 :- use_module(library(uri)).
 :- use_module(submodules/html).
 
-chan("##prolog").
+chan("##prolog").%chan("##prolog").
 dict_start(`http://dictionary.reference.com/browse/`).
 dict_end(`?s=t`).
 
@@ -30,7 +30,7 @@ dict_(Msg) :-
   Diff = End,
   string_codes(Link, L),
   setup_call_cleanup(
-    http_open(Link, Stream, [timeout(20)]),
+    http_open(Link, Stream, [timeout(20), status_code(_)]),
     dict_search(Link, Stream, Chan),
     close(Stream)
   ).
