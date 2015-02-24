@@ -12,14 +12,12 @@ help(Msg) :-
      string_codes(Q, Q0),
      normalize_space(string(Ext), Q),
      once(ext_help(Ext, Response)),
-     send_msg(priv_msg, Response, Chan)
+     send_msg(priv_msg, Response, Chan), !
   ;
      Rest = `?help`,
      help_msg(Response),
      send_msg(priv_msg, Response, Chan)
   ).
-
-
 
 
 %--------------------------------------------------------------------------------%

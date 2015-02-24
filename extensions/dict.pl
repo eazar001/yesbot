@@ -31,15 +31,18 @@ dict_(Msg) :-
   string_codes(Link, L),
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20)]),
-    (
-       load_html(Stream, Content, []),
-       xpath_chk(Content, //div(@class='def-content', normalize_space), P0),
-       atom_codes(P0, P),
-       maplist(change, P, Paragraph),
-       send_msg(priv_msg, Link, Chan),
-       send_msg(priv_msg, Paragraph, Chan)
-    ),
+    dict_search(Link, Stream, Chan),
     close(Stream)
   ).
 
 
+dict_search(Link, Stream, Chan) :-
+  load_html(Stream, Content, []),
+  xpath_chk(Content, //div(@class='def-content', normalize_space), P0),
+  atom_codes(P0, P),
+  maplist(change, P, Paragraph),
+  send_msg(priv_msg, Link, Chan),
+  send_msg(priv_msg, Paragraph, Chan), !.
+
+dict_search(_, _, Chan) :-
+  send_msg(priv_msg, "No matches found", Chan).
