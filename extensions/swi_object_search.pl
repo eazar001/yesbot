@@ -42,7 +42,7 @@ do_search(Msg, Link, Stream) :-
   normalize_space(string(C), Str),
   search_form(Form),
   string_concat(Form, C, Link),
-  http_open(Link, Stream, [timeout(20)]).
+  http_open(Link, Stream, [timeout(20), status_code(_)]).
 
 
 parse_structure(Link, Stream) :-
