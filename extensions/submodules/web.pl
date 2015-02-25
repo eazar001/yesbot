@@ -4,7 +4,8 @@
 
 :- module(web,
      [ visit_url/2
-      ,url_get_title/2 ]).
+      ,url_get_title/2
+      ,content_type_opts/2 ]).
 
 :- use_module(html).
 :- use_module(library(http/http_open)).
