@@ -4,7 +4,8 @@
 :- module(html,
      [ has_link/4
       ,html_unescape/2
-      ,change/2 ]).
+      ,change/2
+      ,unescape_title/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -39,6 +40,22 @@ get_link(_, []) --> [].
 %--------------------------------------------------------------------------------%
 % HTML Escape Codes
 %--------------------------------------------------------------------------------%
+
+
+%% unescape_title(+Title, -T) is det.
+%
+% If the Title contains escape characters then format the title for appropriate
+% viewing by unescaping them. If there are no escape characters, then the
+% formatted title is simply the same as the original.
+
+unescape_title(Title, T) :-
+  (
+     html_unescape(Title, T)
+  ->
+     true
+  ;
+     T = Title
+  ).
 
 
 %% html_unescape(+E, -U) is nondet.
