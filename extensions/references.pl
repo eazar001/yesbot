@@ -51,7 +51,6 @@ ref_value(`clpfd`, "http://www.pathwayslms.com/swipltuts/clpfd/clpfd.html").
 ref_value(`swipl-devel`, "https://github.com/SWI-Prolog/swipl-devel").
 ref_value(`lpn`, "http://www.learnprolognow.org/").
 ref_value(`amzi`, "http://www.amzi.com/AdventureInProlog/index.php").
-ref_value(`log`, "http://pathwayslms.com/yesbot/logs/").
 
 ref_title(`faq`, "Frequently Asked Questions for ##Prolog").
 ref_title(`modules`, "Using SWI-Prolog's Modules").
@@ -62,4 +61,5 @@ ref_title(`clpfd`, "http://www.pathwayslms.com/swipltuts/clpfd/clpfd.html").
 ref_title(`swipl-devel`, "SWI-Prolog/swipl-devel").
 ref_title(`lpn`, "Learn Prolog Now!").
 ref_title(`amzi`, "Amzi! inc. Adventure in Prolog").
-ref_title(`log`, "##prolog chat-logs").
+
+

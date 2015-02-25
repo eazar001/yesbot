@@ -3,6 +3,7 @@
 
 :- use_module(dispatch).
 :- use_module(submodules/html).
+:- use_module(submodules/web).
 :- use_module(library(sgml)).
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
@@ -13,20 +14,22 @@
 % currency, wiki, translate, calculator, etc.
 
 chan("##prolog").
-google_start(`http://www.google.com/search?hl=en&q=`).
-
+google_start(`http://www.google.com/search?q=`).
 google_end(`&btnI=I\'m+Feeling+Lucky`).
+
 
 google_search(Msg) :-
   thread_create(ignore(google_search_(Msg)), _Id, [detached(true)]).
 
+
+% FIXME: Certain searches fail to redirect to the proper site
 
 google_search_(Msg) :-
   chan(Chan),
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Text),
   append(`?google `, Q0, Text),
   atom_codes(Atom, Q0),
-  uri_encoded(query_value, Atom, Encoded),
+  uri_encoded(fragment, Atom, Encoded),
   atom_codes(Encoded, Q),
   append(Q, Diff, Query),
   google_start(Start),
@@ -41,27 +44,26 @@ google_search_(Msg) :-
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
     (
-     
-       (
-          atom_concat('text/html', _, Type),
-	  Opts = [max_errors(-1)]
-       ;
-	  Type = '',
-	  Opts = [max_errors(50)]
-       )
+       content_type_opts(Type, Opts)
     ->
-       load_html(Stream, Structure, Opts),
-       xpath_chk(Structure, //title, Tstruct),
-       Tstruct = element(title, _, [T0]), string_codes(T0, T),
-       maplist(change, T, Title),
-       send_msg(priv_msg, Title, Chan),
-       send_msg(priv_msg, URL, Chan)
+       (
+	  URL \= Link
+       ->
+          load_html(Stream, Structure, Opts),
+          xpath_chk(Structure, //title, Tstruct),
+          Tstruct = element(title, _, [T0]),
+          string_codes(T0, T),
+          maplist(change, T, Title),
+	  send_msg(priv_msg, Title, Chan),
+	  send_msg(priv_msg, URL, Chan)
+       ;
+	  send_msg(priv_msg, "Could not process content", Chan)
+       
+       )
     ;
-       true
+       send_msg(priv_msg, "Could not process content", Chan)
     ),
     close(Stream)
   ).
 
-cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
-  format(user_error, 'Accepting certificate~n', []).
 

@@ -5,7 +5,8 @@
 :- module(web,
      [ visit_url/2
       ,url_get_title/2
-      ,content_type_opts/2 ]).
+      ,content_type_opts/2
+      ,cert_verify/5 ]).
 
 :- use_module(html).
 :- use_module(library(http/http_open)).
@@ -30,7 +31,8 @@ url_get_title(Link, Title) :-
     ->
        load_html(Stream, Structure, Opts),
        xpath_chk(Structure, //title, Tstruct),
-       Tstruct = element(title, _, [T0]), string_codes(T0, T),
+       Tstruct = element(title, _, [T0]),
+       string_codes(T0, T),
        maplist(change, T, Title)
     ;
        Title = []

@@ -7,7 +7,7 @@
 :- use_module(library(uri)).
 :- use_module(submodules/html).
 
-chan("##prolog").%chan("##prolog").
+chan("##prolog").
 dict_start(`http://dictionary.reference.com/browse/`).
 dict_end(`?s=t`).
 
