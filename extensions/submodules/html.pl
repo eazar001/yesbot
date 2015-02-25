@@ -130,10 +130,8 @@ escape_sequence_num([C|Cs]) -->
 change(10, 32).
 change(X, 32) :-
   X < 10.
-
 change(X, 63) :-
   X > 255.
-
 change(X, X) :-
   X > 10,
   X =< 255.
