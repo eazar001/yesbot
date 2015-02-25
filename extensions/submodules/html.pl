@@ -3,7 +3,9 @@
 
 :- module(html,
      [ has_link/4
-      ,html_unescape/2 ]).
+      ,html_unescape/2
+      ,change/2
+      ,unescape_title/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -38,6 +40,22 @@ get_link(_, []) --> [].
 %--------------------------------------------------------------------------------%
 % HTML Escape Codes
 %--------------------------------------------------------------------------------%
+
+
+%% unescape_title(+Title, -T) is det.
+%
+% If the Title contains escape characters then format the title for appropriate
+% viewing by unescaping them. If there are no escape characters, then the
+% formatted title is simply the same as the original.
+
+unescape_title(Title, T) :-
+  (
+     html_unescape(Title, T)
+  ->
+     true
+  ;
+     T = Title
+  ).
 
 
 %% html_unescape(+E, -U) is nondet.
@@ -103,5 +121,18 @@ escape_sequence_num([]) --> `;`.
 escape_sequence_num([C|Cs]) -->
   [C], {\+member(C, [38,35,59])},
   escape_sequence_num(Cs).
+
+
+% HACK: This is currently used for dealing with unicode chars by outright
+% rejecting them and replacing them with other supported chars. Proper unicode
+% solutions are needed.
+change(10, 32).
+change(X, 32) :-
+X < 10.
+change(X, 63) :-
+X > 255.
+change(X, X) :-
+X > 10,
+X =< 255.
 
 
