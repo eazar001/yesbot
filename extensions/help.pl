@@ -50,7 +50,7 @@ ext_help(Query, Msg) :-
 google("?google <search term> will perform an ""I'm feeling lucky search""").
 wiki("?wiki <search term> will attempt a wikipedia lookup").
 dict("?dict <search term> will attempt to look up a word in dictionary.com").
-emoticons("?smiley <emoticon> will attempt to define wacky emoticons").
+emoticons("?emote <emoticon> will attempt to define wacky emoticons").
 search("?search <predicate/N> to search for some predicate with N arity \c
   in the swi object database/documentation").
 help_msg("?help <option> where your options are dict, emoticons, google, \c

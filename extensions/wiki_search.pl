@@ -38,7 +38,10 @@ wiki_search_(Msg) :-
        xpath_chk(Content, //p(normalize_space), P0),
        atom_codes(P0, P),
        maplist(change, P, Paragraph),
-       send_msg(priv_msg, URL, Chan),
+       (  Paragraph \= `There were no results matching the query.`
+       -> send_msg(priv_msg, URL, Chan)
+       ;  true
+       ),
        send_msg(priv_msg, Paragraph, Chan)
     ),
     close(Stream)

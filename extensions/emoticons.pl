@@ -7,7 +7,7 @@ chan("##prolog").
 
 emoticons(Msg) :-
   chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,109,105,108,101,121,32|Rest]),
+  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,101,109,111,116,101,32|Rest]),
   string_codes(Str, Rest),
   normalize_space(codes(C), Str),
   once(emote(Eng, C, [])),
