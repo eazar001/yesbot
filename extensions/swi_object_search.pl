@@ -49,14 +49,11 @@ parse_structure(Link, Stream) :-
   chan(Chan),
   load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
   found_object(Structure, Link, Chan).
-  
 
-found_object(Structure, Link, Chan) :-
-  one_or_more(Link, Chan, Structure), !.
 
 found_object(Structure, Link, Chan) :-
   (
-     zero(Link, Chan, Structure)
+     found(Link, Chan, Structure)
   ->
      true
   ;
@@ -64,37 +61,10 @@ found_object(Structure, Link, Chan) :-
   ).
 
 
-zero(Link, Chan, Structure) :-
-  xpath_chk(Structure, //dt(@class=pubdef), Table),
-  xpath_chk(Table, //strong, Strong),
-  Strong = element(strong, _, [Functor]),
-  Term =.. [Functor],
-  term_string(Term, Object),
-  send_msg(priv_msg, Object, Chan),
+found(Link, Chan, Structure) :-
+  xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
   write_first_sentence(Structure),
-  send_msg(priv_msg, Link, Chan).
-
-
-one_or_more(Link, Chan, Structure) :-
-  xpath_chk(Structure, //dt(@class=pubdef), Table),
-  xpath_chk(Table, //strong, Strong),
-  xpath_chk(Table, //var, Var),
-  Strong = element(strong, _, [Functor]),
-  Var = element(var, _, [Vars]),
-  split_string(Vars, ",", ",", Args),
-  Term =.. [Functor|Args],
-  term_string(Term, Str),
-  string_codes(Str, Codes),
-  delete(Codes, 34, O1),
-  (
-     selectchk(10, O1, Object)
-  ->
-     true
-  ;
-     Object = O1
-  ),
-  send_msg(priv_msg, Object, Chan),
-  write_first_sentence(Structure),
+  send_msg(priv_msg, Table, Chan),
   send_msg(priv_msg, Link, Chan).
 
 
