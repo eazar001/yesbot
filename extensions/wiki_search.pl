@@ -33,18 +33,32 @@ wiki_search_(Msg) :-
   string_codes(Link, L),
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20), final_url(URL)]),
-    (
-       load_html(Stream, Content, []),
-       xpath_chk(Content, //p(normalize_space), P0),
-       atom_codes(P0, P),
-       maplist(change, P, Paragraph),
-       (  Paragraph \= `There were no results matching the query.`
-       -> send_msg(priv_msg, URL, Chan)
-       ;  true
-       ),
-       send_msg(priv_msg, Paragraph, Chan)
-    ),
+    (found(Stream, URL, Paragraph), send_msg(priv_msg, Paragraph, Chan)),
     close(Stream)
   ).
 
 
+found(Stream, URL, Paragraph) :-
+  chan(Chan),
+  load_html(Stream, Content, []),
+  (
+     xpath_chk(Content, //table(@id=disambigbox), _Rest),
+     xpath_chk(Content, //li(//a(@title=T)), _),
+     atom_codes(T, Title),
+     append(`?wiki `, Title, New),
+     Paragraph = "Disambiguating with first match",
+     wiki_search(msg(_, "PRIVMSG", [Chan], New)), !
+  ;
+     xpath_chk(Content, //a(@title='This is a special page which you cannot edit'), _),
+     Paragraph = "Page does not exist", !
+  ;
+     xpath_chk(Content, //p(normalize_space), P0),
+     atom_codes(P0, P),
+     maplist(change, P, Paragraph),
+     (  Paragraph \= `There were no results matching the query.`
+     -> send_msg(priv_msg, URL, Chan)
+     ;  true
+     )
+  ).
+
+		    
