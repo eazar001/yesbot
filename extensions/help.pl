@@ -59,4 +59,4 @@ search("?search <predicate/N> to search for some predicate with N arity \c
 help_msg("?help <option> where your options are dict, emoticons, google, \c
   wiki, search, yesbot").
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can pursue \c
-  all this at: https://github.com/eazar001/yesbot/commits/prolog-irc").
+  all this at: https://github.com/eazar001/yesbot/tree/prolog-irc").
