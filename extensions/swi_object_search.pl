@@ -63,8 +63,8 @@ found_object(Structure, Link, Chan) :-
 
 found(Link, Chan, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
-  write_first_sentence(Structure),
   send_msg(priv_msg, Table, Chan),
+  write_first_sentence(Structure),
   send_msg(priv_msg, Link, Chan).
 
 
