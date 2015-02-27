@@ -45,7 +45,7 @@ ext_help(Query, Msg) :-
      Query = "search",
      search(Msg)
   ;
-     Query = "yesbot"
+     Query = "yesbot",
      yesbot(Msg)
   ).
 
