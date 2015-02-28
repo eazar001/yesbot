@@ -125,6 +125,12 @@ first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
 
 
+get_functor(Original, Functor) :-
+  (  get_functor_(Functor, Original, _)
+  -> true
+  ;  Original = Functor
+  ).
+
 get_functor_([]) --> `/`, !.
 get_functor_([C|Rest]) -->
   [C], get_functor_(Rest).
