@@ -86,6 +86,7 @@ try_again(Query) :-
   load_html(Stream, Structure, []),
   % Find all solutions and write them on one line to avoid flooding
   findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
+  Ss = [_|_],
   atomic_list_concat(Ss, ', ', A0),
   atom_concat('Perhaps you meant one of these: ', A0, A),
   atom_string(Feedback, A),
@@ -102,7 +103,6 @@ find_candidate(Structure, Fcodes, Sugg) :-
   atom_codes(Atom, Functor_Arity),
   uri_encoded(query_value, A, Atom),
   atom_string(A, Sugg).
-
 
 
 write_first_sentence(Structure) :-
