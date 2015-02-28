@@ -82,15 +82,20 @@ try_again(Query) :-
   % Get the pure functor from the query
   string_codes(Functor, Fcodes),
   string_concat(Form, Functor, Retry),
-  http_open(Retry, Stream, []),
-  load_html(Stream, Structure, []),
-  % Find all solutions and write them on one line to avoid flooding
-  findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
-  Ss = [_|_],
-  atomic_list_concat(Ss, ', ', A0),
-  atom_concat('Perhaps you meant one of these: ', A0, A),
-  atom_string(Feedback, A),
-  send_msg(priv_msg, Feedback, Chan).
+  setup_call_cleanup(
+    http_open(Retry, Stream, [timeout(20)]),
+    (
+       load_html(Stream, Structure, []),
+       % Find all solutions and write them on one line to avoid flooding
+       findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
+       Ss = [_|_],
+       atomic_list_concat(Ss, ', ', A0),
+       atom_concat('Perhaps you meant one of these: ', A0, A),
+       atom_string(Feedback, A),
+       send_msg(priv_msg, Feedback, Chan)
+    ),
+    close(Stream)
+  ).
 
 
 find_candidate(Structure, Fcodes, Sugg) :-
@@ -120,10 +125,8 @@ first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
 
 
-get_functor(Original, Functor) :-
-  (  append(Functor, [47|_], Original)
-  -> true
-  ;  Functor = Original
-  ).
+get_functor_([]) --> `/`, !.
+get_functor_([C|Rest]) -->
+  [C], get_functor_(Rest).
 
 
