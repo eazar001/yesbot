@@ -20,15 +20,9 @@
 :- use_module(library(uri)).
 
 
-chan("#testeazarbot").
+chan("##prolog").
 search_form("http://www.swi-prolog.org/pldoc/doc_for?object=").
 search_sugg("http://www.swi-prolog.org/pldoc/search?for=").
-
-/*
-http_open("http://www.swi-prolog.org/pldoc/search?for=append", Stream, []),
-load_html(Stream, Structure, []),
-xpath(Structure, //tr(@class=public,normalize_space), Link).
-*/
 
   
 swi_object_search(Msg) :-
@@ -83,17 +77,32 @@ found(Link, Chan, Structure) :-
 try_again(Query) :-
   chan(Chan),
   search_sugg(Form),
-  string_concat(Form, Query, Retry),
+  string_codes(Query, Q),
+  get_functor(Q, Fcodes),
+  % Get the pure functor from the query
+  string_codes(Functor, Fcodes),
+  string_concat(Form, Functor, Retry),
   http_open(Retry, Stream, []),
   load_html(Stream, Structure, []),
+  % Find all solutions and write them on one line to avoid flooding
+  findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
+  atomic_list_concat(Ss, ', ', A0),
+  atom_concat('Perhaps you meant one of these: ', A0, A),
+  atom_string(Feedback, A),
+  send_msg(priv_msg, Feedback, Chan).
+
+
+find_candidate(Structure, Fcodes, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
-  xpath(Row, //a(@href=P, normalize_space), Data),
-  atom_codes(P, Codes),
-  append(`/pldoc/doc_for?object=`, P0, Codes),
-  atom_codes(P1, P0),
-  uri_encoded(query_value, P2, P1),
-  atom_string(P2, Sugg),
-  send_msg(priv_msg, Sugg, Chan).
+  xpath(Row, //a(@href=Path, normalize_space), _),
+  atom_codes(Path, Codes),
+  append(`/pldoc/doc_for?object=`, Functor_Arity, Codes),
+  % Functor must match candidate functors
+  get_functor(Functor_Arity, Fcodes),
+  atom_codes(Atom, Functor_Arity),
+  uri_encoded(query_value, A, Atom),
+  atom_string(A, Sugg).
+
 
 
 write_first_sentence(Structure) :-
@@ -109,3 +118,12 @@ write_first_sentence(Structure) :-
 first_sentence(`.`) --> `.`, !.
 first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
+
+
+get_functor(Original, Functor) :-
+  (  append(Functor, [47|_], Original)
+  -> true
+  ;  Functor = Original
+  ).
+
+
