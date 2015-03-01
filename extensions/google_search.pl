@@ -13,7 +13,7 @@
 % TBD: Add support for other google search features such as google conversion,
 % currency, wiki, translate, calculator, etc.
 
-chan("##prolog").
+chan("#testeazarbot").
 google_start(`http://www.google.com/search?q=`).
 google_end(`&btnI=I\'m+Feeling+Lucky`).
 
@@ -49,10 +49,10 @@ google_search_(Msg) :-
 	  URL \= Link
        ->
           load_html(Stream, Structure, Opts),
-          xpath_chk(Structure, //title, Tstruct),
-          Tstruct = element(title, _, [T0]),
-          string_codes(T0, T),
-          maplist(change, T, Title),
+          xpath_chk(Structure, //title(normalize_space), T0),
+	  string_codes(T0, T1),
+	  unescape_title(T1, T2),
+	  maplist(change, T2, Title),
 	  send_msg(priv_msg, Title, Chan),
 	  send_msg(priv_msg, URL, Chan)
        ;
