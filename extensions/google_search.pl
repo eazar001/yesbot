@@ -29,7 +29,7 @@ google_search_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Text),
   append(`?google `, Q0, Text),
   atom_codes(Atom, Q0),
-  uri_encoded(fragment, Atom, Encoded),
+  uri_encoded(query_value, Atom, Encoded),
   atom_codes(Encoded, Q),
   append(Q, Diff, Query),
   google_start(Start),
@@ -40,6 +40,7 @@ google_search_(Msg) :-
   setup_call_cleanup(
     http_open(Link, Stream,
       [ final_url(URL)
+       ,request_header(referer='http://www.google.com')	      
        ,header('Content-Type', Type)
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
@@ -47,7 +48,7 @@ google_search_(Msg) :-
        content_type_opts(Type, Opts)
     ->
        (
-	  URL \= Link
+	  writeln(URL), URL \= Link
        ->
           load_html(Stream, Structure, Opts),
           xpath_chk(Structure, //title, Tstruct),
@@ -57,11 +58,10 @@ google_search_(Msg) :-
 	  send_msg(priv_msg, Title, Chan),
 	  send_msg(priv_msg, URL, Chan)
        ;
-	  send_msg(priv_msg, "Could not process content", Chan)
-       
+	  send_msg(priv_msg, "Result not valid", Chan)
        )
     ;
-       send_msg(priv_msg, "Could not process content", Chan)
+       	  send_msg(priv_msg, URL, Chan)
     ),
     close(Stream)
   ).
