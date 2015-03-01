@@ -22,8 +22,6 @@ google_search(Msg) :-
   thread_create(ignore(google_search_(Msg)), _Id, [detached(true)]).
 
 
-% FIXME: Certain searches fail to redirect to the proper site
-
 google_search_(Msg) :-
   chan(Chan),
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Text),
@@ -48,7 +46,7 @@ google_search_(Msg) :-
        content_type_opts(Type, Opts)
     ->
        (
-	  writeln(URL), URL \= Link
+	  URL \= Link
        ->
           load_html(Stream, Structure, Opts),
           xpath_chk(Structure, //title, Tstruct),
@@ -61,7 +59,7 @@ google_search_(Msg) :-
 	  send_msg(priv_msg, "Result not valid", Chan)
        )
     ;
-       	  send_msg(priv_msg, URL, Chan)
+       send_msg(priv_msg, URL, Chan)
     ),
     close(Stream)
   ).
