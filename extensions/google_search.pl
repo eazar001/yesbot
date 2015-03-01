@@ -13,7 +13,7 @@
 % TBD: Add support for other google search features such as google conversion,
 % currency, wiki, translate, calculator, etc.
 
-chan("#testeazarbot").
+chan("##prolog").
 google_start(`http://www.google.com/search?q=`).
 google_end(`&btnI=I\'m+Feeling+Lucky`).
 
