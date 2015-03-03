@@ -49,9 +49,6 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
      Tail = [45,113,50,32|Rest],
      Quiet = q2, !
   ;
-     Tail = [45|Rest],
-     send_msg(priv_msg, "Invalid option", Chan), !, fail
-  ;
      Tail = Rest,
      Quiet = q0
   ),
