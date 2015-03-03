@@ -32,7 +32,7 @@ cmd(kick, 'KICK ~s ~s\r~n').
 % INVITE [Target, Chan]
 cmd(invite, 'INVITE ~s ~s\r~n').
 
-% NAMES [CSV] (a csv of channels)
+% NAMES [Chan]
 cmd(names, 'NAMES ~s\r~n').
 
 % LIST [CSV] (a csv of channels)
