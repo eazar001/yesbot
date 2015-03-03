@@ -93,10 +93,10 @@ send_msg(Type, Chan, Target) :-
 %
 % Send a message of Type.
 
+% This clause will deal with deal with message types that are possibly timer-independent
 send_msg(Type) :-
   cmd(Type, Msg),
   core:get_irc_stream(Stream),
-  return_server(Server),
   core:connection(Nick, Pass, Chans, HostName, ServerName, RealName),
   (
      Type = pass,
@@ -110,12 +110,6 @@ send_msg(Type) :-
   ;
      Type = join,
      maplist(format(Stream, Msg), Chans)
-  ;
-     Type = quit,
-     write(Stream, Msg)
-  ;
-     Type = time,
-     format(Stream, Msg, [Server])
   ), !,
   flush_output(Stream),
   (  core:known(tq)
@@ -123,4 +117,17 @@ send_msg(Type) :-
   ;  true
   ).
 
-
+send_msg(Type) :-
+  cmd(Type, Msg),
+  core:get_irc_stream(Stream),
+  return_server(Server),
+  core:connection(_Nick, _Pass, _Chans, _HostName, _ServerName, _RealName),
+  (
+     Type = quit,
+     write(Stream, Msg)
+  ;
+     Type = time,
+     format(Stream, Msg, [Server])
+  ),
+  flush_output(Stream),
+  thread_send_message(tq, true).
