@@ -37,7 +37,7 @@ return_server(Server) :-
 
 %% send_msg(+Type, +Target) is nondet.
 %
-% Send message of Type to a specified Target.
+% Send message of Type with respect to a specified Target.
 
 send_msg(Type, Target) :-
   cmd(Type, Msg),
@@ -47,6 +47,8 @@ send_msg(Type, Target) :-
      Type = pong,
      dbg(pong, Debug),
      format(Debug, [Target])
+  ;
+     Type = names
   ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Target]),
@@ -131,3 +133,5 @@ send_msg(Type) :-
   ),
   flush_output(Stream),
   thread_send_message(tq, true).
+
+
