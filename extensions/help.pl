@@ -59,7 +59,8 @@ wiki("?wiki <search term> will attempt a wikipedia lookup").
 dict("?dict <search term> will attempt to look up a word in dictionary.com").
 emoticons("?emote <emoticon> will attempt to define wacky emoticons").
 search("?search <predicate/N> OR <f(function/N)> to search for some predicate \c
-  or function with N arity in the swi object database/documentation").
+  or function with N arity in the swi object database/documentation (use \c
+  ?search -q1 for quiet output OR ?search -q2 for quieter)").
 help_msg("?help <option> where your options are keywords, search, google, \c
   wiki, dict, emoticons, yesbot").
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c

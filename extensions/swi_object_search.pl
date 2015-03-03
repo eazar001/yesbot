@@ -31,15 +31,30 @@ swi_object_search(Msg) :-
 
 swi_object_search_(Msg) :-
   setup_call_cleanup(
-    do_search(Msg, Link, Query, Stream),
-    parse_structure(Link, Query, Stream),
+    do_search(Msg, Link, Query, Quiet, Stream),
+    parse_structure(Link, Query, Quiet, Stream),
     close(Stream)
   ).
 
-do_search(Msg, Link, Query, Stream) :-
+do_search(Msg, Link, Query, Quiet, Stream) :-
   chan(Chan),
   % Message should begin with the prefix ?search
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,101,97,114,99,104,32|Rest]),
+  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,101,97,114,99,104,32|Cs]),
+  atom_codes(A0, Cs),
+  normalize_space(codes(Tail), A0),
+  (
+     Tail = [45,113,49,32|Rest],
+     Quiet = q1, !
+  ;
+     Tail = [45,113,50,32|Rest],
+     Quiet = q2, !
+  ;
+     Tail = [45|Rest],
+     send_msg(priv_msg, "Invalid option", Chan), !, fail
+  ;
+     Tail = Rest,
+     Quiet = q0
+  ),
   atom_codes(A, Rest),
   uri_encoded(query_value, A, Encoded),
   atom_string(Encoded, Str),
@@ -49,15 +64,15 @@ do_search(Msg, Link, Query, Stream) :-
   http_open(Link, Stream, [timeout(20), status_code(_)]).
 
 
-parse_structure(Link, Query, Stream) :-
+parse_structure(Link, Query, Quiet, Stream) :-
   chan(Chan),
   load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
-  found_object(Structure, Link, Query, Chan).
+  found_object(Structure, Link, Query, Quiet, Chan).
 
 
-found_object(Structure, Link, Query, Chan) :-
+found_object(Structure, Link, Query, Quiet, Chan) :-
   (
-     found(Link, Chan, Structure)
+     found(Link, Chan, Quiet, Structure)
   ->
      true
   ;
@@ -66,13 +81,22 @@ found_object(Structure, Link, Query, Chan) :-
   ).
 
 
-found(Link, Chan, Structure) :-
+found(Link, Chan, q0, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
   send_msg(priv_msg, Table, Chan),
   write_first_sentence(Structure),
   send_msg(priv_msg, Link, Chan).
 
+found(_, Chan, q1, Structure) :-
+  xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
+  send_msg(priv_msg, Table, Chan),
+  write_first_sentence(Structure).
 
+found(_, Chan, q2, Structure) :-
+  xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
+  send_msg(priv_msg, Table, Chan).
+
+  
 % Let's try to search for possible matches if user attempts incorrect query
 try_again(Query) :-
   chan(Chan),
