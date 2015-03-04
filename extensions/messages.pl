@@ -5,6 +5,8 @@
 :- use_module(parser).
 :- use_module(library(csv)).
 
+:- dynamic recording/3.
+
 
 chan("#testeazarbot").
 
@@ -25,15 +27,25 @@ messages(Msg) :-
 messages_(Msg) :-
   chan(Chan),
   Msg = msg(Prefix, "JOIN", [Chan]),
-  messages_(Msg).
   prefix_id(Prefix, Nick, _, _),
-  recording(Nick, Sender, Text).
+  read_db,
+  recording(N, S, T),
+  atom_string(N, Nick),
+  atom_string(S, Sender),
+  atom_string(T, Text),
+  format(string(Greet), 'Hello ~s, ~s has left you a message.', [Nick, Sender]),
+  retract(recording(N,S,T)),
+  send_msg(priv_msg, Greet, Chan),
+  send_msg(priv_msg, Text, Chan).
 
 % See if a user is trying to record a message for another user.
 messages_(Msg) :-
   chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", [Chan]),
-  
+  Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
+  append(`?tell `, R0, Rest),
+  string_codes(R, R0),
+  normalize_space(string(Request), R),
+  update_db(Request).
 
 %% read_db is semidet.
 %
@@ -57,7 +69,7 @@ read_db :-
 % Attempt to create messages.db
 
 create_db :-
-  open_db_with(true).
+  open_db_with(_Fstream, true).
 
 
 %% populate_db is semidet.
@@ -67,16 +79,20 @@ create_db :-
 
 populate_db :-
   csv_read_file('messages.db', Rows,
-    [functor(recording), arity(3), separator(32)]),
+    [functor(recording), arity(3), separator(44)]),
   maplist(asserta, Rows).
 
 
-%% open_db_with(:Goal) is semidet.
+update_db(Row) :-
+  open_db_with(Fstream, format(Fstream, '~s~n', [Row])).
+
+
+%% open_db_with(-Fstream, :Goal) is semidet.
 %
 % Attempts to open up messages.db file with a goal and then close Fstream.
 % Unification of arguments isn't extant here.
 
-open_db_with(Goal) :-
+open_db_with(Fstream, Goal) :-
   setup_call_cleanup(
     open('messages.db', append, Fstream),
     Goal,
