@@ -43,11 +43,11 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   atom_codes(A0, Cs),
   normalize_space(codes(Tail), A0),
   (
-     Tail = [45,113,49,32|Rest],
-     Quiet = q1, !
+     Tail = [45,113,32|Rest],
+     Quiet = q, !
   ;
-     Tail = [45,113,50,32|Rest],
-     Quiet = q2, !
+     Tail = [45,113,113,32|Rest],
+     Quiet = qq, !
   ;
      Tail = Rest,
      Quiet = q0
@@ -84,12 +84,12 @@ found(Link, Chan, q0, Structure) :-
   write_first_sentence(Structure),
   send_msg(priv_msg, Link, Chan).
 
-found(_, Chan, q1, Structure) :-
+found(_, Chan, q, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
   send_msg(priv_msg, Table, Chan),
   write_first_sentence(Structure).
 
-found(_, Chan, q2, Structure) :-
+found(_, Chan, qq, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
   send_msg(priv_msg, Table, Chan).
 
