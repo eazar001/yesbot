@@ -8,10 +8,13 @@
 :- dynamic recording/3.
 
 
-chan("#testeazarbot").
+chan("##prolog").
 
 
-%% messages is nondet.
+% TBD: Updated message.db by deleting lines/messages that are displayed in
+% chat room.
+
+%% messages(+Msg) is nondet.
 %
 % This is the main extension interface. messages/0 will listen for JOIN commands
 % and prompt that user if his nick is mapped to a recorded message. messages/0
@@ -30,10 +33,9 @@ messages_(Msg) :-
   prefix_id(Prefix, Nick, _, _),
   read_db,
   recording(N, S, T),
-  atom_string(N, Nick),
-  atom_string(S, Sender),
   atom_string(T, Text),
-  format(string(Greet), 'Hello ~s, ~s has left you a message.', [Nick, Sender]),
+  maplist(normalize_atom_string, [N,S], [Nick, Sender]),
+  format(string(Greet), 'Hello ~s, ~s has left you a message.', [Nick, Sender, Text]),
   retract(recording(N,S,T)),
   send_msg(priv_msg, Greet, Chan),
   send_msg(priv_msg, Text, Chan).
@@ -43,8 +45,7 @@ messages_(Msg) :-
   chan(Chan),
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
   append(`?tell `, R0, Rest),
-  string_codes(R, R0),
-  normalize_space(string(Request), R),
+  string_codes(Request, R0),
   update_db(Request).
 
 %% read_db is semidet.
@@ -83,6 +84,10 @@ populate_db :-
   maplist(asserta, Rows).
 
 
+%% update_db(+Row) is semidet.
+%
+% Add a new record to message.db.
+
 update_db(Row) :-
   open_db_with(Fstream, format(Fstream, '~s~n', [Row])).
 
@@ -98,5 +103,15 @@ open_db_with(Fstream, Goal) :-
     Goal,
     close(Fstream)
   ).
+
+
+%% normalize_atom_string(+Atom, -Normalized) is det.
+%
+% normalize_atom_string(Atom, Normalized) is true if Normalized is a normalized
+% string conversion of Atom.
+
+normalize_atom_string(Atom, Normalized) :-
+  atom_string(Atom, String),
+  normalize_space(string(Normalized), String).
 
 
