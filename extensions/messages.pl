@@ -6,20 +6,40 @@
 :- use_module(library(csv)).
 
 
+chan("#testeazarbot").
 
-%% messages is semidet.
+
+%% messages is nondet.
 %
-% This is the main extension interface.
+% This is the main extension interface. messages/0 will listen for JOIN commands
+% and prompt that user if his nick is mapped to a recorded message. messages/0
+% will also listen for any private messages that are logged a ?tell <nick> <msg>.
+% After a ?tell command, yesbot will attempt to log the sender, nick, and
+% corresponding message so that the next time the the person with the appropriate
+% nick logs on, yesbot will prompt that user to play his/her messages.
 
 messages(Msg) :-
-  true.
+  thread_create(ignore(messages_(Msg)), _Id, [detached(true)]).
 
+% See if a joining user has any messages in the database.
+messages_(Msg) :-
+  chan(Chan),
+  Msg = msg(Prefix, "JOIN", [Chan]),
+  messages_(Msg).
+  prefix_id(Prefix, Nick, _, _),
+  recording(Nick, Sender, Text).
+
+% See if a user is trying to record a message for another user.
+messages_(Msg) :-
+  chan(Chan),
+  Msg = msg(_Prefix, "PRIVMSG", [Chan]),
+  
 
 %% read_db is semidet.
 %
 % Read from a csv file that is delimited by white spaces (32). The file will be
-% created if one doesn't exist. The format for each row in the database is
-% as follows: <Sender> <Recipient> <Message>
+% created if one doesn't exist. The format for each row in the database is as
+% follows: <Sender> <Recipient> <Message>
 
 read_db :-
   (
@@ -30,7 +50,6 @@ read_db :-
      create_db,
      populate_db
   ).
-
 
 
 %% create_db is semidet.
@@ -50,9 +69,6 @@ populate_db :-
   csv_read_file('messages.db', Rows,
     [functor(recording), arity(3), separator(32)]),
   maplist(asserta, Rows).
-  
-
-
 
 
 %% open_db_with(:Goal) is semidet.
@@ -66,10 +82,5 @@ open_db_with(Goal) :-
     Goal,
     close(Fstream)
   ).
-
-
-
-
-
 
 
