@@ -6,15 +6,20 @@
 :- use_module(library(csv)).
 
 :- dynamic recording/3.
-
+:- dynamic loaded/1.
 
 chan("##prolog").
 
 
-% TBD: Updated message.db by deleting lines/messages that are displayed in
-% chat room.
+%--------------------------------------------------------------------------------%
+% Main Interface
+%--------------------------------------------------------------------------------%
 
-%% messages(+Msg) is nondet.
+
+% TBD: Updated message.db by deleting lines/messages after they are displayed in
+% channel.
+
+%% messages(+Msg) is semidet.
 %
 % This is the main extension interface. messages/0 will listen for JOIN commands
 % and prompt that user if his nick is mapped to a recorded message. messages/0
@@ -24,18 +29,27 @@ chan("##prolog").
 % nick logs on, yesbot will prompt that user to play his/her messages.
 
 messages(Msg) :-
-  thread_create(ignore(messages_(Msg)), _Id, [detached(true)]).
-
+  setup_call_cleanup(
+    working_directory(_, extensions),
+    messages_(Msg),
+    working_directory(_, '../')
+  ).
+		    
 % See if a joining user has any messages in the database.
 messages_(Msg) :-
   chan(Chan),
   Msg = msg(Prefix, "JOIN", [Chan]),
   prefix_id(Prefix, Nick, _, _),
-  read_db,
-  recording(N, S, T),
+  load_kb,
+  recording(N,S,T),
   atom_string(T, Text),
   maplist(normalize_atom_string, [N,S], [Nick, Sender]),
-  format(string(Greet), 'Hello ~s, ~s has left you a message.', [Nick, Sender, Text]),
+  format(string(Greet), 'Hello ~s, ~s has left you a message.',
+    [Nick, Sender, Text]),
+  /* Add a mechanism here v to update messages.db.
+   * The mechanism should probably include setup_call_cleanup/3 as a wrapper and
+   * should most likely utilize at_exit(:AtExit) as a safety measure.
+   */
   retract(recording(N,S,T)),
   send_msg(priv_msg, Greet, Chan),
   send_msg(priv_msg, Text, Chan).
@@ -47,6 +61,28 @@ messages_(Msg) :-
   append(`?tell `, R0, Rest),
   string_codes(Request, R0),
   update_db(Request).
+
+
+%--------------------------------------------------------------------------------%
+% DB Operations
+%--------------------------------------------------------------------------------%
+
+
+% load_kb is det.
+%
+% If database is already loaded do nothing. Otherwise, read from the messages.db
+% and load it into the KB.
+
+load_kb :-
+  (
+     loaded(true)
+  ->
+     true
+  ;
+     read_db,
+     asserta(loaded(true))
+  ).
+
 
 %% read_db is semidet.
 %
@@ -105,6 +141,11 @@ open_db_with(Fstream, Goal) :-
   ).
 
 
+%--------------------------------------------------------------------------------%
+% Utilities
+%--------------------------------------------------------------------------------%
+
+
 %% normalize_atom_string(+Atom, -Normalized) is det.
 %
 % normalize_atom_string(Atom, Normalized) is true if Normalized is a normalized
@@ -113,5 +154,21 @@ open_db_with(Fstream, Goal) :-
 normalize_atom_string(Atom, Normalized) :-
   atom_string(Atom, String),
   normalize_space(string(Normalized), String).
+
+
+%% cleanup_routine is semidet.
+%
+% The purpose of cleanup_routine/0 is to find all the knowledge of recordings in
+% the knowledge base and write them to a new file, delete the original
+% messages.db file, and rename the new file as messages.db. This is essentially
+% and updating and persistence routine all in one.
+
+cleanup_routine :-
+  findall(R, (recording(S,N,T), R = recording(S,N,T)), Rs),
+  csv_write_file('temp.db', Rs, [separator(44)]),
+  delete_file('message.db'),
+  rename_file('temp.db', 'message.db').
+
+
 
 
