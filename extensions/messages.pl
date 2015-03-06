@@ -8,7 +8,7 @@
 :- dynamic recording/3.
 :- dynamic loaded/1.
 
-chan("##prolog").
+chan("#testeazarbot").
 
 
 %--------------------------------------------------------------------------------%
@@ -46,11 +46,8 @@ messages_(Msg) :-
   maplist(normalize_atom_string, [N,S], [Nick, Sender]),
   format(string(Greet), 'Hello ~s, ~s has left you a message.',
     [Nick, Sender, Text]),
-  /* Add a mechanism here v to update messages.db.
-   * The mechanism should probably include setup_call_cleanup/3 as a wrapper and
-   * should most likely utilize at_exit(:AtExit) as a safety measure.
-   */
   retract(recording(N,S,T)),
+  cleanup_routine,
   send_msg(priv_msg, Greet, Chan),
   send_msg(priv_msg, Text, Chan).
 
@@ -135,7 +132,7 @@ update_db(Row) :-
 
 open_db_with(Fstream, Goal) :-
   setup_call_cleanup(
-    open('messages.db', append, Fstream),
+    open('messages.db', write, Fstream),
     Goal,
     close(Fstream)
   ).
@@ -156,7 +153,7 @@ normalize_atom_string(Atom, Normalized) :-
   normalize_space(string(Normalized), String).
 
 
-%% cleanup_routine is semidet.
+%% cleanup_routine is det.
 %
 % The purpose of cleanup_routine/0 is to find all the knowledge of recordings in
 % the knowledge base and write them to a new file, delete the original
@@ -166,9 +163,6 @@ normalize_atom_string(Atom, Normalized) :-
 cleanup_routine :-
   findall(R, (recording(S,N,T), R = recording(S,N,T)), Rs),
   csv_write_file('temp.db', Rs, [separator(44)]),
-  delete_file('message.db'),
-  rename_file('temp.db', 'message.db').
-
-
+  mv('temp.db', 'messages.db').
 
 
