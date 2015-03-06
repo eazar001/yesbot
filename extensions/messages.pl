@@ -16,9 +16,6 @@ chan("#testeazarbot").
 %--------------------------------------------------------------------------------%
 
 
-% TBD: Updated message.db by deleting lines/messages after they are displayed in
-% channel.
-
 %% messages(+Msg) is semidet.
 %
 % This is the main extension interface. messages/0 will listen for JOIN commands
@@ -104,7 +101,7 @@ read_db :-
 % Attempt to create messages.db
 
 create_db :-
-  open_db_with(_Fstream, true).
+  open_db_with(_Fstream, write, true).
 
 
 %% populate_db is semidet.
@@ -123,7 +120,7 @@ populate_db :-
 % Add a new record to message.db.
 
 update_db(Row) :-
-  open_db_with(Fstream, format(Fstream, '~s~n', [Row])).
+  open_db_with(Fstream, append, format(Fstream, '~s~n', [Row])).
 
 
 %% open_db_with(-Fstream, :Goal) is semidet.
@@ -131,9 +128,9 @@ update_db(Row) :-
 % Attempts to open up messages.db file with a goal and then close Fstream.
 % Unification of arguments isn't extant here.
 
-open_db_with(Fstream, Goal) :-
+open_db_with(Fstream, Mode, Goal) :-
   setup_call_cleanup(
-    open('messages.db', write, Fstream),
+    open('messages.db', Mode, Fstream),
     Goal,
     close(Fstream)
   ).
