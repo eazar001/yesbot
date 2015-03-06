@@ -31,7 +31,7 @@ chan("#testeazarbot").
 messages(Msg) :-
   setup_call_cleanup(
     working_directory(_, extensions),
-    messages_(Msg),
+    ignore((messages_(Msg), fail)),
     working_directory(_, '../')
   ).
 		    
@@ -48,6 +48,7 @@ messages_(Msg) :-
     [Nick, Sender, Text]),
   retract(recording(N,S,T)),
   cleanup_routine,
+  retractall(loaded(_)),
   send_msg(priv_msg, Greet, Chan),
   send_msg(priv_msg, Text, Chan).
 
