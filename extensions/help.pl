@@ -51,6 +51,9 @@ ext_help(Query, Msg) :-
   ;
      Query = "keywords",
      keywords(Msg)
+  ;
+     Query = "messages",
+     messages(Msg)
   ).
 
 
@@ -64,9 +67,14 @@ search("?search <predicate/N> OR <f(function/N)> to search for some predicate \c
   for a library using ?search library(libname) [no quietness options available \c
   for library searches]").
 help_msg("?help <option> where your options are keywords, search, google, \c
-  wiki, dict, emoticons, yesbot").
+  wiki, dict, emoticons, yesbot, messages").
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c
   pursue all this at: https://github.com/eazar001/yesbot/tree/prolog-irc").
 keywords("?<keyword> where currently available keywords are: faq, modules, \c
   tutorials, dcg, webapps, clpfd, swipl-devel, lpn, amzi, yesbot").
+messages("?record message('somenickname', \"your message text goes here\") to \c
+  send a message to a user with 'somenickname' (must have single quotes) with \c
+  your desired message text (must have double quotes). The recipient will be \c
+  notified when rejoining the channel. Message limit is 503 chars.").
+
 

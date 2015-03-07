@@ -24,7 +24,7 @@ chan("##prolog").
 
 messages(Msg) :-
   db_attach('extensions/messages.db', []),
-  ignore(messages_(Msg)).
+  ignore(once(messages_(Msg))).
 		    
 % See if a joining user has any messages in the database.
 messages_(Msg) :-
@@ -37,29 +37,28 @@ messages_(Msg) :-
   length(C, Count),
   format(string(Greet), 'Hello ~s, you have ~d pending message(s).', [Nick, Count]),
   send_msg(priv_msg, Greet, Chan),
-  send_msg(priv_msg, "You can play a message by typing ?play", Chan).
+  send_msg(priv_msg, "You can play a message by typing ?play", Chan), !.
 
 % See if a user who has messages is requesting ?play
 messages_(Msg) :-
   chan(Chan),
   Msg = msg(Prefix, "PRIVMSG", [Chan], Rest),
   prefix_id(Prefix, Nick, _, _),
-  append(`?play`, _, Rest),
-  message(S,N,T),
-  atom_string(T, Text),
-  maplist(normalize_atom_string, [N,S], [Nick, Sender]),
-  format(string(From), '~s says:', [Sender]),
-  send_msg(priv_msg, From, Chan),
-  send_msg(priv_msg, Text, Chan),
-  retract_message(N,S,T),
-  db_sync(_), !.
-
-messages_(Msg) :-
-  chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
-  append(`?play`, _, Rest),
-  send_msg(priv_msg, "You have no messages!", Chan).
-	  
+  atom_codes(R, Rest),
+  normalize_space(atom('?play'), R),
+  (
+     message(S,N,T)
+  ->
+     atom_string(T, Text),
+     maplist(normalize_atom_string, [N,S], [Nick, Sender]),
+     format(string(From), '~s says:', [Sender]),
+     send_msg(priv_msg, From, Chan),
+     send_msg(priv_msg, Text, Chan),
+     retract_message(N,S,T),
+     db_sync(reload)
+  ;
+     send_msg(priv_msg, "You have no messages!", Chan)
+  ), !.
 
 % See if a user is trying to record a message for another user.
 messages_(Msg) :-
@@ -71,7 +70,9 @@ messages_(Msg) :-
   string_codes(Request, R0),
   term_string(message(N,T), Request),
   assert_message(S,N,T),
-  db_sync(_).
+  send_msg(priv_msg, "Done.", Chan),
+  db_sync(reload),
+  db_sync(gc).
 
 
 %% normalize_atom_string(+Atom, -Normalized) is det.
