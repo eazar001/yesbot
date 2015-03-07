@@ -20,7 +20,7 @@
 :- use_module(library(uri)).
 
 
-chan("##prolog").
+chan("#testeazarbot").
 search_form("http://www.swi-prolog.org/pldoc/doc_for?object=").
 search_form_lib("http://www.swi-prolog.org/pldoc/doc/swi/library/").
 search_sugg("http://www.swi-prolog.org/pldoc/search?for=").
@@ -168,7 +168,9 @@ write_first_sentence(Structure) :-
   ).
 
 
-first_sentence(`.`) --> `.`, !.
+first_sentence([B,46]) -->
+  [B,46,A], {B \= 46, A \= 46}, !.
+	     
 first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
 
