@@ -23,14 +23,18 @@ chan("##prolog").
 % format :?record message(<nick>, "<msg>")
 
 messages(Msg) :-
-  thread_create(
-    with_mutex(db,
-      (
-         db_attach('extensions/messages.db', []),
-         ignore(once(messages_(Msg)))
-      )
-  ), _Id, [detached(true)]).
-  
+  thread_create(messages_access(Msg), _Id, [detached(true)]).
+
+
+messages_access(Msg) :-
+  with_mutex(db,
+    (
+       db_attach('extensions/messages.db', []),
+       ignore(once(messages_(Msg)))
+    )
+  ).
+
+
 % See if a joining user has any messages in the database.
 messages_(Msg) :-
   chan(Chan),
