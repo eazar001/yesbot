@@ -58,7 +58,7 @@ messages_(Msg) :-
   chan(Chan),
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
   append(`?play`, _, Rest),
-  send_msg(priv_msg, "You have no messages!").
+  send_msg(priv_msg, "You have no messages!", Chan).
 	  
 
 % See if a user is trying to record a message for another user.
