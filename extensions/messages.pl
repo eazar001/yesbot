@@ -6,7 +6,7 @@
 :- use_module(library(persistency)).
 
 :- persistent
-     recording(sender:atom, nick:atom, text:atom).
+     message(sender:atom, nick:atom, text:string).
 
 chan("##prolog").
 
@@ -20,41 +20,58 @@ chan("##prolog").
 %
 % This is the main extension interface. messages/0 will listen for JOIN commands
 % and prompt that user if his nick is mapped to a recorded message. messages/0
-% will also listen for any private messages that are logged a ?tell <nick> <msg>.
-% After a ?tell command, yesbot will attempt to log the sender, nick, and
-% corresponding message so that the next time the the person with the appropriate
-% nick logs on, yesbot will prompt that user to play his/her messages.
+% format :?record message(<nick>, "<msg>")
 
 messages(Msg) :-
-  setup_call_cleanup(
-    working_directory(_, extensions),
-    ignore((messages_(Msg), fail)),
-    working_directory(_, '../')
-  ).
+  db_attach('extensions/messages.db', []),
+  ignore(messages_(Msg)).
 		    
 % See if a joining user has any messages in the database.
 messages_(Msg) :-
   chan(Chan),
   Msg = msg(Prefix, "JOIN", [Chan]),
-  db_attach('messages.db', []),
   prefix_id(Prefix, Nick, _, _),
-  recording(N,S,T),
+  message(_,N,_),
+  maplist(normalize_atom_string, [N], [Nick]),
+  findall(_, message(_,N,_), C),
+  length(C, Count),
+  format(string(Greet), 'Hello ~s, you have ~d pending message(s).', [Nick, Count]),
+  send_msg(priv_msg, Greet, Chan),
+  send_msg(priv_msg, "You can play a message by typing ?play", Chan).
+
+% See if a user who has messages is requesting ?play
+messages_(Msg) :-
+  chan(Chan),
+  Msg = msg(Prefix, "PRIVMSG", [Chan], Rest),
+  prefix_id(Prefix, Nick, _, _),
+  append(`?play`, _, Rest),
+  message(S,N,T),
   atom_string(T, Text),
   maplist(normalize_atom_string, [N,S], [Nick, Sender]),
-  format(string(Greet), 'Hello ~s, ~s has left you a message.',
-    [Nick, Sender, Text]),
-  retract_recording(N,S,T),
-  send_msg(priv_msg, Greet, Chan),
-  send_msg(priv_msg, Text, Chan).
+  format(string(From), '~s says:', [Sender]),
+  send_msg(priv_msg, From, Chan),
+  send_msg(priv_msg, Text, Chan),
+  retract_message(N,S,T),
+  db_sync(_), !.
+
+messages_(Msg) :-
+  chan(Chan),
+  Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
+  append(`?play`, _, Rest),
+  send_msg(priv_msg, "You have no messages!").
+	  
 
 % See if a user is trying to record a message for another user.
 messages_(Msg) :-
   chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
-  append(`?tell `, R0, Rest),
+  Msg = msg(Prefix, "PRIVMSG", [Chan], Rest),
+  prefix_id(Prefix, Sender, _, _),
+  atom_string(S, Sender),
+  append(`?record `, R0, Rest),
   string_codes(Request, R0),
-  term_string(recording(S,N,T), Request),
-  assert_recording(S,N,T).
+  term_string(message(N,T), Request),
+  assert_message(S,N,T),
+  db_sync(_).
 
 
 %% normalize_atom_string(+Atom, -Normalized) is det.
