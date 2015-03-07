@@ -20,8 +20,9 @@
 :- use_module(library(uri)).
 
 
-chan("##prolog").
+chan("#testeazarbot").
 search_form("http://www.swi-prolog.org/pldoc/doc_for?object=").
+search_form_lib("http://www.swi-prolog.org/pldoc/doc/swi/library/").
 search_sugg("http://www.swi-prolog.org/pldoc/search?for=").
 
   
@@ -43,6 +44,10 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   atom_codes(A0, Cs),
   normalize_space(codes(Tail), A0),
   (
+     Tail = [108,105,98,114,97,114,121,40|T],
+     append(Rest, `)`, T),
+     Quiet = lib, !
+  ;
      Tail = [45,113,32|Rest],
      Quiet = q, !
   ;
@@ -56,9 +61,26 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   uri_encoded(query_value, A, Encoded),
   atom_string(Encoded, Str),
   normalize_space(string(Query), Str),
-  search_form(Form),
-  string_concat(Form, Query, Link),
-  http_open(Link, Stream, [timeout(20), status_code(_)]).
+  (
+     Quiet = lib
+  ->
+     search_form_lib(Form),
+     string_concat(Form, Query, Initial),
+     string_concat(Initial, ".pl", Link)
+  ;
+     search_form(Form),
+     string_concat(Form, Query, Link)
+  ),
+  http_open(Link, Stream, [timeout(20), status_code(Status)]),
+  (
+     Quiet \= lib, !
+  ;
+     Status = 200, !
+  ;
+     Status = 404,
+     send_msg(priv_msg, "No matching object found.", Chan),
+     fail
+  ).
 
 
 parse_structure(Link, Query, Quiet, Stream) :-
@@ -77,6 +99,11 @@ found_object(Structure, Link, Query, Quiet, Chan) :-
      try_again(Query)
   ).
 
+
+found(Link, Chan, lib, Structure) :-
+  xpath_chk(Structure, //title(normalize_space), Title),
+  send_msg(priv_msg, Title, Chan),
+  send_msg(priv_msg, Link, Chan).
 
 found(Link, Chan, q0, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),

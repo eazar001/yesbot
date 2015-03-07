@@ -60,7 +60,9 @@ dict("?dict <search term> will attempt to look up a word in dictionary.com").
 emoticons("?emote <emoticon> will attempt to define wacky emoticons").
 search("?search <predicate/N> OR <f(function/N)> to search for some predicate \c
   or function with N arity in the swi object database/documentation (use \c
-  ?search -q for quiet output OR ?search -qq for quieter)").
+  ?search -q for quiet output OR ?search -qq for quieter). You can also search \c
+  for a library using ?search library(<libname>) [no quiet options available \c
+  for library searches.").
 help_msg("?help <option> where your options are keywords, search, google, \c
   wiki, dict, emoticons, yesbot").
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c
