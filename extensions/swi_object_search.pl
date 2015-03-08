@@ -204,7 +204,7 @@ try_again(Query) :-
        ;
 	  % No initial suggestions, so let's find some
           Ss = [],
-	  findall(C, try_other_candidate(Structure, C), L)
+          findnsols(10, C, try_other_candidate(Structure, C), L)
        ),
        L = [_|_],
        atomic_list_concat(L, ', ', A0),
@@ -232,7 +232,7 @@ find_candidate(Structure, Fcodes, Sugg) :-
   atom_string(A, Sugg).
 
 
-%% try_other_candidate(+Structure, -Sugg) is nondet.
+%% try_other_candidate(+Structure, +Query, -Sugg) is nondet.
 %
 % This should be the end of the line. These are suggestions that are tried when
 % the base functor doesn't have a match. We now rely on the first 10 results of
@@ -243,7 +243,7 @@ try_other_candidate(Structure, Sugg) :-
   xpath(Row, //a(@href=Path, normalize_space), _),
   atom_codes(Path, Codes),
   append(`/pldoc/doc_for?object=`, Functor_Arity, Codes),
-  \+member(39, Functor_Arity),
+  intersection([39,58], Functor_Arity, []),
   atom_codes(Atom, Functor_Arity),
   uri_encoded(query_value, A, Atom),
   atom_string(A, Sugg).
