@@ -52,8 +52,6 @@ swi_object_search_(Msg) :-
 
 
 % TBD: This predicate needs to be refactored.
-% TBD: Implement some search suggestions for inexact search queries.
-
 
 %% do_search(+Msg, -Link, -Query, -Quiet, -Stream) is semidet.
 %
@@ -272,8 +270,26 @@ write_first_sentence(Structure) :-
 % period (ellipses, etc.). This probably should be upgraded to punctuation in
 % general. But more thought needs to be put into this.
 
+% i.e. case
+first_sentence([105,46,101,46|Rest]) -->
+  [105,46,101,46], first_sentence(Rest).
+
+% e.g. case
+first_sentence([101,46,103,46|Rest]) -->
+  [101,46,103,46], first_sentence(Rest).
+
+% decimal case
+first_sentence([N0,46]) -->
+  [N0,46,N1],
+  {
+     (  between(48,57,N0)
+     -> \+between(48,57,N1)
+     ;  true
+     )
+  }, !.
+
 first_sentence([B,46]) -->
-  [B,46,A], {B \= 46, A \= 46}, !.
+  [B,46,A], {\+between(48,57,B),B \= 46, A \= 46}, !.
 	     
 first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
