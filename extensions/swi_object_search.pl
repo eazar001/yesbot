@@ -197,8 +197,17 @@ try_again(Query) :-
        load_html(Stream, Structure, []),
        % Find all solutions and write them on one line to avoid flooding
        findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
-       Ss = [_|_],
-       atomic_list_concat(Ss, ', ', A0),
+       (
+	  % We have suggestions
+	  Ss = [_|_],
+	  L  = Ss, !
+       ;
+	  % No initial suggestions, so let's find some
+          Ss = [],
+	  findall(C, try_other_candidate(Structure, C), L)
+       ),
+       L = [_|_],
+       atomic_list_concat(L, ', ', A0),
        atom_concat('Perhaps you meant one of these: ', A0, A),
        atom_string(Feedback, A),
        send_msg(priv_msg, Feedback, Chan)
@@ -222,6 +231,23 @@ find_candidate(Structure, Fcodes, Sugg) :-
   uri_encoded(query_value, A, Atom),
   atom_string(A, Sugg).
 
+
+%% try_other_candidate(+Structure, -Sugg) is nondet.
+%
+% This should be the end of the line. These are suggestions that are tried when
+% the base functor doesn't have a match. We now rely on the first 10 results of
+% of the search page.
+
+try_other_candidate(Structure, Sugg) :-
+  xpath(Structure, //tr(@class=public), Row),
+  xpath(Row, //a(@href=Path, normalize_space), _),
+  atom_codes(Path, Codes),
+  append(`/pldoc/doc_for?object=`, Functor_Arity, Codes),
+  \+member(39, Functor_Arity),
+  atom_codes(Atom, Functor_Arity),
+  uri_encoded(query_value, A, Atom),
+  atom_string(A, Sugg).
+  
 
 %% write_first_sentence(+Structure) is semidet.
 %
