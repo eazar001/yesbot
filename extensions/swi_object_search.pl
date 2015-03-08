@@ -20,12 +20,22 @@
 :- use_module(library(uri)).
 
 
+%--------------------------------------------------------------------------------%
+% Main Interface
+%--------------------------------------------------------------------------------%
+
+
+% All search results are delivered to ##prolog
+% search_form is used to search for predicates and functions. (with suggestions)
+% search_form_lib is used to search for libraries. (without suggestions)
+% search_sugg is the url used for deriving suggestions.
+
 chan("##prolog").
 search_form("http://www.swi-prolog.org/pldoc/doc_for?object=").
 search_form_lib("http://www.swi-prolog.org/pldoc/doc/swi/library/").
 search_sugg("http://www.swi-prolog.org/pldoc/search?for=").
 
-  
+
 swi_object_search(Msg) :-
   thread_create(ignore(swi_object_search_(Msg)), _Id, [detached(true)]).
 
@@ -37,6 +47,22 @@ swi_object_search_(Msg) :-
     close(Stream)
   ).
 
+
+%--------------------------------------------------------------------------------%
+
+
+% TBD: This predicate needs to be refactored.
+% TBD: Implement some search suggestions for inexact search queries.
+
+
+%% do_search(+Msg, -Link, -Query, -Quiet, -Stream) is semidet.
+%
+% do_search/5 listens for the appropriate search patterns and arguments.
+% Certain patterns will correspond with implicit or explicit quietness options.
+% These patterns will also generate specific links for handling different types of
+% situations a user might throw at yesbot. The link and quietness information will
+% be unified so that this information can be passed to parse_structure/4.
+
 do_search(Msg, Link, Query, Quiet, Stream) :-
   chan(Chan),
   % Message should begin with the prefix ?search
@@ -44,16 +70,20 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   atom_codes(A0, Cs),
   normalize_space(codes(Tail), A0),
   (
+     % ?search library(...)
      Tail = [108,105,98,114,97,114,121,40|T],
      append(Rest, `)`, T),
      Quiet = lib, !
   ;
+     % search -q
      Tail = [45,113,32|Rest],
      Quiet = q, !
   ;
+     % search -qq
      Tail = [45,113,113,32|Rest],
      Quiet = qq, !
   ;
+     % Anything else
      Tail = Rest,
      Quiet = q0
   ),
@@ -61,33 +91,54 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   uri_encoded(query_value, A, Encoded),
   atom_string(Encoded, Str),
   normalize_space(string(Query), Str),
+  % Determine appropriate search link
   (
      Quiet = lib
   ->
+     % Will do a library specific search with no suggestions
      search_form_lib(Form),
      string_concat(Form, Query, Initial),
      string_concat(Initial, ".pl", Link)
   ;
+     % Will do a regular search with suggestions
      search_form(Form),
      string_concat(Form, Query, Link)
   ),
+  % Get the results from a search using the appropriate link from above
   http_open(Link, Stream, [timeout(20), status_code(Status)]),
   (
+     % Non-lib searches
      Quiet \= lib, !
   ;
+     % Lib searches with successful requests
      Status = 200, !
   ;
+     % Lib searches that fail to generate a page
      Status = 404,
      send_msg(priv_msg, "No matching object found.", Chan),
      fail
   ).
 
 
+%% parse_structure(+Link, +Query, +Quiet, +Stream) is semidet.
+%
+% Load incoming search information as an HTML structure. Scrape information from
+% the HTML and determine whether or not there is a match for the user's request.
+% found_object/5 will perform the necessary side-effects depending on the
+% resolution.
+
 parse_structure(Link, Query, Quiet, Stream) :-
   chan(Chan),
   load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
   found_object(Structure, Link, Query, Quiet, Chan).
 
+
+%% found_object(+Structure, +Link, +Query, +Quiet, +Chan) is det.
+%
+% If a matching object was found for the user's requests then the necessary
+% side-effects would have been performed by found/4. If not, then the user is
+% apprised, and a new search is performed by try_again/1. The new search will
+% attempt to find any search suggestion to help direct the user.
 
 found_object(Structure, Link, Query, Quiet, Chan) :-
   (
@@ -99,6 +150,11 @@ found_object(Structure, Link, Query, Quiet, Chan) :-
      try_again(Query)
   ).
 
+
+%% found(+Link, +Chan, +Quiet, +Structure) is semidet.
+%
+% Determine if relevant information is found with respect to the user's query.
+% Display formats vary according to quietness options.
 
 found(Link, Chan, lib, Structure) :-
   xpath_chk(Structure, //title(normalize_space), Title),
@@ -120,8 +176,13 @@ found(_, Chan, qq, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
   send_msg(priv_msg, Table, Chan).
 
-  
-% Let's try to search for possible matches if user attempts incorrect query
+
+%% try_again(+Query) is semidet.
+%
+% Attempts to search for possible matches if a user has entered a query that
+% does not lead to a direct match. Possible results are displayed to the user
+% in channel.
+
 try_again(Query) :-
   chan(Chan),
   search_sugg(Form),
@@ -146,6 +207,10 @@ try_again(Query) :-
   ).
 
 
+%% find_candidate(+Structure, +Fcodes, -Sugg) is nondet.
+%
+% Scrape candidates that match the base functors. Return a possible Suggestion.
+
 find_candidate(Structure, Fcodes, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
   xpath(Row, //a(@href=Path, normalize_space), _),
@@ -158,6 +223,12 @@ find_candidate(Structure, Fcodes, Sugg) :-
   atom_string(A, Sugg).
 
 
+%% write_first_sentence(+Structure) is semidet.
+%
+% Search for a dd tag that's classified as "defbody" (definition body), attempt
+% to extract the first sentence and display it to the channel. If the first
+% sentence isn't successfully parsed, then return as much as possible.
+
 write_first_sentence(Structure) :-
   chan(Chan),
   xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
@@ -168,12 +239,25 @@ write_first_sentence(Structure) :-
   ).
 
 
+%% first_sentence(-Sentence, +Text, -Rest) is semidet.
+%
+% Parses and returns the first sentence of an object's synopsis. A sentence is
+% identified by a period. The period must not be preceded nor ateceded by another
+% period (ellipses, etc.). This probably should be upgraded to punctuation in
+% general. But more thought needs to be put into this.
+
 first_sentence([B,46]) -->
   [B,46,A], {B \= 46, A \= 46}, !.
 	     
 first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
 
+
+%% get_functor(+Original, -Functor) is det.
+%
+% This predicate will attempt to extract a base functor from some predicate/N
+% pattern. If the normal pattern is not successfully parsed, then the original
+% input will be assumed a functor. Search will proceed in this manner.
 
 get_functor(Original, Functor) :-
   (  get_functor_(Functor, Original, _)
