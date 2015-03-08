@@ -79,6 +79,8 @@ ref_value(`modules`, "http://michael.richter.name/tutorials/swiplmod").
 ref_value(`module`, "http://michael.richter.name/tutorials/swiplmod").
 ref_value(`tutorials`, "http://www.pathwayslms.com/swipltuts/").
 ref_value(`tutorial`, "http://www.pathwayslms.com/swipltuts/").
+ref_value(`tutorials`, "http://www.pathwayslms.com/swipltuts").
+ref_value(`tutorial`, "http://www.pathwayslms.com/swipltuts").
 ref_value(`dcg`, "http://www.pathwayslms.com/swipltuts/dcg/index.html").
 ref_value(`webapps`, "http://www.pathwayslms.com/swipltuts/html/index.html").
 ref_value(`webapp`, "http://www.pathwayslms.com/swipltuts/html/index.html").
@@ -110,6 +112,7 @@ ref_title(`return`, "So Everything Returns True or False, Right?").
 ref_title(`modules`, "Using SWI-Prolog's Modules").
 ref_title(`module`, "Using SWI-Prolog's Modules").
 ref_title(`tutorials`, "Real World Programming in SWI-Prolog").
+ref_title(`tutorial`, "Real World Programming in SWI-Prolog").
 ref_title(`dcg`, "Tutorial -- Using Definite Clause Grammars in SWI-Prolog").
 ref_title(`webapps`, "Tutorial -- Web Applications in SWI-Prolog").
 ref_title(`webapp`, "Tutorial -- Web Applications in SWI-Prolog").
