@@ -278,6 +278,11 @@ first_sentence([105,46,101,46|Rest]) -->
 first_sentence([101,46,103,46|Rest]) -->
   [101,46,103,46], first_sentence(Rest).
 
+% functor/arity case
+first_sentence([N0,46,N1|Rest]) -->
+  [N0,46,N1], {N1 = 47},
+  first_sentence(Rest), !.
+
 % decimal case
 first_sentence([N0,46]) -->
   [N0,46,N1],
@@ -289,7 +294,12 @@ first_sentence([N0,46]) -->
   }, !.
 
 first_sentence([B,46]) -->
-  [B,46,A], {\+between(48,57,B),B \= 46, A \= 46}, !.
+  [B,46,A],
+  {
+     \+between(48,57,B),
+     B \= 46,
+     A \= 46
+  }, !.
 	     
 first_sentence([C|Rest]) -->
   [C], first_sentence(Rest).
