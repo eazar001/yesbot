@@ -18,6 +18,7 @@
 :- use_module(library(sgml)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
+:- use_module(submodules/docs).
 
 
 %--------------------------------------------------------------------------------%
@@ -257,7 +258,7 @@ write_first_sentence(Structure) :-
   chan(Chan),
   xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
   atom_codes(D, Codes),
-  (  first_sentence(Sentence, Codes, _)
+  (  sentence(Sentence, Codes, _)
   -> send_msg(priv_msg, Sentence, Chan)
   ;  send_msg(priv_msg, Codes, Chan)
   ).
@@ -270,39 +271,6 @@ write_first_sentence(Structure) :-
 % period (ellipses, etc.). This probably should be upgraded to punctuation in
 % general. But more thought needs to be put into this.
 
-% i.e. case
-first_sentence([105,46,101,46|Rest]) -->
-  [105,46,101,46], first_sentence(Rest).
-
-% e.g. case
-first_sentence([101,46,103,46|Rest]) -->
-  [101,46,103,46], first_sentence(Rest).
-
-% functor/arity case
-first_sentence([N0,46,N1|Rest]) -->
-  [N0,46,N1], {N1 = 47},
-  first_sentence(Rest), !.
-
-% decimal case
-first_sentence([N0,46]) -->
-  [N0,46,N1],
-  {
-     (  between(48,57,N0)
-     -> \+between(48,57,N1)
-     ;  true
-     )
-  }, !.
-
-first_sentence([B,46]) -->
-  [B,46,A],
-  {
-     \+between(48,57,B),
-     B \= 46,
-     A \= 46
-  }, !.
-	     
-first_sentence([C|Rest]) -->
-  [C], first_sentence(Rest).
 
 
 %% get_functor(+Original, -Functor) is det.
