@@ -264,15 +264,6 @@ write_first_sentence(Structure) :-
   ).
 
 
-%% first_sentence(-Sentence, +Text, -Rest) is semidet.
-%
-% Parses and returns the first sentence of an object's synopsis. A sentence is
-% identified by a period. The period must not be preceded nor ateceded by another
-% period (ellipses, etc.). This probably should be upgraded to punctuation in
-% general. But more thought needs to be put into this.
-
-
-
 %% get_functor(+Original, -Functor) is det.
 %
 % This predicate will attempt to extract a base functor from some predicate/N
