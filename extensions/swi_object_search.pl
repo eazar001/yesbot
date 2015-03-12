@@ -199,7 +199,10 @@ try_again(Query) :-
        (
 	  % We have suggestions
 	  Ss = [_|_],
-	  L  = Ss, !
+	  findnsols(10, C, try_other_candidate(Structure, [39], C), Last),
+	  maplist(list_to_set, [Ss, Last], [S1, S2]),
+	  union(S1, S2, Union),
+	  L  = Union, !
        ;
 	  % No initial suggestions, so let's find some
           Ss = [],
