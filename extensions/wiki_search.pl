@@ -33,12 +33,12 @@ wiki_search_(Msg) :-
   string_codes(Link, L),
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20), final_url(URL)]),
-    (found(Stream, URL, Paragraph), send_msg(priv_msg, Paragraph, Chan)),
+    found(Stream, URL),
     close(Stream)
   ).
 
 
-found(Stream, URL, Paragraph) :-
+found(Stream, URL) :-
   chan(Chan),
   load_html(Stream, Content, []),
   (
@@ -47,17 +47,20 @@ found(Stream, URL, Paragraph) :-
      atom_codes(T, Title),
      append(`?wiki `, Title, New),
      Paragraph = "Disambiguating with first match",
-     wiki_search(msg(_, "PRIVMSG", [Chan], New)), !
+     send_msg(priv_msg, Paragraph, Chan),
+     wiki_search_(msg(_, "PRIVMSG", [Chan], New)), !
   ;
      xpath_chk(Content, //a(@title='This is a special page which you cannot edit'), _),
-     Paragraph = "Page does not exist", !
+     Paragraph = "Page does not exist",
+     send_msg(priv_msg, Paragraph, Chan), !
   ;
      xpath_chk(Content, //p(normalize_space), P0),
      atom_codes(P0, P),
      maplist(change, P, Paragraph),
      (  Paragraph \= `There were no results matching the query.`
-     -> send_msg(priv_msg, URL, Chan)
-     ;  true
+     -> send_msg(priv_msg, URL, Chan),
+	send_msg(priv_msg, Paragraph, Chan)
+     ;  send_msg(priv_msg, Paragraph, Chan)
      )
   ).
 
