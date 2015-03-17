@@ -2,7 +2,7 @@
 :- module(references_kb, [name_pair/2]).
 
 
-%% name_pair(?Name, ?Value-Title) is semidet.
+%% name_pair(?Name:codes, ?Value-Title) is semidet.
 %
 % True if Name corresponds to a Value-Title pair.
 
@@ -26,6 +26,7 @@ alias_name(`webapp`, `webapps`).
 alias_name(`hammers`, `hammer`).
 alias_name(`result`, `results`).
 alias_name(`loop`, `loops`).
+alias_name(`looping`, `loops`).
 alias_name(`return`, `returning`).
 alias_name(`returns`, `returning`).
 
@@ -51,7 +52,7 @@ ref_value(`recursion`,
 ref_value(`results`,
   "http://www.pathwayslms.com/swipltuts/student/index.html#list").
 
-ref_value(`loop`,
+ref_value(`loops`,
   "http://www.pathwayslms.com/swipltuts/student/index.html#loop").
 
 ref_value(`return`,
@@ -69,12 +70,12 @@ ref_value(`lpn-old`, "http://www.learnprolognow.org").
 ref_value(`lpn`, "http://lpn.swi-prolog.org/").
 ref_value(`lpn`, "http://lpn.swi-prolog.org").
 ref_value(`amzi`, "http://www.amzi.com/AdventureInProlog/index.php").
+ref_value(`yesbot`, "https://github.com/eazar001/yesbot/commits/prolog-irc").
 
 
 %--------------------------------------------------------------------------------%
 
 
-ref_title(`yesbot`, "https://github.com/eazar001/yesbot/commits/prolog-irc").
 ref_title(`faq`, "Frequently Asked Questions for ##Prolog").
 ref_title(`advice`, "Strong Advice for Students on ##prolog").
 ref_title(`regulars`, "And a Plea to the Regulars").
