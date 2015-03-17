@@ -14,7 +14,7 @@
 %--------------------------------------------------------------------------------%
 
 
-%% run_det(+Msg, +Extension, -E) is det.
+%% run_det(+Msg:acyclic, :Extension, -E:acyclic) is det.
 %
 % Concurrently call a list of extension predicates on the current message.
 % The extension predicates can possibly be nondet, but will still execute
@@ -24,7 +24,7 @@ run_det(Msg, Extension, E) :-
   E = ignore(((call(Extension:Extension, Msg), fail))).
 
 
-%% run_det(+Goal) is det.
+%% run_det(:Goal) is det.
 %
 % Find all the solutions to an extensionized goal in order to precipitate the
 % result as an unevaluated deterministic result. Used here for deterministically
@@ -39,7 +39,7 @@ run_det(Goal) :-
 %--------------------------------------------------------------------------------%
 
 
-%% init_timer(-Id) is semidet.
+%% init_timer(-Id:integer) is semidet.
 %
 % Initialize a message queue that stores one thread which acts as a timer that
 % checks connectivity of the bot when established interval has passed.
@@ -49,7 +49,7 @@ init_timer(Id) :-
   thread_create(check_pings(Id), _, [alias(ping_checker)]).
 
 
-%% check_pings(+Id) is nondet.
+%% check_pings(+Id:integer) is failure.
 % If Limit seconds has passed, then signal the connection threat to abort. If a
 % ping has been detected and the corresponding message is sent before the time
 % limit expires, then the goal will succeed and so will the rest of the predicate.
@@ -59,12 +59,9 @@ init_timer(Id) :-
 check_pings(Id) :-
   time_limit(Limit),
   repeat,
-    (
-       thread_get_message(Id, Goal, [timeout(Limit)])
-    ->
-       Goal
-    ;
-       thread_signal(ct, throw(abort))
+    (  thread_get_message(Id, Goal, [timeout(Limit)])
+    -> Goal
+    ;  thread_signal(ct, throw(abort))
     ),
     fail.
 

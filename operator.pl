@@ -17,6 +17,11 @@
 
 % FIXME: Not all message types are implemented yet.
 
+%% cmd(+Type:atom, -Template:string) is semidet.
+%
+% Attempt to unify with a type and a corresponding string template. The string
+% template will be fed to dispatch in order to send a message.
+
 % NOTICE [Target, Notice]
 cmd(notice, 'NOTICE ~s :~s\r~n').
 
@@ -73,7 +78,11 @@ cmd(quit, 'QUIT :disconnect\r\n').
 % Debugging
 %--------------------------------------------------------------------------------%
 
+%% dbg(+Type:atom, -Template:string) is semidet.
+%
+% This is used to debug pings, to ensure the client that pongs are being sent.
 
 % PONG [Origin]
 dbg(pong, 'PONG ~s~n').
+
 

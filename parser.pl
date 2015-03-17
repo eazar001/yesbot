@@ -30,7 +30,7 @@ crlf =	%x0D %x0A	; Carriage return/linefeed.
 */  
 
 
-%% parse_line(+Line, -Msg) is det.
+%% parse_line(+Line:codes, -Msg:acyclic) is semidet.
 %
 % After splitting the line from any potential trailing parameters, format
 % the line in a message compound term for proper reading outside of this
@@ -41,7 +41,7 @@ parse_line(Line, Msg) :-
   once(fmt_line(Out, Msg)).
 
 
-%% prefix_id(+Prefix, -Servername) is semidet.
+%% prefix_id(+Prefix:string, -Servername:string) is semidet.
 %
 % Extract a servername from a msg prefix.
 
@@ -49,7 +49,7 @@ prefix_id(Prefix, Servername) :-
   split_string(Prefix, " ", "", [Servername|_]).
 
 
-%% prefix_id(+Prefix, -Nick, -User, -Host) is semidet.
+%% prefix_id(+Prefix:string, -Nick:string, -User:string, -Host:string) is semidet.
 %
 % Extract the Nick, User, and Host portions of a prefix from a msg.
 
@@ -61,7 +61,7 @@ prefix_id(Prefix, Nick, User, Host) :-
 %--------------------------------------------------------------------------------%
 
 
-%% fmt_line(+Line, -Msg) is det.
+%% fmt_line(+Line:codes, -Msg:acyclic) is semidet.
 %
 % Split a server message into (potentially) 3 parts. The message can be split
 % into a prefix, command, and some command parameters. However, the prefix
@@ -90,7 +90,7 @@ fmt_line([Main], msg(Cmd, Params)) :-
   split_string(Main, " ", "", [Cmd|Params]).
 
 
-%% split_from_trailer(+Line, -Out) is det.
+%% split_from_trailer(+Line:codes, -Out:list) is det.
 %
 % Split the main portion of the message from the trailer portion of the message
 % if a trailer does exist. These are the possibilities when operating
