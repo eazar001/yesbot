@@ -16,6 +16,8 @@
 % this is a bit of a hack and could benefit from a convenient interface or some
 % more intuitive abstractions. Some extra documentation would also help.
 
+%% run is det.
+
 run :-
   thread_create(connect, Connect, [alias(ct)]),
   thread_signal(Connect, attach_console).

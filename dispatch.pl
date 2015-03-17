@@ -21,21 +21,18 @@
 
 % FIXME: Not all message types from operator are implemented yet.
 
-%% return_server(-Server) is nondet.
+%% return_server(-Server:string) is det.
 %
 % If the server is known get the value from the core. If not, then the server is
 % 'unknown'.
 
 return_server(Server) :-
-  (
-     core:known(irc_server)
-  ->
-     core:get_irc_server(Server)
-  ;
-     Server = unknown
+  (  core:known(irc_server)
+  -> core:get_irc_server(Server)
+  ;  Server = unknown
   ).
 
-%% send_msg(+Type, +Target) is nondet.
+%% send_msg(+Type:atom, +Target:string) is semidet.
 %
 % Send message of Type with respect to a specified Target.
 
@@ -56,16 +53,14 @@ send_msg(Type, Target) :-
   thread_send_message(tq, true).
 
 
-%% send_msg(+Type, +Str, +Target) is nondet.
+%% send_msg(+Type:atom, +Str:string, +Target:string) is semidet.
 %
 % send a Str of Type to a specified Target.
 
 send_msg(Type, Str, Target) :-
   cmd(Type, Msg),
-  (
-     Type = priv_msg
-  ;
-     Type = notice
+  (  Type = priv_msg
+  ;  Type = notice
   ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Target, Str]),
@@ -73,7 +68,7 @@ send_msg(Type, Str, Target) :-
   thread_send_message(tq, true).
 
 
-%% send_msg(+Type, +Chan, +Target) is nondet.
+%% send_msg(+Type:atom, +Chan:string, +Target:string) is semidet.
 %
 % Send a message of Type to Target in Chan.
 
@@ -91,7 +86,7 @@ send_msg(Type, Chan, Target) :-
   thread_send_message(tq, true).
 
 
-%% send_msg(+Type) is nondet.
+%% send_msg(+Type:atom) is semidet.
 %
 % Send a message of Type.
 

@@ -55,7 +55,7 @@ connect :-
   ).
 
 
-%% register_and_join is det.
+%% register_and_join is semidet.
 %
 % Present credentials and register user on the irc server.
 
@@ -90,7 +90,7 @@ init_structs :-
 
 :- dynamic extensions/2.
 
-%% init_extensions is det.
+%% init_extensions is semidet.
 %
 % Assert the extensions along with its length at the top level for access.
 % Import all the modules afterwards.
@@ -102,6 +102,8 @@ init_extensions :-
   maplist(import_extension_module, Extensions).
 
 
+%% import_extension_module(+Extensions:atom) is semidet.
+
 %% Load an extension from the 'extensions' directory
 import_extension_module(Extension) :-
   use_module(extensions/Extension).
@@ -112,7 +114,7 @@ import_extension_module(Extension) :-
 %--------------------------------------------------------------------------------%
 
 
-%% read_server_loop(-Reply) is nondet.
+%% read_server_loop(-Reply:codes) is nondet.
 %
 % Read the server output one line at a time. Each line will be sent directly
 % to a predicate that is responsible for handling the output that it receives.
@@ -128,7 +130,7 @@ read_server_loop(Reply) :-
     Reply = end_of_file, !.
 
 
-%% read_server(-Reply, +Stream) is nondet.
+%% read_server(-Reply, +Stream:codes) is nondet.
 %
 % Translate server line to codes. If the codes are equivalent to EOF then succeed
 % and go back to the main loop for termination. If not then then display the
@@ -136,12 +138,9 @@ read_server_loop(Reply) :-
 
 read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
-  (
-     Reply = end_of_file
-  ->
-     true
-  ;
-     thread_send_message(mq, read_server_handle(Reply))
+  (  Reply = end_of_file
+  -> true
+  ;  thread_send_message(mq, read_server_handle(Reply))
   ).
 
 
@@ -185,7 +184,7 @@ process_server(Line) :-
 %--------------------------------------------------------------------------------%
 
 
-%% init_queue(-Id) is semidet.
+%% init_queue(-Id:integer) is semidet.
 %
 % Initialize a message queue to store server lines to be processed in the future.
 % Server lines will be processed sequentially.
@@ -195,7 +194,7 @@ init_queue(Id) :-
   thread_create(start_job(Id), _, [alias(msg_handler)]).
 
 
-%% start_job(+Id) is nondet.
+%% start_job(+Id:integer) is failure.
 %
 % Wait for any messages directed to the Id of the message queue. Fetch the
 % message from the thread and call Goal. Catch any errors and print the messages.
@@ -204,12 +203,9 @@ init_queue(Id) :-
 start_job(Id) :-
   repeat,
     thread_get_message(Id, Goal),
-    (
-       catch(Goal, E, print_message(error, E))
-    ->
-       true
-    ;
-       print_message(error, goal_failed(Goal, worker(Id)))
+    (  catch(Goal, E, print_message(error, E))
+    -> true
+    ;  print_message(error, goal_failed(Goal, worker(Id)))
     ),
     fail.
 
@@ -219,7 +215,7 @@ start_job(Id) :-
 %--------------------------------------------------------------------------------%
 
 
-%% process_msg(+Msg) is nondet.
+%% process_msg(+Msg:acyclic) is nondet.
 %
 % All extensions that deal specifically with handling messages should be
 % implemented dynamically in this section. The extensions will be plugged into
@@ -251,7 +247,7 @@ reconnect :-
   connect.
 
 
-%% disconnect is det.
+%% disconnect is semidet.
 %
 % Clean up top level information access structures, issue a disconnect command
 % to the irc server, close the socket stream pair, and attempt to reconnect.
