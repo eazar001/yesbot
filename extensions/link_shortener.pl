@@ -60,9 +60,7 @@ link_shortener_(Msg) :-
         url_get_title(Link, Title) ->
         (  Title = []
         -> true
-        ;  unescape_title(Title, T0),
-	   maplist(change, T0, T),
-	   send_msg(priv_msg, T, Chan)
+        ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
         )
      )
   ).
@@ -87,15 +85,12 @@ make_tiny(Link, Chan, Tiny) :-
   make_tiny_(Link, Title, Tiny),
   (  Title = []
   -> true
-  ;  unescape_title(Title, T0),
-     maplist(change, T0, T),
-     send_msg(priv_msg, T, Chan)
+  ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
   ).
   
 make_tiny_(Link, Title, Tiny) :-
   url_get_title(Link, Title),
   tiny_form(F),
-  string_concat(F, Link, Full),
-  visit_url(Full, Tiny).
+  visit_url(string_concat(F) $ Link, Tiny).
 
 

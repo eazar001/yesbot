@@ -32,12 +32,9 @@ chat_log(Msg) :-
   core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
   prefix_id(Prefix, Nick, _, _),
-  (
-     exists_directory('extensions/chat-logs')
-  ->
-     true
-  ;
-     make_directory('extensions/chat-logs')
+  (  exists_directory('extensions/chat-logs')
+  -> true
+  ;  make_directory('extensions/chat-logs')
   ),
   get_time(Time),
   stamp_date_time(Time, Date, local),
@@ -55,9 +52,10 @@ chat_log(Msg) :-
 % the new day's logs to.
 
 write_chat_line(Date, Nick, Chan, Log) :-
-  format_time(atom(Filename0), '-%d-%b-%Y.txt', Date, posix),
-  atom_concat(Chan, Filename0, Filename),
-  format_time(atom(Stamp), '%T', Date, posix),
+  Format_time = (\Format^Fname^
+    (format_time(atom(Fname), Format, Date, posix))),
+  atom_concat(Chan, Format_time $ '-%d-%b-%Y.txt', Filename),
+  Stamp = Format_time $ '%T',
   date_time_value(day, Date, Current_Day),
   working_directory(_Working, 'extensions/chat-logs'),
   (
@@ -78,12 +76,9 @@ write_chat_line(Date, Nick, Chan, Log) :-
   setup_call_cleanup(
     open(Filename, append, Fstream, []),
     (
-       (
-	  get_action(Log, Action)
-       ->
-          format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
-       ;
-          format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
+       (  get_action(Log, Action)
+       -> format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
+       ;  format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
        ),
        flush_output(Fstream),
        working_directory(_Return, '../../')
@@ -98,5 +93,6 @@ write_chat_line(Date, Nick, Chan, Log) :-
 % an action, which is part of CTCP.
 
 get_action([1|Log], Action) :-
-  selectchk(1, Log, Rest),
-  append(`ACTION`, Action, Rest).
+  append(`ACTION`, Action, selectchk(1) $ Log).
+
+
