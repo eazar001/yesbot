@@ -6,6 +6,10 @@
 :- use_module(core).
 :- use_module(dispatch).
 :- use_module(operator).
+:- use_module(library(lambda)).
+:- use_module(library(func)).
+:- use_module(library(mavis)).
+
 
 % TBD: Currently extensions that are independent of message lines relayed by the
 % server are possible, but must be done by building them as regular extensions
