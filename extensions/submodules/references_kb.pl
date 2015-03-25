@@ -29,6 +29,26 @@ alias_name(`loop`, `loops`).
 alias_name(`looping`, `loops`).
 alias_name(`return`, `returning`).
 alias_name(`returns`, `returning`).
+alias_name(`hello`, `hello-world`).
+alias_name(`which`, `which-prolog`).
+alias_name(`cheat`, `cheat-sheet`).
+alias_name(`repl`, `not-repl`).
+alias_name(`hang`, `hung`).
+alias_name(`hangs`, `hung`).
+alias_name(`prolog-hangs`, `hung`).
+alias_name(`prolog-hung`, `hung`).
+alias_name(`debugging`, `debug`).
+alias_name(`debugger`, `debug`).
+alias_name(`string`, `strings`).
+alias_name(`term`, `terms`).
+alias_name(`if-statement`, `if`).
+alias_name(`control`, `if`).
+alias_name(`control-flow`, `if`).
+alias_name(`conditional`, `if`).
+alias_name(`conditionals`, `if`).
+alias_name(`arg`, `args`).
+alias_name(`argument`, `args`).
+alias_name(`arguments`, `args`).
 
 
 %--------------------------------------------------------------------------------%
@@ -55,8 +75,38 @@ ref_value(`results`,
 ref_value(`loops`,
   "http://www.pathwayslms.com/swipltuts/student/index.html#loop").
 
-ref_value(`return`,
+ref_value(`returning`,
   "http://www.pathwayslms.com/swipltuts/student/index.html#return").
+
+ref_value(`hello-world`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#hello").
+
+ref_value(`which-prolog`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#which").
+
+ref_value(`cheat-sheet`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#cheat").
+
+ref_value(`not-repl`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#not_repl").  
+
+ref_value(`hung`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#hung").
+
+ref_value(`debug`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#debug").
+
+ref_value(`strings`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#howdy").
+
+ref_value(`terms`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#wtf").
+
+ref_value(`if`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#if").
+
+ref_value(`args`,
+  "http://www.pathwayslms.com/swipltuts/student/index.html#args").
 
 ref_value(`module`, "http://michael.richter.name/tutorials/swiplmod").
 ref_value(`tutorial`, "http://www.pathwayslms.com/swipltuts/").
@@ -84,6 +134,21 @@ ref_title(`hammer`, "I get true, then false when I expected just true").
 ref_title(`results`, "How Do I get all the Results in a List?").
 ref_title(`loops`, "How Do I Make a Loop?").
 ref_title(`returning`, "So Everything Returns True or False, Right?").
+ref_title(`hello-world`, "Hello World").
+ref_title(`which-prolog`, "Which Prolog to Use").
+ref_title(`cheat-sheet`, "Ten Second Syntax Cheat Sheet").
+ref_title(`not-repl`, "Why can’t I type in code at the repl?").
+ref_title(`hung`, "Prolog Hung").
+ref_title(`debug`, "How can I see what my code is doing?").
+ref_title(`strings`,
+  "Difference between \"hello\", hello, HowAreYa, and 'Howdy!'").
+
+ref_title(`terms`,
+  "WTF, 4 = 2 + 2 fails?").
+
+ref_title(`if`, "How do I make an if statement?").
+ref_title(`args`, "How do I return if everything’s void?").
+
 ref_title(`module`, "Using SWI-Prolog's Modules").
 ref_title(`tutorial`, "Real World Programming in SWI-Prolog").
 ref_title(`dcg`, "Tutorial -- Using Definite Clause Grammars in SWI-Prolog").
