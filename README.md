@@ -11,7 +11,6 @@ Configuration
 =============
 
 Yesbot requires some extra pack dependencies. If you are running this bot for the first time you should install the 
-
 lambda, func, and mavis packs using pack_install/1.
 
 The next required step is to configure the bot using the settings tools in SWI-Prolog. 
