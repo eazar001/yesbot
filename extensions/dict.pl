@@ -21,14 +21,11 @@ dict_(Msg) :-
   append(`?dict `, Q0, Text),
   string_codes(Q1, Q0),
   normalize_space(atom(Atom), Q1),
-  uri_encoded(query_value, Atom, Encoded),
-  atom_codes(Encoded, Q),
-  append(Q, Diff, Query),
+  append(atom_codes $ uri_encoded(query_value) $ Atom, Diff, Query),
   dict_start(Start),
   dict_end(End),
-  append(Start, Query, L),
   Diff = End,
-  string_codes(Link, L),
+  string_codes(Link, append(Start) $ Query),
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20), status_code(_)]),
     dict_search(Link, Stream, Chan),
@@ -38,11 +35,12 @@ dict_(Msg) :-
 
 dict_search(Link, Stream, Chan) :-
   load_html(Stream, Content, []),
-  xpath_chk(Content, //div(@class='def-content', normalize_space), P0),
-  atom_codes(P0, P),
-  maplist(change, P, Paragraph),
+  xpath_chk(Content, //div(@class='def-content', normalize_space), P),
+  maplist(change, atom_codes $ P, Paragraph),
   send_msg(priv_msg, Link, Chan),
   send_msg(priv_msg, Paragraph, Chan), !.
 
 dict_search(_, _, Chan) :-
   send_msg(priv_msg, "No matches found", Chan).
+
+

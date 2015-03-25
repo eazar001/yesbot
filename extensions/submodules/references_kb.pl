@@ -2,7 +2,7 @@
 :- module(references_kb, [name_pair/2]).
 
 
-%% name_pair(?Name:codes, ?Value-Title) is semidet.
+%% name_pair(?Name:codes, ?Pair) is semidet.
 %
 % True if Name corresponds to a Value-Title pair.
 

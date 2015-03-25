@@ -27,18 +27,16 @@ google_search_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Text),
   append(`?google `, Q0, Text),
   atom_codes(Atom, Q0),
-  uri_encoded(query_value, Atom, Encoded),
-  atom_codes(Encoded, Q),
-  append(Q, Diff, Query),
   google_start(Start),
   google_end(End),
+  append(atom_codes $ uri_encoded(query_value) $ Atom, Diff, Query),
   append(Start, Query, L),
   Diff = End,
   string_codes(Link, L),
   setup_call_cleanup(
     http_open(Link, Stream,
       [ final_url(URL)
-       ,request_header(referer='http://www.google.com')	      
+       ,request_header(referer='http://www.google.com')
        ,header('Content-Type', Type)
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
@@ -49,7 +47,7 @@ google_search_(Msg) :-
 	  URL \= Link
        ->
           load_html(Stream, Structure, Opts),
-          xpath_chk(Structure, //title(normalize_space), T0),
+	  xpath_chk(Structure, //title(normalize_space), T0),
 	  string_codes(T0, T1),
 	  unescape_title(T1, T2),
 	  maplist(change, T2, Title),
