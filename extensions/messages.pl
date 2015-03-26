@@ -30,7 +30,7 @@ messages_access(Msg) :-
   with_mutex(db,
     (
        db_attach('extensions/messages.db', []),
-       ignore(once(messages_(Msg)))
+       ignore(messages_(Msg))
     )
   ).
 
@@ -56,18 +56,19 @@ messages_(Msg) :-
   atom_codes(R, Rest),
   normalize_space(atom('?play'), R),
   (
-     message(S,N,T)
-  ->
-     atom_string(T, Text),
-     maplist(normalize_atom_string, [N,S], [Nick, Sender]),
-     format(string(From), '~s says:', [Sender]),
-     send_msg(priv_msg, From, Chan),
-     send_msg(priv_msg, Text, Chan),
-     retract_message(N,S,T),
-     db_sync(reload)
+      message(S,N,T),
+      atom_string(T, Text),
+      maplist(normalize_atom_string, [N,S], [Nick, Sender])
+  *->
+
+      format(string(From), '~s says:', [Sender]),
+      send_msg(priv_msg, From, Chan),
+      send_msg(priv_msg, Text, Chan),
+      retract_message(S,N,T),
+      db_sync(reload), !
   ;
-     send_msg(priv_msg, "You have no messages!", Chan)
-  ), !.
+      send_msg(priv_msg, "You have no messages!", Chan)
+  ).
 
 % See if a user is trying to record a message for another user.
 messages_(Msg) :-
