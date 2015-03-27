@@ -20,6 +20,8 @@ name_pair(Name, Value-Title) :-
 %
 % True if Alias is a valid alias for a name.
 
+alias_name(`web`, `webapps`).
+alias_name(`web-apps`, `webapps`).
 alias_name(`modules`, `module`).
 alias_name(`tutorials`, `tutorial`).
 alias_name(`webapp`, `webapps`).

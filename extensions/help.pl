@@ -54,6 +54,9 @@ ext_help(Query, Msg) :-
   ;
      Query = "messages",
      messages(Msg)
+  ;
+     Query = "website-status",
+     website_status(Msg)
   ).
 
 
@@ -72,7 +75,7 @@ search("?search <predicate/N> OR <f(function/N)> to search for some predicate \c
   for library searches]").
 
 help_msg("?help <option> where your options are keywords, search, google, \c
-  wiki, dict, emoticons, yesbot, messages").
+  wiki, dict, emoticons, yesbot, messages, website-status").
 
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c
   pursue all this at: https://github.com/eazar001/yesbot/tree/prolog-irc").
@@ -83,6 +86,9 @@ keywords("?<keyword> where currently available keywords are: faq, modules, \c
 messages("?record message('somenickname', \"your message text goes here\") to \c
   send a message to a user with 'somenickname' (must have single quotes) with \c
   your desired message text (must have double quotes). The recipient will be \c
-  notified when rejoining the channel. Message limit is 503 chars.").
+  notified when rejoining the channel. Message limit is 447 chars.").
+
+website_status("?isup <domain> to check on the status of a website, e.g. \c
+  ?isup www.google.com   (Do not identify protocol such as http, https, etc.)").
 
 
