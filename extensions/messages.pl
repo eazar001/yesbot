@@ -75,7 +75,7 @@ messages_(Msg) :-
       db_sync(reload), !
   ;
      (  Chan = "yesbot"
-     -> send_msg(priv_msg, "You have no messages!", Sender)
+     -> send_msg(priv_msg, "You have no messages!", Nick)
      ;  send_msg(priv_msg, "You have no messages!", Chan)
      )
   ).
