@@ -74,7 +74,10 @@ messages_(Msg) :-
       retract_message(S,N,T),
       db_sync(reload), !
   ;
-      send_msg(priv_msg, "You have no messages!", Chan)
+     (  Chan = "yesbot"
+     -> send_msg(priv_msg, "You have no messages!", Sender)
+     ;  send_msg(priv_msg, "You have no messages!", Chan)
+     )
   ).
 
 % See if a user is trying to record a message for another user.
