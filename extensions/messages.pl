@@ -8,6 +8,7 @@
 :- persistent
      message(sender:atom, nick:atom, text:string).
 
+chan("yesbot").
 chan("##prolog").
 
 
@@ -60,10 +61,16 @@ messages_(Msg) :-
       atom_string(T, Text),
       maplist(normalize_atom_string, [N,S], [Nick, Sender])
   *->
-
       format(string(From), '~s says:', [Sender]),
-      send_msg(priv_msg, From, Chan),
-      send_msg(priv_msg, Text, Chan),
+      (
+         Chan = "yesbot"
+      ->
+         send_msg(priv_msg, From, Nick),
+         send_msg(priv_msg, Text, Nick)
+      ;
+         send_msg(priv_msg, From, Chan),
+         send_msg(priv_msg, Text, Chan)
+      ),
       retract_message(S,N,T),
       db_sync(reload), !
   ;
@@ -80,7 +87,10 @@ messages_(Msg) :-
   string_codes(Request, R0),
   term_string(message(N,T), Request),
   assert_message(S,N,T),
-  send_msg(priv_msg, "Done.", Chan),
+  (  Chan = "yesbot"
+  -> send_msg(priv_msg, "Done.", Sender)
+  ;  send_msg(priv_msg, "Done.", Chan)
+  ),
   db_sync(reload),
   db_sync(gc).
 
