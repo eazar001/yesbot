@@ -155,7 +155,7 @@ ref_title(`module`, "Using SWI-Prolog's Modules").
 ref_title(`tutorial`, "Real World Programming in SWI-Prolog").
 ref_title(`dcg`, "Tutorial -- Using Definite Clause Grammars in SWI-Prolog").
 ref_title(`webapps`, "Tutorial -- Web Applications in SWI-Prolog").
-ref_title(`clpfd`, "http://www.pathwayslms.com/swipltuts/clpfd/clpfd.html").
+ref_title(`clpfd`, "CLP(FD) Constraint Logic Programming over Finite Domains").
 ref_title(`swipl-devel`, "SWI-Prolog/swipl-devel").
 ref_title(`lpn-old`, "Learn Prolog Now!").
 ref_title(`lpn`, "Learn Prolog Now! (SWISH Integration)").
