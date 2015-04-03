@@ -51,7 +51,7 @@ google_search_(Msg) :-
 	     xpath_chk(Structure, //title(normalize_space), T0),
 	     string_codes(T0, T1),
 	     unescape_title(T1, T2),
-	     maplist(change, T2, Title),
+	     maplist(change, T2, Title)
 	  ->
 	     send_msg(priv_msg, Title, Chan)
 	  ;
