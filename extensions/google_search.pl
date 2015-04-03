@@ -46,12 +46,17 @@ google_search_(Msg) :-
        (
 	  URL \= Link
        ->
-          load_html(Stream, Structure, Opts),
-	  xpath_chk(Structure, //title(normalize_space), T0),
-	  string_codes(T0, T1),
-	  unescape_title(T1, T2),
-	  maplist(change, T2, Title),
-	  send_msg(priv_msg, Title, Chan),
+	  load_html(Stream, Structure, Opts),
+	  (
+	     xpath_chk(Structure, //title(normalize_space), T0),
+	     string_codes(T0, T1),
+	     unescape_title(T1, T2),
+	     maplist(change, T2, Title),
+	  ->
+	     send_msg(priv_msg, Title, Chan)
+	  ;
+	     true
+	  ),
 	  send_msg(priv_msg, URL, Chan)
        ;
 	  send_msg(priv_msg, "Result not valid", Chan)
