@@ -66,10 +66,14 @@ messages_(Msg) :-
          Chan = "yesbot"
       ->
          send_msg(priv_msg, From, Nick),
-         send_msg(priv_msg, Text, Nick)
+         send_msg(priv_msg, Text, Nick),
+         send_msg(priv_msg, "(You can type ?play again to play more messages \c
+	   in your queue", Nick)
       ;
          send_msg(priv_msg, From, Chan),
-         send_msg(priv_msg, Text, Chan)
+         send_msg(priv_msg, Text, Chan),
+         send_msg(priv_msg, "You can type ?play again to play more messages \c
+	   in your queue", Chan)
       ),
       retract_message(S,N,T),
       db_sync(reload), !
