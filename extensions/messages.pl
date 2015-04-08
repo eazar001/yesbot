@@ -65,11 +65,13 @@ messages_(Msg) :-
       (
          Chan = "yesbot"
       ->
+         % For handling message interaction for recipients in private
          send_msg(priv_msg, From, Nick),
          send_msg(priv_msg, Text, Nick),
-         send_msg(priv_msg, "(You can type ?play again to play more messages \c
+         send_msg(priv_msg, "You can type ?play again to play more messages \c
 	   in your queue", Nick)
       ;
+	 % For handling message interaction for recipients in the channel
          send_msg(priv_msg, From, Chan),
          send_msg(priv_msg, Text, Chan),
          send_msg(priv_msg, "You can type ?play again to play more messages \c
