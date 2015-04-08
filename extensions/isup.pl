@@ -4,11 +4,12 @@
 :- use_module(library(http/http_json)).
 :- use_module(library(http/http_open)).
 :- use_module(dispatch).
+:- use_module(parser).
 :- use_module(submodules/web).
 :- use_module(submodules/html).
 
 
-chan("##prolog").
+target("##prolog", "yesbot").
 api(`http://isitup.org/`).
 
 isup(Msg) :-
@@ -16,8 +17,13 @@ isup(Msg) :-
 
 
 isup_(Msg) :-
-  chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
+  target(Chan, Bot),
+  Msg = msg(Prefix, "PRIVMSG", [Target], Rest),
+  (
+     Target = Chan
+  ;
+     Target = Bot
+  ),
   append(`?isup `, Q, Rest),
   atom_codes(Query, Q),
   normalize_space(codes(Qcodes), Query),
@@ -34,22 +40,28 @@ isup_(Msg) :-
   memberchk(response_code=Resp, List),
   memberchk(status_code=Status, List),
   memberchk(response_time=Time, List),
-  decode(Status, Resp, Time).
+  decode(Prefix, Target, Status, Resp, Time).
 
 
-decode(Status, Resp, Time) :-
-  chan(Chan),
+decode(Prefix, Target, Status, Resp, Time) :-
+  (
+     target(Target, _),
+     Sender = Target, !
+  ;
+     target(_, Target),
+     prefix_id(Prefix, Sender, _, _)
+  ),
   (
      Status = 1,
-     send_msg(priv_msg, "Website is alive.", Chan)
+     send_msg(priv_msg, "Website is alive.", Sender)
   ;
      Status = 2,
-     send_msg(priv_msg, "Website appears down.", Chan)
+     send_msg(priv_msg, "Website appears down.", Sender)
   ;
      Status = 3,
-     send_msg(priv_msg, "Domain was not valid.", Chan)
+     send_msg(priv_msg, "Domain was not valid.", Sender)
   ),
   format(string(Report), 'Response code: ~a, Response time: ~a s', [Resp, Time]),
-  send_msg(priv_msg, Report, Chan).
+  send_msg(priv_msg, Report, Sender).
 
 
