@@ -37,7 +37,7 @@ references_(Msg) :-
      name_pair(R, Value-_),
      format(string(S), 'Hey there! I just wanted to let you know that you can \c
        use the "?~s" keyword. Pardon my interruption.', [R]),
-     send_msg(priv_msg, S, Chan), !
+     send_msg(priv_msg, S, Chan)
   ).
 
 

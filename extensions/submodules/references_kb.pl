@@ -124,6 +124,11 @@ ref_value(`lpn`, "http://lpn.swi-prolog.org").
 ref_value(`amzi`, "http://www.amzi.com/AdventureInProlog/index.php").
 ref_value(`yesbot`, "https://github.com/eazar001/yesbot/commits/prolog-irc").
 
+ref_value(`C++`, "http://www.swi-prolog.org/pldoc/doc_for?object=section(%27pac\c
+  kages/pl2cpp.html%27").
+
+ref_value(`fli`, "http://www.swi-prolog.org/pldoc/man?section=foreign").
+
 
 %--------------------------------------------------------------------------------%
 
@@ -161,5 +166,7 @@ ref_title(`lpn-old`, "Learn Prolog Now!").
 ref_title(`lpn`, "Learn Prolog Now! (SWISH Integration)").
 ref_title(`amzi`, "Amzi! inc. Adventure in Prolog").
 ref_title(`yesbot`, "Bug to report? Feature request? Want to hack me?").
+ref_title(`C++`, "A C++ interface to SWI-Prolog").
+ref_title(`fli`, "Foreign Language Interface").
 
 
