@@ -1,7 +1,7 @@
 
 :- module(references_kb, [name_pair/2]).
 
-:- op(1200, yfx, @).
+:- op(1200, xfx, @).
 :- op(1200, yfx, &).
 
 term_expansion(Alias@Name, alias_name(Alias, Name)).

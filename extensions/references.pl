@@ -16,7 +16,7 @@
 :- use_module(submodules/html).
 :- use_module(submodules/references_kb).
 
-chan("#testeazarbot").
+chan("##prolog").
 
 references(Msg) :-
   thread_create(ignore((references_(Msg), fail)), _Id, [detached(true)]).
