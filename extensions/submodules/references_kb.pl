@@ -1,56 +1,59 @@
 
 :- module(references_kb, [name_pair/2]).
 
+:- op(1200, yfx, @).
+:- op(1200, yfx, &).
 
-%% name_pair(?Name:codes, ?Pair) is semidet.
+term_expansion(Alias@Name, alias_name(Alias, Name)).
+term_expansion(Ref&Value&Title, ref(Ref, Value, Title)).
+
+%% name_pair(?Name:atom, ?Pair) is semidet.
 %
 % True if Name corresponds to a Value-Title pair.
 
 name_pair(Name, Value-Title) :-
-  ref_value(Name, Value),
-  ref_title(Name, Title).
+  ref(Name, Value, Title).
 
 name_pair(Name, Value-Title) :-
   alias_name(Name, Ref),
-  ref_value(Ref, Value),
-  ref_title(Ref, Title).
+  ref(Ref, Value, Title).
 
 
-%% alias_name(?Alias:codes, ?Name:codes) is semidet.
+%% alias_name(?Alias:atom, ?Name:atom)
 %
 % True if Alias is a valid alias for a name.
 
-alias_name(`web`, `webapps`).
-alias_name(`web-apps`, `webapps`).
-alias_name(`modules`, `module`).
-alias_name(`tutorials`, `tutorial`).
-alias_name(`webapp`, `webapps`).
-alias_name(`hammers`, `hammer`).
-alias_name(`result`, `results`).
-alias_name(`loop`, `loops`).
-alias_name(`looping`, `loops`).
-alias_name(`return`, `returning`).
-alias_name(`returns`, `returning`).
-alias_name(`hello`, `hello-world`).
-alias_name(`which`, `which-prolog`).
-alias_name(`cheat`, `cheat-sheet`).
-alias_name(`repl`, `not-repl`).
-alias_name(`hang`, `hung`).
-alias_name(`hangs`, `hung`).
-alias_name(`prolog-hangs`, `hung`).
-alias_name(`prolog-hung`, `hung`).
-alias_name(`debugging`, `debug`).
-alias_name(`debugger`, `debug`).
-alias_name(`string`, `strings`).
-alias_name(`term`, `terms`).
-alias_name(`if-statement`, `if`).
-alias_name(`control`, `if`).
-alias_name(`control-flow`, `if`).
-alias_name(`conditional`, `if`).
-alias_name(`conditionals`, `if`).
-alias_name(`arg`, `args`).
-alias_name(`argument`, `args`).
-alias_name(`arguments`, `args`).
+web@webapps.
+'web-apps'@webapps.
+modules@module.
+tutorials@tutorial.
+webapp@webapps.
+hammers@hammer.
+result@results.
+loop@loops.
+looping@loops.
+return@returning.
+returns@returning.
+hello@'hello-world'.
+which@'which-prolog'.
+cheat@'cheat-sheet'.
+repl@'not-repl'.
+hang@hung.
+hangs@hung.
+'prolog-hangs'@hung.
+'prolog-hung'@hung.
+debugging@debug.
+debugger@debug.
+string@strings.
+term@terms.
+'if-statement'@if.
+control@if.
+'control-flow'@if.
+conditional@if.
+conditionals@if.
+arg@args.
+argument@args.
+arguments@args.
 
 
 %--------------------------------------------------------------------------------%
@@ -58,115 +61,130 @@ alias_name(`arguments`, `args`).
 %--------------------------------------------------------------------------------%
 
 
-ref_value(`faq`, "http://www.pathwayslms.com/swipltuts/student/index.html").
-ref_value(`advice`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#strong_advice").
+%% ref(Reference:atom, Value:string, Title:string)
+%
+% True if reference is related to a corresponding link/value.
 
-ref_value(`hammer`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#blue").
+faq &
+"http://www.pathwayslms.com/swipltuts/student/index.html" &
+"Frequently Asked Questions for ##Prolog".
 
-ref_value(`regulars`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#regulars").
+advice &
+"http://www.pathwayslms.com/swipltuts/student/index.html#strong_advice" &
+"Strong Advice for Students on ##prolog".
 
-ref_value(`recursion`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#recursion").
+regulars &
+"http://www.pathwayslms.com/swipltuts/student/index.html#regulars" &
+"And a Plea to the Regulars".
 
-ref_value(`results`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#list").
+hammer &
+"http://www.pathwayslms.com/swipltuts/student/index.html#blue" &
+"I get true, then false when I expected just true".
 
-ref_value(`loops`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#loop").
+recursion &
+"http://www.pathwayslms.com/swipltuts/student/index.html#recursion" &
+"The Standard Recursion Pattern".
 
-ref_value(`returning`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#return").
+results &
+"http://www.pathwayslms.com/swipltuts/student/index.html#list" &
+"How Do I get all the Results in a List?".
 
-ref_value(`hello-world`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#hello").
+loops &
+"http://www.pathwayslms.com/swipltuts/student/index.html#loop" &
+"How Do I Make a Loop?".
 
-ref_value(`which-prolog`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#which").
+returning &
+"http://www.pathwayslms.com/swipltuts/student/index.html#return" &
+"So Everything Returns True or False, Right?".
 
-ref_value(`cheat-sheet`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#cheat").
+'hello-world' &
+"http://www.pathwayslms.com/swipltuts/student/index.html#hello" &
+"Hello World".
 
-ref_value(`not-repl`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#not_repl").  
+'which-prolog' &
+"http://www.pathwayslms.com/swipltuts/student/index.html#which" &
+"Which Prolog to Use".
 
-ref_value(`hung`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#hung").
+'cheat-sheet' &
+"http://www.pathwayslms.com/swipltuts/student/index.html#cheat" &
+"Ten Second Syntax Cheat Sheet".
 
-ref_value(`debug`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#debug").
+'not-repl' &
+"http://www.pathwayslms.com/swipltuts/student/index.html#not_repl" &
+"Why can’t I type in code at the repl?".
 
-ref_value(`strings`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#howdy").
+hung &
+"http://www.pathwayslms.com/swipltuts/student/index.html#hung" &
+"Prolog Hung".
 
-ref_value(`terms`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#wtf").
+debug &
+"http://www.pathwayslms.com/swipltuts/student/index.html#debug" &
+"How can I see what my code is doing?".
 
-ref_value(`if`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#if").
+strings &
+"http://www.pathwayslms.com/swipltuts/student/index.html#howdy" &
+"Difference between \"hello\", hello, HowAreYa, and 'Howdy!'".
 
-ref_value(`args`,
-  "http://www.pathwayslms.com/swipltuts/student/index.html#args").
+terms &
+"http://www.pathwayslms.com/swipltuts/student/index.html#wtf" &
+"WTF, 4 = 2 + 2 fails?".
 
-ref_value(`module`, "http://michael.richter.name/tutorials/swiplmod").
-ref_value(`tutorial`, "http://www.pathwayslms.com/swipltuts/").
-ref_value(`tutorial`, "http://www.pathwayslms.com/swipltuts").
-ref_value(`dcg`, "http://www.pathwayslms.com/swipltuts/dcg/index.html").
-ref_value(`webapps`, "http://www.pathwayslms.com/swipltuts/html/index.html").
-ref_value(`clpfd`, "http://www.pathwayslms.com/swipltuts/clpfd/clpfd.html").
-ref_value(`swipl-devel`, "https://github.com/SWI-Prolog/swipl-devel").
-ref_value(`lpn-old`, "http://www.learnprolognow.org/").
-ref_value(`lpn-old`, "http://www.learnprolognow.org").
-ref_value(`lpn`, "http://lpn.swi-prolog.org/").
-ref_value(`lpn`, "http://lpn.swi-prolog.org").
-ref_value(`amzi`, "http://www.amzi.com/AdventureInProlog/index.php").
-ref_value(`yesbot`, "https://github.com/eazar001/yesbot/commits/prolog-irc").
+if &
+"http://www.pathwayslms.com/swipltuts/student/index.html#if" &
+"How do I make an if statement?".
 
-ref_value(`C++`, "http://www.swi-prolog.org/pldoc/doc_for?object=section(%27pac\c
-  kages/pl2cpp.html%27").
+args &
+"http://www.pathwayslms.com/swipltuts/student/index.html#args" &
+"How do I return if everything’s void?".
 
-ref_value(`fli`, "http://www.swi-prolog.org/pldoc/man?section=foreign").
+module &
+"http://michael.richter.name/tutorials/swiplmod" &
+"Using SWI-Prolog's Modules".
 
+tutorial &
+"http://www.pathwayslms.com/swipltuts/" &
+"Real World Programming in SWI-Prolog".
 
-%--------------------------------------------------------------------------------%
+tutorial &
+"http://www.pathwayslms.com/swipltuts" &
+"Real World Programming in SWI-Prolog".
 
+dcg &
+"http://www.pathwayslms.com/swipltuts/dcg/index.html" &
+"Tutorial -- Using Definite Clause Grammars in SWI-Prolog".
 
-ref_title(`faq`, "Frequently Asked Questions for ##Prolog").
-ref_title(`advice`, "Strong Advice for Students on ##prolog").
-ref_title(`regulars`, "And a Plea to the Regulars").
-ref_title(`recursion`, "The Standard Recursion Pattern").
-ref_title(`hammer`, "I get true, then false when I expected just true").
-ref_title(`results`, "How Do I get all the Results in a List?").
-ref_title(`loops`, "How Do I Make a Loop?").
-ref_title(`returning`, "So Everything Returns True or False, Right?").
-ref_title(`hello-world`, "Hello World").
-ref_title(`which-prolog`, "Which Prolog to Use").
-ref_title(`cheat-sheet`, "Ten Second Syntax Cheat Sheet").
-ref_title(`not-repl`, "Why can’t I type in code at the repl?").
-ref_title(`hung`, "Prolog Hung").
-ref_title(`debug`, "How can I see what my code is doing?").
-ref_title(`strings`,
-  "Difference between \"hello\", hello, HowAreYa, and 'Howdy!'").
+webapps &
+"http://www.pathwayslms.com/swipltuts/html/index.html" &
+"Tutorial -- Web Applications in SWI-Prolog".
 
-ref_title(`terms`,
-  "WTF, 4 = 2 + 2 fails?").
+clpfd &
+"http://www.pathwayslms.com/swipltuts/clpfd/clpfd.html" &
+"CLP(FD) Constraint Logic Programming over Finite Domains".
 
-ref_title(`if`, "How do I make an if statement?").
-ref_title(`args`, "How do I return if everything’s void?").
+'swipl-devel' &
+"https://github.com/SWI-Prolog/swipl-devel" &
+"SWI-Prolog/swipl-devel".
 
-ref_title(`module`, "Using SWI-Prolog's Modules").
-ref_title(`tutorial`, "Real World Programming in SWI-Prolog").
-ref_title(`dcg`, "Tutorial -- Using Definite Clause Grammars in SWI-Prolog").
-ref_title(`webapps`, "Tutorial -- Web Applications in SWI-Prolog").
-ref_title(`clpfd`, "CLP(FD) Constraint Logic Programming over Finite Domains").
-ref_title(`swipl-devel`, "SWI-Prolog/swipl-devel").
-ref_title(`lpn-old`, "Learn Prolog Now!").
-ref_title(`lpn`, "Learn Prolog Now! (SWISH Integration)").
-ref_title(`amzi`, "Amzi! inc. Adventure in Prolog").
-ref_title(`yesbot`, "Bug to report? Feature request? Want to hack me?").
-ref_title(`C++`, "A C++ interface to SWI-Prolog").
-ref_title(`fli`, "Foreign Language Interface").
+'lpn-old' & "http://www.learnprolognow.org/" & "Learn Prolog Now!".
+'lpn-old' & "http://www.learnprolognow.org" & "Learn Prolog Now!".
+lpn & "http://lpn.swi-prolog.org/" & "Learn Prolog Now! (SWISH Integration)".
+lpn & "http://lpn.swi-prolog.org" & "Learn Prolog Now! (SWISH Integration)".
+
+amzi &
+"http://www.amzi.com/AdventureInProlog/index.php" &
+"Amzi! inc. Adventure in Prolog".
+
+yesbot &
+"https://github.com/eazar001/yesbot/commits/prolog-irc" &
+"Bug to report? Feature request? Want to hack me?".
+
+'c++' &
+"http://www.swi-prolog.org/pldoc/doc_for?object=section%27pac\c
+kages/pl2cpp.html%27" &
+"A C++ interface to SWI-Prolog".
+
+fli &
+"http://www.swi-prolog.org/pldoc/man?section=foreign" &
+"Foreign Language Interface".
 
 

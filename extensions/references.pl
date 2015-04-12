@@ -16,7 +16,7 @@
 :- use_module(submodules/html).
 :- use_module(submodules/references_kb).
 
-chan("##prolog").
+chan("#testeazarbot").
 
 references(Msg) :-
   thread_create(ignore((references_(Msg), fail)), _Id, [detached(true)]).
@@ -26,7 +26,7 @@ references_(Msg) :-
   (
      Msg = msg(_Prefix, "PRIVMSG", [Chan], [63|Codes]),
      atom_codes(R0, Codes),
-     normalize_space(codes(R), R0),
+     normalize_space(atom(R), R0),
      name_pair(R, Value-Title),
      send_msg(priv_msg, Title, Chan),
      send_msg(priv_msg, Value, Chan), !
