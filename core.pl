@@ -46,6 +46,7 @@ connect :-
        init_structs,
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
+       set_stream(Stream, encoding(utf8)),
        asserta(get_tcp_socket(Socket)),
        asserta(get_irc_stream(Stream)),
        register_and_join

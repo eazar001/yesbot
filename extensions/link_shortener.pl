@@ -21,6 +21,8 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_ssl_plugin)).
 :- use_module(library(xpath)).
+:- use_module(library(unicode)).
+
 
 %--------------------------------------------------------------------------------%
 % Main Extension
@@ -60,7 +62,8 @@ link_shortener_(Msg) :-
         url_get_title(Link, Title) ->
         (  Title = []
         -> true
-        ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
+        ;  unicode_map(maplist(change) $ unescape_title $ Title, Out, []),
+	   send_msg(priv_msg, Out, Chan)
         )
      )
   ).
