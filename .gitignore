@@ -1,4 +1,3 @@
 *.txt
 *.pl~
 /settings.db
-extensions/messages.db
