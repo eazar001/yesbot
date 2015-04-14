@@ -88,7 +88,8 @@ make_tiny(Link, Chan, Tiny) :-
   make_tiny_(Link, Title, Tiny),
   (  Title = []
   -> true
-  ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
+  ;  unicode_map(maplist(change) $ unescape_title $ Title, Out, []),
+     send_msg(priv_msg, Out, Chan)
   ).
   
 make_tiny_(Link, Title, Tiny) :-
