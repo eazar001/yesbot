@@ -19,7 +19,7 @@
 chan("##prolog").
 
 references(Msg) :-
-  thread_create(ignore((references_(Msg), fail)), _Id, [detached(true)]).
+  thread_create(ignore((references_(Msg))), _Id, [detached(true)]).
 
 references_(Msg) :-
   chan(Chan),
