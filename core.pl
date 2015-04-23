@@ -19,6 +19,7 @@
 :- use_module(dispatch).
 :- use_module(utilities).
 :- use_module(library(socket)).
+:- use_module(library(mavis)).
 
 :- dynamic known/1.
 :- dynamic get_irc_server/1.

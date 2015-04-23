@@ -8,6 +8,8 @@
       ,init_timer/1 ]).
 
 :- use_module(config).
+:- use_module(library(mavis)).
+
 
 %--------------------------------------------------------------------------------%
 % Concurrency

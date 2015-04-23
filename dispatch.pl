@@ -12,6 +12,7 @@
        send_msg/3 ]).
 
 :- use_module(operator).
+:- use_module(library(mavis)).
 
 
 %--------------------------------------------------------------------------------%
@@ -53,7 +54,7 @@ send_msg(Type, Target) :-
   thread_send_message(tq, true).
 
 
-%% send_msg(+Type:atom, +Str:string, +Target:string) is semidet.
+%% send_msg(+Type:atom, +Str:text, +Target:string) is semidet.
 %
 % send a Str of Type to a specified Target.
 
@@ -68,7 +69,7 @@ send_msg(Type, Str, Target) :-
   thread_send_message(tq, true).
 
 
-%% send_msg(+Type:atom, +Chan:string, +Target:string) is semidet.
+%% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
 %
 % Send a message of Type to Target in Chan.
 
