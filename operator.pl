@@ -7,6 +7,7 @@
      [ cmd/2
       ,dbg/2 ]).
 
+:- use_module(library(mavis)).
 
 %--------------------------------------------------------------------------------%
 % Commands
@@ -17,7 +18,7 @@
 
 % FIXME: Not all message types are implemented yet.
 
-%% cmd(+Type:atom, -Template:string) is semidet.
+%% cmd(+Type:atom, -Template:atom) is semidet.
 %
 % Attempt to unify with a type and a corresponding string template. The string
 % template will be fed to dispatch in order to send a message.
@@ -78,7 +79,7 @@ cmd(quit, 'QUIT :disconnect\r\n').
 % Debugging
 %--------------------------------------------------------------------------------%
 
-%% dbg(+Type:atom, -Template:string) is semidet.
+%% dbg(+Type:atom, -Template:atom) is semidet.
 %
 % This is used to debug pings, to ensure the client that pongs are being sent.
 
