@@ -150,6 +150,14 @@ tutorial &
 "Real World Programming in SWI-Prolog".
 
 dcg &
+"http://www.pathwayslms.com/swipltuts/dcg" &
+"Tutorial -- Using Definite Clause Grammars in SWI-Prolog".
+
+dcg &
+"http://www.pathwayslms.com/swipltuts/dcg/" &
+"Tutorial -- Using Definite Clause Grammars in SWI-Prolog".
+
+dcg &
 "http://www.pathwayslms.com/swipltuts/dcg/index.html" &
 "Tutorial -- Using Definite Clause Grammars in SWI-Prolog".
 
