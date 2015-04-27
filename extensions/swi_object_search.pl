@@ -51,7 +51,6 @@ swi_object_search_(Msg) :-
 
 % TBD: Add ability to search for manual topics and sections.
 % TBD: Add mirror switch on search request timeout. (US mirror vs. NL mirror)
-% TBD: These predicates needs to be refactored.
 % TBD: Add ability for this to be privately queried
 
 
@@ -202,19 +201,14 @@ try_again(Query) :-
 	  Ss = [_|_],
 	  findnsols(10, C, try_other_candidate(Structure, [39], C), Last),
 	  maplist(list_to_set, [Ss, Last], [S1, S2]),
-	  union(S1, S2, Union),
-	  L  = Union, !
+	  union(S1, S2, L), !
        ;
 	  % No initial suggestions, so let's find some
           Ss = [],
 	  findnsols(10, C, try_other_candidate(Structure, [39,58], C), Cs),
-	  (
-	     Cs = []
-	  ->
-	     findnsols(10, C, try_other_candidate(Structure, [39], C), Last),
-	     L = Last
-	  ;
-	     L = Cs
+	  (  Cs = []
+	  -> findnsols(10, C, try_other_candidate(Structure, [39], C), L)
+	  ;  L = Cs
 	  )
        ),
        L = [_|_],
