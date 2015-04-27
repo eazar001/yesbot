@@ -12,7 +12,6 @@
        send_msg/3 ]).
 
 :- use_module(operator).
-:- use_module(library(mavis)).
 
 
 %--------------------------------------------------------------------------------%
@@ -32,6 +31,9 @@ return_server(Server) :-
   -> core:get_irc_server(Server)
   ;  Server = unknown
   ).
+
+
+:- discontiguous dispatch:send_msg/3.
 
 %% send_msg(+Type:atom, +Target:string) is semidet.
 %

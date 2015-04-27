@@ -7,7 +7,6 @@
       ,prefix_id/2
       ,prefix_id/4 ]).
 
-:- use_module(library(mavis)).
 
 
 /*
