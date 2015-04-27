@@ -32,9 +32,6 @@
 % search_sugg is the url used for deriving suggestions.
 
 chan("##prolog").
-search_form("http://www.swi-prolog.org/pldoc/doc_for?object=").
-search_form_lib("http://www.swi-prolog.org/pldoc/doc/swi/library/").
-search_sugg("http://www.swi-prolog.org/pldoc/search?for=").
 
 
 swi_object_search(Msg) :-
@@ -99,13 +96,12 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
      Quiet = lib
   ->
      % Will do a library specific search with no suggestions
-     search_form_lib(Form),
-     string_concat(Form, Query, Initial),
-     string_concat(Initial, ".pl", Link)
+     format(string(Link),
+       "http://www.swi-prolog.org/pldoc/doc/swi/library/~s.pl", [Query])
   ;
      % Will do a regular search with suggestions
-     search_form(Form),
-     string_concat(Form, Query, Link)
+     format(string(Link),
+       "http://www.swi-prolog.org/pldoc/doc_for?object=~s", [Query])
   ),
   % Get the results from a search using the appropriate link from above
   http_open(Link, Stream, [timeout(20), status_code(Status)]),
@@ -190,12 +186,11 @@ found(Link, Chan, Qlevel, Structure) :-
 
 try_again(Query) :-
   chan(Chan),
-  search_sugg(Form),
-  string_codes(Query, Q),
-  get_functor(Q, Fcodes),
+  get_functor(string_codes $ Query, Fcodes),
   % Get the pure functor from the query
   string_codes(Functor, Fcodes),
-  string_concat(Form, Functor, Retry),
+  format(string(Retry),
+    "http://www.swi-prolog.org/pldoc/search?for=~s", [Functor]),
   setup_call_cleanup(
     http_open(Retry, Stream, [timeout(20)]),
     (
@@ -223,9 +218,8 @@ try_again(Query) :-
 	  )
        ),
        L = [_|_],
-       atomic_list_concat(L, ', ', A0),
-       atom_concat('Perhaps you meant one of these: ', A0, A),
-       atom_string(Feedback, A),
+       atomic_list_concat(L, ', ', AtomList),
+       format(string(Feedback), "Perhaps you meant one of these: ~a", [AtomList]),
        send_msg(priv_msg, Feedback, Chan)
     ),
     close(Stream)
@@ -239,8 +233,7 @@ try_again(Query) :-
 find_candidate(Structure, Fcodes, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
   xpath(Row, //a(@href=Path, normalize_space), _),
-  atom_codes(Path, Codes),
-  append(`/pldoc/doc_for?object=`, Functor_Arity, Codes),
+  append(`/pldoc/doc_for?object=`, Functor_Arity, atom_codes $ Path),
   % Functor must match candidate functors
   get_functor(Functor_Arity, Fcodes),
   atom_codes(Atom, Functor_Arity),
@@ -258,8 +251,7 @@ find_candidate(Structure, Fcodes, Sugg) :-
 try_other_candidate(Structure, Invalids, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
   xpath(Row, //a(@href=Path, normalize_space), _),
-  atom_codes(Path, Codes),
-  append(`/pldoc/doc_for?object=`, Functor_Arity, Codes),
+  append(`/pldoc/doc_for?object=`, Functor_Arity, atom_codes $ Path),
   intersection(Invalids, Functor_Arity, []),
   atom_codes(Atom, Functor_Arity),
   uri_encoded(query_value, A, Atom),
