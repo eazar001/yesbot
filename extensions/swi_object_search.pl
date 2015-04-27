@@ -49,7 +49,6 @@ swi_object_search_(Msg) :-
 %--------------------------------------------------------------------------------%
 
 
-% TBD: Add ability to search for manual topics and sections.
 % TBD: Add mirror switch on search request timeout. (US mirror vs. NL mirror)
 % TBD: Add ability for this to be privately queried
 
@@ -73,6 +72,11 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
      Tail = [108,105,98,114,97,114,121,40|T],
      append(Rest, `)`, T),
      Quiet = lib, !
+  ;
+     % ?search manual(...)
+     Tail = [109, 97, 110, 117, 97, 108, 40|T],
+     append(Rest, `)`, T),
+     Quiet = man, !
   ;
      % search -q
      Tail = [45,113,32|Rest],
@@ -98,6 +102,12 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/doc/swi/library/~s.pl", [Query])
   ;
+     Quiet = man
+  ->
+     % Will do a manual specific seaerch with no suggestions
+     format(string(Link),
+       "http://www.swi-prolog.org/pldoc/man?section=~s", [Query])
+  ;
      % Will do a regular search with suggestions
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/doc_for?object=~s", [Query])
@@ -105,13 +115,13 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   % Get the results from a search using the appropriate link from above
   http_open(Link, Stream, [timeout(20), status_code(Status)]),
   (
-     % Non-lib searches
-     Quiet \= lib, !
+     % Non-lib/man searches
+     \+member(Quiet, [lib, man]), !
   ;
-     % Lib searches with successful requests
+     % Lib/man searches with successful requests
      Status = 200, !
   ;
-     % Lib searches that fail to generate a page
+     % Lib/man searches that fail to generate a page
      Status = 404,
      send_msg(priv_msg, "No matching object found.", Chan),
      fail
@@ -159,6 +169,10 @@ found(Link, Chan, lib, Structure) :-
   send_msg(priv_msg, Title, Chan),
   send_msg(priv_msg, Link, Chan).
 
+found(Link, Chan, man, Structure) :-
+  xpath_chk(Structure, //span(@class='sec-title', normalize_space), Title),
+  send_msg(priv_msg, Title, Chan),
+  send_msg(priv_msg, Link, Chan).
 
 found(Link, Chan, Qlevel, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef, normalize_space), Table),
