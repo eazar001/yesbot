@@ -19,7 +19,6 @@
 :- use_module(dispatch).
 :- use_module(utilities).
 :- use_module(library(socket)).
-:- use_module(library(mavis)).
 
 :- dynamic known/1.
 :- dynamic get_irc_server/1.
@@ -47,7 +46,7 @@ connect :-
        init_structs,
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
-       stream_pair(Stream, Read, Write),
+       stream_pair(Stream, _Read, Write),
        set_stream(Write, encoding(utf8)),
        asserta(get_tcp_socket(Socket)),
        asserta(get_irc_stream(Stream)),
