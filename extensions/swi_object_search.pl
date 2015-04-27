@@ -52,7 +52,11 @@ swi_object_search_(Msg) :-
 %--------------------------------------------------------------------------------%
 
 
-% TBD: This predicate needs to be refactored.
+% TBD: Add ability to search for manual topics and sections.
+% TBD: Add mirror switch on search request timeout. (US mirror vs. NL mirror)
+% TBD: These predicates needs to be refactored.
+% TBD: Add ability for this to be privately queried
+
 
 %% do_search(+Msg, -Link, -Query, -Quiet, -Stream) is semidet.
 %
@@ -160,20 +164,22 @@ found(Link, Chan, lib, Structure) :-
   send_msg(priv_msg, Title, Chan),
   send_msg(priv_msg, Link, Chan).
 
-found(Link, Chan, q0, Structure) :-
-  xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
-  send_msg(priv_msg, Table, Chan),
-  write_first_sentence(Structure),
-  send_msg(priv_msg, Link, Chan).
 
-found(_, Chan, q, Structure) :-
-  xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
-  send_msg(priv_msg, Table, Chan),
-  write_first_sentence(Structure).
-
-found(_, Chan, qq, Structure) :-
-  xpath_chk(Structure, //dt(@class=pubdef,normalize_space), Table),
-  send_msg(priv_msg, Table, Chan).
+found(Link, Chan, Qlevel, Structure) :-
+  xpath_chk(Structure, //dt(@class=pubdef, normalize_space), Table),
+  (
+     Qlevel = q0,
+     send_msg(priv_msg, Table, Chan),
+     write_first_sentence(Structure),
+     send_msg(priv_msg, Link, Chan)
+  ;
+     Qlevel = q,
+     send_msg(priv_msg, Table, Chan),
+     write_first_sentence(Structure)
+  ;
+     Qlevel = qq,
+     send_msg(priv_msg, Table, Chan)
+  ).
 
 
 %% try_again(+Query) is semidet.
