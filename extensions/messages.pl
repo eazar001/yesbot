@@ -77,8 +77,7 @@ messages_(Msg) :-
          send_msg(priv_msg, "You can type ?play again to play more messages \c
 	   in your queue", Chan)
       ),
-      retract_message(S,N,T),
-      db_sync(reload), !
+      retract_message(S,N,T), !
   ;
      (  Chan = "yesbot"
      -> send_msg(priv_msg, "You have no messages!", Nick)
@@ -100,7 +99,6 @@ messages_(Msg) :-
   -> send_msg(priv_msg, "Done.", Sender)
   ;  send_msg(priv_msg, "Done.", Chan)
   ),
-  db_sync(reload),
   db_sync(gc).
 
 
