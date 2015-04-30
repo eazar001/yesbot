@@ -19,6 +19,7 @@
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(submodules/docs).
+:- use_module(parser).
 
 
 %--------------------------------------------------------------------------------%
@@ -31,7 +32,7 @@
 % search_form_lib is used to search for libraries. (without suggestions)
 % search_sugg is the url used for deriving suggestions.
 
-chan("##prolog").
+target("##prolog", "yesbot").
 
 
 swi_object_search(Msg) :-
@@ -40,8 +41,8 @@ swi_object_search(Msg) :-
 
 swi_object_search_(Msg) :-
   setup_call_cleanup(
-    do_search(Msg, Link, Query, Quiet, Stream),
-    parse_structure(Link, Query, Quiet, Stream),
+    do_search(Msg, Link, Query, Quiet, Rec, Stream),
+    parse_structure(Link, Query, Quiet, Rec, Stream),
     close(Stream)
   ).
 
@@ -50,21 +51,21 @@ swi_object_search_(Msg) :-
 
 
 % TBD: Add mirror switch on search request timeout. (US mirror vs. NL mirror)
-% TBD: Add ability for this to be privately queried
+% TBD: Add more intelligent/interactive/helpful version of manual and library
+% searchess
 
-
-%% do_search(+Msg, -Link, -Query, -Quiet, -Stream) is semidet.
+%% do_search(+Msg, -Link, -Query, -Quiet, -Rec, -Stream) is semidet.
 %
-% do_search/5 listens for the appropriate search patterns and arguments.
+% do_search/6 listens for the appropriate search patterns and arguments.
 % Certain patterns will correspond with implicit or explicit quietness options.
 % These patterns will also generate specific links for handling different types of
 % situations a user might throw at yesbot. The link and quietness information will
 % be unified so that this information can be passed to parse_structure/4.
 
-do_search(Msg, Link, Query, Quiet, Stream) :-
-  chan(Chan),
+do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   % Message should begin with the prefix ?search
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], [63,115,101,97,114,99,104,32|Cs]),
+  Msg = msg(_Prefix, "PRIVMSG", _, [63,115,101,97,114,99,104,32|Cs]),
+  determine_recipient(Msg, Rec),
   atom_codes(A0, Cs),
   normalize_space(codes(Tail), A0),
   (
@@ -123,82 +124,80 @@ do_search(Msg, Link, Query, Quiet, Stream) :-
   ;
      % Lib/man searches that fail to generate a page
      Status = 404,
-     send_msg(priv_msg, "No matching object found.", Chan),
+     send_msg(priv_msg, "No matching object found.", Rec),
      fail
   ).
 
 
-%% parse_structure(+Link, +Query, +Quiet, +Stream) is semidet.
+%% parse_structure(+Link, +Query, +Quiet, +Rec, +Stream) is semidet.
 %
 % Load incoming search information as an HTML structure. Scrape information from
 % the HTML and determine whether or not there is a match for the user's request.
 % found_object/5 will perform the necessary side-effects depending on the
 % resolution.
 
-parse_structure(Link, Query, Quiet, Stream) :-
-  chan(Chan),
+parse_structure(Link, Query, Quiet, Rec, Stream) :-
   load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
-  found_object(Structure, Link, Query, Quiet, Chan).
+  found_object(Structure, Link, Query, Quiet, Rec).
 
 
-%% found_object(+Structure, +Link, +Query, +Quiet, +Chan) is det.
+%% found_object(+Structure, +Link, +Query, +Quiet, +Rec) is det.
 %
 % If a matching object was found for the user's requests then the necessary
 % side-effects would have been performed by found/4. If not, then the user is
 % apprised, and a new search is performed by try_again/1. The new search will
 % attempt to find any search suggestion to help direct the user.
 
-found_object(Structure, Link, Query, Quiet, Chan) :-
+found_object(Structure, Link, Query, Quiet, Rec) :-
   (
-     found(Link, Chan, Quiet, Structure)
+     found(Link, Rec, Quiet, Structure)
   ->
      true
   ;
-     send_msg(priv_msg, "No matching object found. ", Chan),
-     try_again(Query)
+     send_msg(priv_msg, "No matching object found. ", Rec),
+     try_again(Query, Rec)
   ).
 
 
-%% found(+Link, +Chan, +Quiet, +Structure) is semidet.
+%% found(+Link, +Rec, +Quiet, +Structure) is semidet.
 %
 % Determine if relevant information is found with respect to the user's query.
 % Display formats vary according to quietness options.
 
-found(Link, Chan, lib, Structure) :-
+found(Link, Rec, lib, Structure) :-
   xpath_chk(Structure, //title(normalize_space), Title),
-  send_msg(priv_msg, Title, Chan),
-  send_msg(priv_msg, Link, Chan).
+  send_msg(priv_msg, Title, Rec),
+  send_msg(priv_msg, Link, Rec).
 
-found(Link, Chan, man, Structure) :-
+found(Link, Rec, man, Structure) :-
   xpath_chk(Structure, //span(@class='sec-title', normalize_space), Title),
-  send_msg(priv_msg, Title, Chan),
-  send_msg(priv_msg, Link, Chan).
+  send_msg(priv_msg, Title, Rec),
+  send_msg(priv_msg, Link, Rec).
 
-found(Link, Chan, Qlevel, Structure) :-
+found(Link, Rec, Qlevel, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef, normalize_space), Table),
   (
      Qlevel = q0,
-     send_msg(priv_msg, Table, Chan),
-     write_first_sentence(Structure),
-     send_msg(priv_msg, Link, Chan)
+     send_msg(priv_msg, Table, Rec),
+     write_first_sentence(Structure, Rec),
+     send_msg(priv_msg, Link, Rec)
   ;
      Qlevel = q,
-     send_msg(priv_msg, Table, Chan),
-     write_first_sentence(Structure)
+     send_msg(priv_msg, Table, Rec),
+     write_first_sentence(Structure, Rec)
   ;
      Qlevel = qq,
-     send_msg(priv_msg, Table, Chan)
+     send_msg(priv_msg, Table, Rec)
   ).
 
 
-%% try_again(+Query) is semidet.
+%% try_again(+Query, +Rec) is semidet.
 %
 % Attempts to search for possible matches if a user has entered a query that
 % does not lead to a direct match. Possible results are displayed to the user
 % in channel.
 
-try_again(Query) :-
-  chan(Chan),
+try_again(Query, Rec) :-
   get_functor(string_codes $ Query, Fcodes),
   % Get the pure functor from the query
   string_codes(Functor, Fcodes),
@@ -228,7 +227,7 @@ try_again(Query) :-
        L = [_|_],
        atomic_list_concat(L, ', ', AtomList),
        format(string(Feedback), "Perhaps you meant one of these: ~a", [AtomList]),
-       send_msg(priv_msg, Feedback, Chan)
+       send_msg(priv_msg, Feedback, Rec)
     ),
     close(Stream)
   ).
@@ -266,19 +265,18 @@ try_other_candidate(Structure, Invalids, Sugg) :-
   atom_string(A, Sugg).
   
 
-%% write_first_sentence(+Structure) is semidet.
+%% write_first_sentence(+Structure, +Rec) is semidet.
 %
 % Search for a dd tag that's classified as "defbody" (definition body), attempt
 % to extract the first sentence and display it to the channel. If the first
 % sentence isn't successfully parsed, then return as much as possible.
 
-write_first_sentence(Structure) :-
-  chan(Chan),
+write_first_sentence(Structure, Rec) :-
   xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
   atom_codes(D, Codes),
   (  sentence(Sentence, Codes, _)
-  -> send_msg(priv_msg, Sentence, Chan)
-  ;  send_msg(priv_msg, Codes, Chan)
+  -> send_msg(priv_msg, Sentence, Rec)
+  ;  send_msg(priv_msg, Codes, Rec)
   ).
 
 
@@ -297,5 +295,17 @@ get_functor(Original, Functor) :-
 get_functor_([]) --> `/`, !.
 get_functor_([C|Rest]) -->
   [C], get_functor_(Rest).
+
+
+%--------------------------------------------------------------------------------%
+
+%% Private vs. public queries
+
+determine_recipient(msg(_, "PRIVMSG", [Chan], _), Chan) :-
+  target(Chan, _).
+
+determine_recipient(msg(Prefix, "PRIVMSG", [Bot], _), Sender) :-
+  target(_, Bot),
+  prefix_id(Prefix, Sender, _, _).
 
 
