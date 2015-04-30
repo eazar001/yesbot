@@ -3,6 +3,7 @@
 
 :- use_module(dispatch).
 :- use_module(parser).
+:- use_module(submodules/utils).
 
 
 target("##prolog", "yesbot").
@@ -13,23 +14,15 @@ help(Msg) :-
      append(`?help `, Q0, Rest),
      string_codes(Q, Q0),
      normalize_space(string(Ext), Q),
-     determine_recipient(Msg, Recipient),
+     determine_recipient(help, Msg, Recipient),
      once(ext_help(Ext, Response)),
      send_msg(priv_msg, Response, Recipient), !
   ;
      Rest = `?help`,
-     determine_recipient(Msg, Recipient),
+     determine_recipient(help, Msg, Recipient),
      help_msg(Response),
      send_msg(priv_msg, Response, Recipient)
   ).
-
-
-determine_recipient(msg(_, "PRIVMSG", [Chan], _), Chan) :-
-  target(Chan, _).
-
-determine_recipient(msg(Prefix, "PRIVMSG", [Bot], _), Sender) :-
-  target(_, Bot),
-  prefix_id(Prefix, Sender, _, _).
 
 
 %--------------------------------------------------------------------------------%

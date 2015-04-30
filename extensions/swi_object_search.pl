@@ -19,6 +19,7 @@
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(submodules/docs).
+:- use_module(submodules/utils).
 :- use_module(parser).
 
 
@@ -65,7 +66,7 @@ swi_object_search_(Msg) :-
 do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   % Message should begin with the prefix ?search
   Msg = msg(_Prefix, "PRIVMSG", _, [63,115,101,97,114,99,104,32|Cs]),
-  determine_recipient(Msg, Rec),
+  determine_recipient(swi_object_search, Msg, Rec),
   atom_codes(A0, Cs),
   normalize_space(codes(Tail), A0),
   (
@@ -295,17 +296,5 @@ get_functor(Original, Functor) :-
 get_functor_([]) --> `/`, !.
 get_functor_([C|Rest]) -->
   [C], get_functor_(Rest).
-
-
-%--------------------------------------------------------------------------------%
-
-%% Private vs. public queries
-
-determine_recipient(msg(_, "PRIVMSG", [Chan], _), Chan) :-
-  target(Chan, _).
-
-determine_recipient(msg(Prefix, "PRIVMSG", [Bot], _), Sender) :-
-  target(_, Bot),
-  prefix_id(Prefix, Sender, _, _).
 
 
