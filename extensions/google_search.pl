@@ -4,6 +4,7 @@
 :- use_module(dispatch).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
+:- use_module(submodules/utils).
 :- use_module(library(sgml)).
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
@@ -13,7 +14,7 @@
 % TBD: Add support for other google search features such as google conversion,
 % currency, wiki, translate, calculator, etc.
 
-chan("##prolog").
+target("##prolog", "yesbot").
 google_start(`http://www.google.com/search?q=`).
 google_end(`&btnI=I\'m+Feeling+Lucky`).
 
@@ -23,9 +24,9 @@ google_search(Msg) :-
 
 
 google_search_(Msg) :-
-  chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], Text),
+  Msg = msg(_Prefix, "PRIVMSG", _, Text),
   append(`?google `, Q0, Text),
+  determine_recipient(google_search, Msg, Rec),
   atom_codes(Atom, Q0),
   google_start(Start),
   google_end(End),
@@ -53,16 +54,16 @@ google_search_(Msg) :-
 	     unescape_title(T1, T2),
 	     maplist(change, T2, Title)
 	  ->
-	     send_msg(priv_msg, Title, Chan)
+	     send_msg(priv_msg, Title, Rec)
 	  ;
 	     true
 	  ),
-	  send_msg(priv_msg, URL, Chan)
+	  send_msg(priv_msg, URL, Rec)
        ;
-	  send_msg(priv_msg, "Result not valid", Chan)
+	  send_msg(priv_msg, "Result not valid", Rec)
        )
     ;
-       send_msg(priv_msg, URL, Chan)
+       send_msg(priv_msg, URL, Rec)
     ),
     close(Stream)
   ).
