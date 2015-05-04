@@ -3,14 +3,15 @@
 
 :- use_module(dispatch).
 :- use_module(library(http/http_open)).
+:- use_module(library(http/http_client)).
+%:- use_module(library(http/json)).
+:- use_module(library(uri)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(submodules/html).
 :- use_module(submodules/utils).
 
 target("##prolog", "yesbot").
-dict_start(`http://dictionary.reference.com/browse/`).
-dict_end(`?s=t`).
 
 dict(Msg) :-
   thread_create(ignore(dict_(Msg)), _Id, [detached(true)]).
@@ -19,19 +20,37 @@ dict(Msg) :-
 dict_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, Text),
   determine_recipient(dict, Msg, Recip),
-  append(`?dict `, Q0, Text),
-  string_codes(Q1, Q0),
-  normalize_space(atom(Atom), Q1),
-  append(atom_codes $ uri_encoded(query_value) $ Atom, Diff, Query),
-  dict_start(Start),
-  dict_end(End),
-  Diff = End,
-  string_codes(Link, append(Start) $ Query),
+  is_question(Text, Query),
+  format(string(Link),
+    "http://dictionary.reference.com/browse/~a?s=t",
+    [uri_encoded(query_value) $ Query]),
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20), status_code(_)]),
-    dict_search(Link, Stream, Recip),
+    do_search(Link, Stream, Query, Recip),
     close(Stream)
   ).
+
+
+is_question(Text, Query) :-
+  append(`?dict `, Q0, Text),
+  string_codes(Q1, Q0),
+  normalize_space(string(Query), Q1).
+/*
+is_question(Text, Query) :-
+  append(Q0, `?`, Text),
+  string_codes(Query, Q0).
+*/
+
+do_search(Link, Stream, _Term, Recip) :-
+  dict_search(Link, Stream, Recip).
+
+/*
+do_search(_, _, Term, Recip) :-
+  urban_search(Term, Recip).
+*/
+
+do_search(_, _, _, Recip) :-
+  send_msg(priv_msg, "No matches found", Recip).
 
 
 dict_search(Link, Stream, Recip) :-
@@ -41,7 +60,15 @@ dict_search(Link, Stream, Recip) :-
   send_msg(priv_msg, Link, Recip),
   send_msg(priv_msg, Paragraph, Recip), !.
 
-dict_search(_, _, Recip) :-
-  send_msg(priv_msg, "No matches found", Recip).
-
+/*
+urban_search(Term, Recip) :-
+  format(string(Link),
+    "http://api.urbandictionary.com/v0/define?term=~s", [Term]),
+  
+  http_get(Link, Reply, [timeout(20), status_code(_)]),
+  atom_json_dict(Reply, Dict, []),
+  memberchk(First, Dict.list),
+  send_msg(priv_msg, First.permalink, Recip),
+  send_msg(priv_msg, maplist(change) $ string_codes $ First.definition, Recip).
+*/
 
