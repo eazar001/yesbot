@@ -5,7 +5,6 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_client)).
 %:- use_module(library(http/json)).
-:- use_module(library(uri)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(submodules/html).
@@ -25,7 +24,7 @@ dict_(Msg) :-
     "http://dictionary.reference.com/browse/~a?s=t",
     [uri_encoded(query_value) $ Query]),
   setup_call_cleanup(
-    http_open(Link, Stream, [timeout(20), status_code(_)]),
+    http_open(Link, Stream, [timeout(20)]),
     do_search(Link, Stream, Query, Recip),
     close(Stream)
   ).
@@ -43,12 +42,10 @@ is_question(Text, Query) :-
 
 do_search(Link, Stream, _Term, Recip) :-
   dict_search(Link, Stream, Recip).
-
 /*
 do_search(_, _, Term, Recip) :-
   urban_search(Term, Recip).
 */
-
 do_search(_, _, _, Recip) :-
   send_msg(priv_msg, "No matches found", Recip).
 
@@ -65,7 +62,7 @@ urban_search(Term, Recip) :-
   format(string(Link),
     "http://api.urbandictionary.com/v0/define?term=~s", [Term]),
   
-  http_get(Link, Reply, [timeout(20), status_code(_)]),
+  http_get(Link, Reply, [timeout(20)]),
   atom_json_dict(Reply, Dict, []),
   memberchk(First, Dict.list),
   send_msg(priv_msg, First.permalink, Recip),
