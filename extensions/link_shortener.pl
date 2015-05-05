@@ -56,10 +56,15 @@ link_shortener_(Msg) :-
      ->
         make_tiny(Link, Chan)
      ;
-        url_get_title(Link, Title) ->
-        (  Title = []
+        get_time(T1),
+        url_get_title(Link, T),
+        get_time(T2) ->
+        (  T = []
         -> true
-        ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
+        ;  D is T2 - T1,
+	   format(string(Title), "~s   (~fs)",
+	     [maplist(change) $ unescape_title $ T, D]),
+	   send_msg(priv_msg, Title, Chan)
         )
      )
   ).
@@ -82,16 +87,25 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 make_tiny(Link, Chan) :-
   thread_create(make_tiny_(Link, Chan), Id, []),
   tiny_form(F),
-  visit_url(string_concat(F) $ Link, Tiny),
+  get_time(T1),
+  visit_url(string_concat(F) $ Link, T),
+  get_time(T2),
+  D is T2 - T1,
+  format(string(Tiny), "~s   (~fs)", [T, D]),
   thread_join(Id, _Status),
   send_msg(priv_msg, Tiny, Chan).
 
   
 make_tiny_(Link, Chan) :-
-  url_get_title(Link, Title),
-  (  Title = []
+  get_time(T1),
+  url_get_title(Link, T),
+  get_time(T2),
+  (  T = []
   -> true
-  ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
+  ;  D is T2 - T1,
+     format(string(Title), "~s   (~fs)",
+       [maplist(change) $ unescape_title $ T, D]),
+     send_msg(priv_msg, Title, Chan)
   ).
 
 
