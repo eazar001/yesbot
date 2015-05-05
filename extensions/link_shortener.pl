@@ -78,19 +78,19 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 %% make_tiny(+Link, +Chan, -Tiny) is semidet.
 %
 % Attempt to extract the title of the link. If a title is extracted, then send the
-% link to tinyurl to short the link if the link is determined to be valid and
-% greater than or equal to 100 characters in length.
+% link to tinyurl to shorten the link if the link is determined to be valid.
 
 make_tiny(Link, Chan, Tiny) :-
-  make_tiny_(Link, Title, Tiny),
+  thread_create(make_tiny_(Link, Chan), Id, []),
+  tiny_form(F),
+  visit_url(string_concat(F) $ Link, Tiny),
+  thread_join(Id, _Status).
+  
+make_tiny_(Link, Chan) :-
+  url_get_title(Link, Title),
   (  Title = []
   -> true
   ;  send_msg(priv_msg, maplist(change) $ unescape_title $ Title, Chan)
   ).
-  
-make_tiny_(Link, Title, Tiny) :-
-  url_get_title(Link, Title),
-  tiny_form(F),
-  visit_url(string_concat(F) $ Link, Tiny).
 
 
