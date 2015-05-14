@@ -33,7 +33,7 @@ url_get_title(Link, Title) :-
        xpath_chk(Structure, //title, Tstruct),
        Tstruct = element(title, _, [T0]),
        string_codes(T0, T),
-       maplist(change, T, Title)
+       clean_sequence(T, Title)
     ;
        Title = []
     ),

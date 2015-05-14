@@ -4,7 +4,7 @@
 :- module(html,
      [ has_link/4
       ,html_unescape/2
-      ,change/2
+      ,clean_sequence/2
       ,unescape_title/2 ]).
 
 
@@ -123,13 +123,17 @@ escape_sequence_num([C|Cs]) -->
   escape_sequence_num(Cs).
 
 
-change(10, 32).
-change(13, 32).
-change(X, 0) :-
-  X < 10.
-change(X, X) :-
-  between(10, 0xffff, X).
-change(X, 0) :-
-  X > 0xffff.
+%% clean_sequence(+Sequence, -Cleaned) is det.
+%
+% Remove all irrelevant and invalid sequences in a possibly utf8 encoded title.
+
+clean_sequence(Sequence, Cleaned) :-
+  exclude(invalid_utf8, Sequence, Cleaned).
+
+invalid_utf8(Char) :-
+  between(0, 31, Char).
+
+invalid_utf8(Char) :-
+  Char > 0xffff.
 
 
