@@ -23,7 +23,7 @@ dict_(Msg) :-
     "http://dictionary.reference.com/browse/~a?s=t",
     [uri_encoded(query_value) $ Query]),
   setup_call_cleanup(
-    http_open(Link, Stream, [timeout(20)]),
+    http_open(Link, Stream, [timeout(20), status_code(_Code)]),
     do_search(Link, Stream, Query, Recip),
     close(Stream)
   ).
