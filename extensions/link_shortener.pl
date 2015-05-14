@@ -63,7 +63,7 @@ link_shortener_(Msg) :-
         -> true
         ;  D is T2 - T1,
 	   format(string(Title), "~s   (~2fs)",
-	     [maplist(change) $ unescape_title $ T, D]),
+	     [clean_sequence $ unescape_title $ T, D]),
 	   send_msg(priv_msg, Title, Chan)
         )
      )
@@ -104,7 +104,7 @@ make_tiny_(Link, Chan) :-
   -> true
   ;  D is T2 - T1,
      format(string(Title), "~s   (~2fs)",
-       [maplist(change) $ unescape_title $ T, D]),
+       [clean_sequence $ unescape_title $ T, D]),
      send_msg(priv_msg, Title, Chan)
   ).
 
