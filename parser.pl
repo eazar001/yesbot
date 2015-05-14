@@ -31,7 +31,7 @@ crlf =	%x0D %x0A	; Carriage return/linefeed.
 */  
 
 
-%% parse_line(+Line:codes, -Msg:acyclic) is semidet.
+%% parse_line(+Line:codes, -Msg:compound) is semidet.
 %
 % After splitting the line from any potential trailing parameters, format
 % the line in a message compound term for proper reading outside of this
@@ -62,7 +62,7 @@ prefix_id(Prefix, Nick, User, Host) :-
 %--------------------------------------------------------------------------------%
 
 
-%% fmt_line(+Line:codes, -Msg:acyclic) is semidet.
+%% fmt_line(+Line:codes, -Msg:compound) is semidet.
 %
 % Split a server message into (potentially) 3 parts. The message can be split
 % into a prefix, command, and some command parameters. However, the prefix

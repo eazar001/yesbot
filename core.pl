@@ -217,7 +217,7 @@ start_job(Id) :-
 %--------------------------------------------------------------------------------%
 
 
-%% process_msg(+Msg:acyclic) is nondet.
+%% process_msg(+Msg:compound) is nondet.
 %
 % All extensions that deal specifically with handling messages should be
 % implemented dynamically in this section. The extensions will be plugged into

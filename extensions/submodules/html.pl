@@ -125,9 +125,11 @@ escape_sequence_num([C|Cs]) -->
 
 change(10, 32).
 change(13, 32).
-change(X, 32) :-
+change(X, 0) :-
   X < 10.
 change(X, X) :-
-  X > 10.
+  between(10, 0xffff, X).
+change(X, 0) :-
+  X > 0xffff.
 
 
