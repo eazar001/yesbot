@@ -15,7 +15,7 @@
 %--------------------------------------------------------------------------------%
 
 
-%% run_det(+Msg:acyclic, :Extension, -E:acyclic) is det.
+%% run_det(+Msg:compound, :Extension, -E:compound) is det.
 %
 % Concurrently call a list of extension predicates on the current message.
 % The extension predicates can possibly be nondet, but will still execute
