@@ -53,8 +53,7 @@ found(Msg, Stream, URL) :-
      send_msg(priv_msg, Paragraph, Rec), !
   ;
      xpath_chk(Content, //p(normalize_space), P0),
-     atom_codes(P0, P),
-     maplist(change, P, Paragraph),
+     clean_sequence(atom_codes $ P0, Paragraph),
      (  Paragraph \= `There were no results matching the query.`
      -> send_msg(priv_msg, URL, Rec),
 	send_msg(priv_msg, Paragraph, Rec)

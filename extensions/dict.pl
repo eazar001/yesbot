@@ -4,7 +4,6 @@
 :- use_module(dispatch).
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_client)).
-%:- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(submodules/html).
@@ -34,18 +33,11 @@ is_question(Text, Query) :-
   append(`?dict `, Q0, Text),
   string_codes(Q1, Q0),
   normalize_space(string(Query), Q1).
-/*
-is_question(Text, Query) :-
-  append(Q0, `?`, Text),
-  string_codes(Query, Q0).
-*/
+
 
 do_search(Link, Stream, _Term, Recip) :-
   dict_search(Link, Stream, Recip).
-/*
-do_search(_, _, Term, Recip) :-
-  urban_search(Term, Recip).
-*/
+
 do_search(_, _, _, Recip) :-
   send_msg(priv_msg, "No matches found", Recip).
 
@@ -53,19 +45,8 @@ do_search(_, _, _, Recip) :-
 dict_search(Link, Stream, Recip) :-
   load_html(Stream, Content, []),
   xpath_chk(Content, //div(@class='def-content', normalize_space), P),
-  maplist(change, atom_codes $ P, Paragraph),
+  clean_sequence(atom_codes $ P, Paragraph),
   send_msg(priv_msg, Link, Recip),
-  send_msg(priv_msg, Paragraph, Recip), !.
+  send_msg(priv_msg, Paragraph, Recip).
 
-/*
-urban_search(Term, Recip) :-
-  format(string(Link),
-    "http://api.urbandictionary.com/v0/define?term=~s", [Term]),
-  
-  http_get(Link, Reply, [timeout(20)]),
-  atom_json_dict(Reply, Dict, []),
-  memberchk(First, Dict.list),
-  send_msg(priv_msg, First.permalink, Recip),
-  send_msg(priv_msg, maplist(change) $ string_codes $ First.definition, Recip).
-*/
 
