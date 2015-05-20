@@ -4,12 +4,13 @@
 :- use_module(dispatch).
 :- use_module(parser).
 :- use_module(library(persistency)).
+:- use_module(submodules/utils).
 
 :- persistent
      message(sender:atom, nick:atom, text:string).
 
-chan("yesbot").
-chan("##prolog").
+
+target("##prolog", "yesbot").
 
 
 %--------------------------------------------------------------------------------%
@@ -29,8 +30,7 @@ messages(Msg) :-
 
 messages_access(Msg) :-
   with_mutex(db,
-    (
-       db_attach('extensions/messages.db', []),
+    (  db_attach('extensions/messages.db', []),
        ignore(messages_(Msg))
     )
   ).
@@ -38,22 +38,22 @@ messages_access(Msg) :-
 
 % See if a joining user has any messages in the database.
 messages_(Msg) :-
-  chan(Chan),
+  target(Chan, _),
   Msg = msg(Prefix, "JOIN", [Chan]),
   prefix_id(Prefix, Nick, _, _),
-  message(_,N,_),
-  maplist(normalize_atom_string, [N], [Nick]),
-  findall(_, message(_,N,_), C),
-  length(C, Count),
-  format(string(Greet), 'Hello ~s, you have ~d pending message(s).', [Nick, Count]),
+  atom_string(N, Nick),
+  aggregate_all(count, message(_, N, _), Count),
+  Count > 0,
+  format(string(Greet),
+    "Hello ~s, you have ~d pending message(s).", [Nick, Count]),
   send_msg(priv_msg, Greet, Chan),
   send_msg(priv_msg, "You can play a message by typing ?play", Chan), !.
 
 % See if a user who has messages is requesting ?play
 messages_(Msg) :-
-  chan(Chan),
-  Msg = msg(Prefix, "PRIVMSG", [Chan], Rest),
+  Msg = msg(Prefix, "PRIVMSG", _Target, Rest),
   prefix_id(Prefix, Nick, _, _),
+  determine_recipient(messages, Msg, Recipient),
   atom_codes(R, Rest),
   normalize_space(atom('?play'), R),
   (
@@ -61,51 +61,32 @@ messages_(Msg) :-
       atom_string(T, Text),
       maplist(normalize_atom_string, [N,S], [Nick, Sender])
   *->
-      format(string(From), '~s says:', [Sender]),
-      (
-         Chan = "yesbot"
-      ->
-         % For handling message interaction for recipients in private
-         send_msg(priv_msg, From, Nick),
-         send_msg(priv_msg, Text, Nick),
-         send_msg(priv_msg, "You can type ?play again to play more messages \c
-	   in your queue", Nick)
-      ;
-	 % For handling message interaction for recipients in the channel
-         send_msg(priv_msg, From, Chan),
-         send_msg(priv_msg, Text, Chan),
-         send_msg(priv_msg, "You can type ?play again to play more messages \c
-	   in your queue", Chan)
-      ),
+      format(string(From), "~s says:", [Sender]),
+      send_msg(priv_msg, From, Recipient),
+      send_msg(priv_msg, Text, Recipient),
+      send_msg(priv_msg, "You can type ?play again to play more messages \c
+        in your queue (You can also do this in private)", Recipient),
       retract_message(S,N,T), !
   ;
-     (  Chan = "yesbot"
-     -> send_msg(priv_msg, "You have no messages!", Nick)
-     ;  send_msg(priv_msg, "You have no messages!", Chan)
-     )
+      send_msg(priv_msg, "You have no messages!", Recipient)
   ).
 
 % See if a user is trying to record a message for another user.
 messages_(Msg) :-
-  chan(Chan),
-  Msg = msg(Prefix, "PRIVMSG", [Chan], Rest),
+  Msg = msg(Prefix, "PRIVMSG", _, Rest),
   prefix_id(Prefix, Sender, _, _),
+  determine_recipient(messages, Msg, Recipient),
   atom_string(S, Sender),
   append(`?record `, R0, Rest),
   string_codes(Request, R0),
-  term_string(message(N,T), Request),
+  term_string(message(N0,T), Request),
+  normalize_space(atom(N), N0),
   assert_message(S,N,T),
-  (  Chan = "yesbot"
-  -> send_msg(priv_msg, "Done.", Sender)
-  ;  send_msg(priv_msg, "Done.", Chan)
-  ),
+  send_msg(priv_msg, "Done.", Recipient),
   db_sync(gc).
 
 
-%% normalize_atom_string(+Atom, -Normalized) is det.
-%
-% normalize_atom_string(Atom, Normalized) is true if Normalized is a normalized
-% string conversion of Atom.
+%% normalize_atom_string(+Atom:atom, -Normalized:string) is det.
 
 normalize_atom_string(Atom, Normalized) :-
   atom_string(Atom, String),
