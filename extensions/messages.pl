@@ -47,7 +47,9 @@ messages_(Msg) :-
   format(string(Greet),
     "Hello ~s, you have ~d pending message(s).", [Nick, Count]),
   send_msg(priv_msg, Greet, Chan),
-  send_msg(priv_msg, "You can play a message by typing ?play", Chan), !.
+  send_msg(priv_msg,
+    "You can play a message by typing ?play \c
+    (you can also do this in private if you want)", Chan), !.
 
 % See if a user who has messages is requesting ?play
 messages_(Msg) :-
@@ -65,7 +67,7 @@ messages_(Msg) :-
       send_msg(priv_msg, From, Recipient),
       send_msg(priv_msg, Text, Recipient),
       send_msg(priv_msg, "You can type ?play again to play more messages \c
-        in your queue (You can also do this in private)", Recipient),
+        in your queue", Recipient),
       retract_message(S,N,T), !
   ;
       send_msg(priv_msg, "You have no messages!", Recipient)
