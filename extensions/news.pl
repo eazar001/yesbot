@@ -17,13 +17,27 @@
 :- use_module(library(solution_sequences)).
 :- use_module(library(persistency)).
 
+:- dynamic current_day/1.
 
-target("#testeazarbot", "eazarbot").
+:- persistent
+     heading(headline:string).
+
+target("##prolog", "yesbot").
 news_link("http://www.swi-prolog.org/news/archive").
 time_limit(3600). % Time limit in seconds
 
+
 news(Msg) :-
-  thread_create(ignore(news_(Msg)), _Id, [detached(true)]).
+  thread_create(ignore(news_db(Msg)), _Id, [detached(true)]).
+
+
+news_db(Msg) :-
+  with_mutex(db,
+    (  db_attach('extensions/news.db', []),
+       ignore(news_(Msg))
+    )
+  ).
+
 
 
 %% news_(Msg:compound) is semidet.
@@ -62,6 +76,9 @@ news_loop :-
 news_check(T1, Limit) :-
   sleep(0.05),
   get_time(T2),
+  stamp_date_time(T2, DateTime, local),
+  date_time_value(day, DateTime, Day),
+  assert(current_day(Day)),
   Delta is T2 - T1,
   (
      Delta >= Limit
@@ -72,6 +89,7 @@ news_check(T1, Limit) :-
   ;
      news_check(T1, Limit)
   ).
+
 
 %% news_feed is det.
 %
@@ -86,9 +104,9 @@ news_feed :-
   ).
 
 
-%% valid_post(+Stream, +Chan:string, +Link:string) is nondet.
+%% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
 %
-% Run io side effects for all valid posts. Valid posts are posts that are
+% Run IO side effects for all valid posts. Valid posts are posts that are
 % determined to match the current day of the month for this year.
 
 valid_post(Stream, Chan, Link) :-
@@ -96,16 +114,21 @@ valid_post(Stream, Chan, Link) :-
   forall(
     limit(Count, xpath(Content, //h2(@class='post-title', normalize_space), H)),
     (  atom_string(H, Heading),
+       \+heading(Heading),
+       assert_heading(Heading),
        format(string(Report), "News Update: ~s", [Heading]),
        send_msg(priv_msg, Report, Chan),
        sleep(5)
     )
   ),
-  (  Count > 0
-  -> send_msg(priv_msg, Link, Chan)
-  ;  true
-  ).
+  Count > 0,
+  send_msg(priv_msg, Link, Chan).
 
+
+%% count_valid_posts(+Stream, -Count:integer, -Content) is det.
+%
+% Count the total amount of valid posts (match today's date) and unify content
+% with the parsed html.
 
 count_valid_posts(Stream, Count, Content) :-
   load_html(Stream, Content, []),
@@ -116,7 +139,31 @@ count_valid_posts(Stream, Count, Content) :-
      stamp_date_time(Stamp1, Dt1, local),
      stamp_date_time(Stamp2, Dt2, local),
      date_time_value(date, Dt1, Same),
+     Same = date(Year, Month, Day),
      date_time_value(date, Dt2, Same)), Count).
+
+
+%% compare_days is semidet.
+%
+% Get current day stored in the database and compare it to the system's realtime
+% representation of the current day. If they are unequal then assert the systems
+% representation; nothing should be done otherwise. NOTE: this predicate should
+% be deterministic, but is not because current_day/1 is dynamic. Therefore an
+% error should be thrown if there is failure. So for now, unti this is resolved,
+% this predicate should be marked as semidet. This predicate also retracts all
+% headings from the persistent database daily, for cleanup/maintenence purposes.
+
+compare_days :-
+  current_day(Current),
+  get_time(Time),
+  stamp_date_time(Time, DateTime, local),
+  date_time_value(day, DateTime, Day),
+  (  Current = Day
+  -> true
+  ;  retractall(current_day(_)),
+     asserta(current_day(Day)),
+     retractall_heading(_)
+  ).
 
 
 %% news_abort is det.
