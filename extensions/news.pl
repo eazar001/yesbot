@@ -139,7 +139,6 @@ count_valid_posts(Stream, Count, Content) :-
      stamp_date_time(Stamp1, Dt1, local),
      stamp_date_time(Stamp2, Dt2, local),
      date_time_value(date, Dt1, Same),
-     Same = date(Year, Month, Day),
      date_time_value(date, Dt2, Same)), Count).
 
 
