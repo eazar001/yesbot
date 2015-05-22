@@ -74,7 +74,7 @@ news_loop :-
   get_time(T1),
   stamp_date_time(T1, DateTime, local),
   date_time_value(day, DateTime, Day),
-  assert(current_day(Day)),
+  asserta(current_day(Day)),
   news_check(T1, Limit).
 
 
