@@ -177,6 +177,7 @@ compare_days :-
   -> true
   ;  retractall(current_day(_)),
      asserta(current_day(Day)),
+     db_sync(gc),
      retractall_heading(_)
   ).
 
