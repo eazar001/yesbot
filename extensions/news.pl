@@ -22,6 +22,9 @@
 :- persistent
      heading(headline:string).
 
+:- persistent
+     version(type:atom, number:string).
+
 target("##prolog", "yesbot").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
@@ -152,10 +155,7 @@ count_valid_posts(Stream, Count, Content) :-
      stamp_date_time(Stamp1, Dt1, local),
      stamp_date_time(Stamp2, Dt2, local),
      date_time_value(date, Dt1, Same),
-     Same = date(Year, Month, Day),
-     D is Day + 1,
-     S =.. [date, Year, Month, D],
-     date_time_value(date, Dt2, S)), Count).
+     date_time_value(date, Dt2, Same)), Count).
 
 
 %% compare_days is semidet.
@@ -192,8 +192,16 @@ get_latest_version(Type) :-
   latest_version(Link, Version),
   format(string(Update),
     "New ~a build available for download: version ~s", [Type, Version]),
-  send_msg(priv_msg, Update, Chan),
-  send_msg(priv_msg, Link, Chan).
+  (
+     \+version(Type, Version)
+  ->
+     retractall_version(Type, _),
+     assert_version(Type, Version),
+     send_msg(priv_msg, Update, Chan),
+     send_msg(priv_msg, Link, Chan)
+  ;
+     true
+  ).
 
 
 %% latest_version(+Link:string, -Version:string) is semidet.
