@@ -39,7 +39,6 @@ news_db(Msg) :-
   ).
 
 
-
 %% news_(Msg:compound) is semidet.
 %
 % True if the message is a join message to the specified channel, then run a
@@ -68,6 +67,9 @@ news_loop :-
   time_limit(Limit),
   ignore(news_feed),
   get_time(T1),
+  stamp_date_time(T1, DateTime, local),
+  date_time_value(day, DateTime, Day),
+  assert(current_day(Day)),
   news_check(T1, Limit).
 
 
@@ -75,10 +77,8 @@ news_loop :-
 
 news_check(T1, Limit) :-
   sleep(0.05),
+  compare_days,
   get_time(T2),
-  stamp_date_time(T2, DateTime, local),
-  date_time_value(day, DateTime, Day),
-  assert(current_day(Day)),
   Delta is T2 - T1,
   (
      Delta >= Limit
@@ -139,7 +139,10 @@ count_valid_posts(Stream, Count, Content) :-
      stamp_date_time(Stamp1, Dt1, local),
      stamp_date_time(Stamp2, Dt2, local),
      date_time_value(date, Dt1, Same),
-     date_time_value(date, Dt2, Same)), Count).
+     Same = date(Year, Month, Day),
+     D is Day + 1,
+     S =.. [date, Year, Month, D],
+     date_time_value(date, Dt2, S)), Count).
 
 
 %% compare_days is semidet.
