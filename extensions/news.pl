@@ -3,8 +3,8 @@
 
 
 :- module(news,
-  [ news/1
-   ,news_abort/0 ]).
+     [ news/1
+      ,news_abort/0 ]).
 
 :- use_module(dispatch).
 :- use_module(submodules/html).
@@ -24,6 +24,8 @@
 
 target("##prolog", "yesbot").
 news_link("http://www.swi-prolog.org/news/archive").
+version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
+version_link(development, "http://www.swi-prolog.org/download/devel/src/").
 time_limit(3600). % Time limit in seconds
 
 
@@ -74,7 +76,6 @@ news_loop :-
 
 
 %% news_check(+T1:float, +Limit:integer) is det.
-
 news_check(T1, Limit) :-
   sleep(0.05),
   compare_days,
@@ -91,17 +92,29 @@ news_check(T1, Limit) :-
   ).
 
 
-%% news_feed is det.
+%% news_feed is semidet.
 %
 % Attempt to scan swi-prolog.org news archive for updates and display to channel.
 news_feed :-
   target(Chan, _),
   news_link(Link),
+  ignore(fetch_news(Link, Chan)),
+  ignore(fetch_version).
+
+
+%% fetch_news(+Link:string, +Chan:string) is semidet.
+fetch_news(Link, Chan) :-
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20)]),
     valid_post(Stream, Chan, Link),
     close(Stream)
   ).
+
+
+%% fetch_version is det.
+fetch_version :-
+  ignore(get_latest_version(stable)),
+  ignore(get_latest_version(development)).
 
 
 %% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
@@ -166,6 +179,46 @@ compare_days :-
      asserta(current_day(Day)),
      retractall_heading(_)
   ).
+
+
+%% get_latest_version(+Type:atom) is semidet.
+%
+% Attempt to retrieve latest software version of Type (either stable or devel)
+% and display the result via IO side effects.
+
+get_latest_version(Type) :-
+  target(Chan, _),
+  version_link(Type, Link),
+  latest_version(Link, Version),
+  format(string(Update),
+    "New ~a build available for download: version ~s", [Type, Version]),
+  send_msg(priv_msg, Update, Chan),
+  send_msg(priv_msg, Link, Chan).
+
+
+%% latest_version(+Link:string, -Version:string) is semidet.
+%
+% Parse a link and attempt to extract the last (latest version) file that is
+% available for download in the appropriate formatted table in the swi site.
+
+latest_version(Link, Version) :-
+  setup_call_cleanup(
+    http_open(Link, Stream, [timeout(20)]),
+    load_html(Stream, Content, []),
+    close(Stream)
+  ),
+  findall(File,
+    (  xpath(Content, //tr(@class=Parity), Row),
+       memberchk(Parity, [odd,even]),
+       xpath(Row, //a(normalize_space), File)
+    ),
+    Files
+  ),
+  String_is_num = (\Str^number_string(_, Str)),
+  split_string(last $ Files, "-.", "", Latest),
+  include(String_is_num, Latest, Nums),
+  atomic_list_concat(Nums, ., Atom),
+  atom_string(Atom, Version).
 
 
 %% news_abort is det.
