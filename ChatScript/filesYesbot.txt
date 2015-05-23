@@ -1,0 +1,12 @@
+# underlying conversation system
+RAWDATA/YESBOT/	
+
+# quibble ability
+RAWDATA/QUIBBLE/
+
+
+
+
+
+
+
