@@ -93,6 +93,13 @@ in_right_chan(msg(_, _, [Chan])) :-
 %    @arg Body   the actual message e.g. "hey, how's it going"
 %
 
+% user ends conversation
+% has to be first because ?chatty is a prefix of ?chatty bye
+respond_privmsg(Prefix, Chan, Body) :-
+  currently_talking_with_speaker(Prefix, Chan),
+  this_message_ends_a_conversation(Body),
+  !,
+  do_end_conversation(Prefix, Chan).
 % start a new conversation
 respond_privmsg(Prefix, Chan, Body) :-
   \+ currently_talking_with_speaker(Prefix, Chan),
@@ -109,12 +116,6 @@ respond_privmsg(Prefix, Chan, Body) :-
 respond_privmsg(Prefix, Chan, _Body) :-
   \+ currently_talking_with_speaker(Prefix, Chan),
   !, fail.
-% user ends conversation
-respond_privmsg(Prefix, Chan, Body) :-
-  currently_talking_with_speaker(Prefix, Chan),
-  this_message_ends_a_conversation(Body),
-  !,
-  do_end_conversation(Prefix, Chan).
 % bot ends conversation
 respond_privmsg(Prefix, Chan, Body) :-
   currently_talking_with_speaker(Prefix, Chan),
