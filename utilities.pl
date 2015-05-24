@@ -5,7 +5,9 @@
 :- module(utilities,
      [ run_det/1
       ,run_det/3
-      ,init_timer/1 ]).
+      ,init_timer/1
+      ,add_new_extensions/1
+      ,load_new_extensions/1 ]).
 
 :- use_module(config).
 
@@ -65,5 +67,33 @@ check_pings(Id) :-
     ;  thread_signal(ct, throw(abort))
     ),
     fail.
+
+
+%--------------------------------------------------------------------------------%
+% Hot loading
+%--------------------------------------------------------------------------------%
+
+
+%% add_new_extensions(+New:list(atom)) is semidet.
+%
+% Adds new extensions on top of whatever extensions are currently loaded in the
+% the bot at the moment. These settings will not persist on restart; persisting
+% these settings must be done by preceding a save_settings/0 call with this call.
+
+add_new_extensions(New) :-
+  append(New, Es, Extensions),
+  load_new_extensions(Extensions).
+
+
+%% load_new_extensions(+Es:list(atom)) is semidet.
+%
+% Load a new set of extensions and initalize them into the current bot session.
+% This will not save these settings on restart. To make them persistent, this
+% predicate call must precede a call to save_settings/0.
+
+load_new_extensions(Es) :-
+  set_setting(config:extensions, Es),
+  retractall(core:extensions(_,_)),
+  init_extensions.
 
 
