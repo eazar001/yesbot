@@ -81,6 +81,7 @@ check_pings(Id) :-
 % these settings must be done by preceding a save_settings/0 call with this call.
 
 add_new_extensions(New) :-
+  setting(config:extensions, Es),
   append(New, Es, Extensions),
   load_new_extensions(Extensions).
 
