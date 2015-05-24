@@ -95,6 +95,6 @@ add_new_extensions(New) :-
 load_new_extensions(Es) :-
   set_setting(config:extensions, Es),
   retractall(core:extensions(_,_)),
-  init_extensions.
+  core:init_extensions.
 
 
