@@ -61,16 +61,15 @@ send_msg(Type, Target) :-
 % send a Str of Type to a specified Target.
 
 send_msg(Type, Str, Target) :-
-  sub_string(Str, Before, _, _, "\n"),
-  sub_string(Str, 0, Before, _, FirstLine),
-  EndStartsAt is Before + 1,
-  sub_string(Str, EndStartsAt, _, 0, Rest),
-  send_msg_(Type, FirstLine, Target),
-  send_msg(Type, Rest, Target),
-  !.
-send_msg(Type, Str, Target) :-
-  \+ sub_string(Str, _, _, _, "\n"),
-  send_msg_(Type, Str, Target).
+  cmd(Type, Msg),
+  (  Type = priv_msg
+  ;  Type = notice
+  ), !,
+  core:get_irc_stream(Stream),
+  format(Stream, Msg, [Target, Str]),
+  flush_output(Stream),
+  thread_send_message(tq, true).
+
 
 %% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
 %
@@ -86,17 +85,6 @@ send_msg(Type, Chan, Target) :-
      Type = invite,
      format(Stream, Msg, [Target, Chan])
   ), !,
-  flush_output(Stream),
-  thread_send_message(tq, true).
-
-
-send_msg_(Type, Str, Target) :-
-  cmd(Type, Msg),
-  (  Type = priv_msg
-  ;  Type = notice
-  ), !,
-  core:get_irc_stream(Stream),
-  format(Stream, Msg, [Target, Str]),
   flush_output(Stream),
   thread_send_message(tq, true).
 
