@@ -46,7 +46,16 @@ found(Msg, Stream, URL) :-
      append(`?wiki `, Title, New),
      Paragraph = "Disambiguating with first match",
      send_msg(priv_msg, Paragraph, Rec),
-     wiki_search_(msg(_, "PRIVMSG", [Rec], New)), !
+     target(Chan, Bot),
+     (
+        Rec = Chan
+     ->
+        wiki_search_(msg(_, "PRIVMSG", [Rec], New))
+     ;
+	Msg = msg(Prefix, _, _, _),
+	NewMsg = msg(Prefix, "PRIVMSG", [Bot], New),
+	wiki_search_(NewMsg)
+     )
   ;
      xpath_chk(Content, //a(@title='This is a special page which you cannot edit'), _),
      Paragraph = "Page does not exist",

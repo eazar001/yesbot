@@ -54,13 +54,14 @@ news_db(Msg) :-
 news_(Msg) :-
   target(Chan, _),
   Msg = msg(_Prefix, "JOIN", [Chan]),
-  thread_create(news_loop, _, [alias(news), detached(true)]),
   setting(config:extensions, Es),
   selectchk(news, Es, Update),
   retractall(core:extensions(_,_)),
   set_setting(config:extensions, Update),
   core:init_extensions,
-  set_setting(config:extensions, Es).
+  set_setting(config:extensions, Es),
+  thread_create(news_loop, _, [alias(news), detached(true)]).
+
 
 
 %% news_loop is det.
