@@ -69,10 +69,12 @@
 %
 
 chatty(Msg) :-
-  thread_create(ignore(chatty_(Msg)), _Id, [detached(true)]).
+	debug(chatty(any), '~w', [Msg]),
+        thread_create(ignore(chatty_(Msg)), _Id, [detached(true)]).
 
 chatty_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Body),
+  debug(chatty(msg), '~w in ~w: ~s', [Prefix, Chan, Body]),
   in_right_chan(Msg),
   respond_privmsg(Prefix, Chan, Body).
 

@@ -1,36 +1,33 @@
 TOPIC: ~yesbottalk ()
+# this topic orients the user towards talking with the bot
+# It's the initial topic
 
-t: Hello, lets talk about Prolog.
-	#! Why should we talk about eazar?
-	a: (Prolog) Good, you've responded with something about Prolog. How do you feel about erlang?
-		b: (Erlang) I'm glad you like ttm. This is the end of this rejoinder set
-	a: (crazy nuts) I'm sorry you're having mental health issues. 
-	
-u: (prolog) Prolog as a lowercase
+t: Hello. I'm Chatty Yesbot. I like to discuss Prolog, and more generally, 
+   declarative and functional programming. \n
+   I also like to discuss AI topics. \n
+   Otherwise, I'm dumb as a post. Probing me to see if I'm an AGI
+   will rapidly show I'm not. \n
+   What do you want to talk about?
+   a: (~why) If you tell me what you want to talk about it helps me give reasonable responses.
+   
+#! I have a question about a prolog problem
+u: (<<problem class course exercise>>) ^keep() ^gambit(~questionhelp)
+u: (question * prolog) ^gambit(~questaboutprolog)
+u: (test the bot) ^gambit(~testbot).
 
-u: (Prolog) Prolog as an uppercase
+?: (are you *~2 [bot robot chatbot]) Yes, I'm a chatbot. I'm driven by ChatScript, available at "http://chatscript.sourceforge.net/"
 
-t: This is a first yesbot gambit.
+# TBD ~questionhelp
+# TBD ~questaboutprolog
+# TBD need a keyword driven AI topic
 
-t: This is a second yesbot gambit.
+topic: ~questionhelp ()
+t: no help section yet
 
-t: This is a third yesbot gambit.
+topic: ~questaboutprolog ()
+t: no general questions about prolog section yet
 
-t: This is a fourth yesbot gambit.
-
-t: This is a fifth yesbot gambit.
-
-t: This is a sixth yesbot gambit.
-
-
-u: ( tin ) this responds to tin
-
-u: ( tin ) this also responds to tin
-
-u: ( farm ) this responds to farm
-
-u: ( your name ) ^keep() ^repeat() My name is Yesbot 1.
-
-
+topic: ~ai (ai artificial_intelligence agi)
+t: no topic about ai yet
 
 

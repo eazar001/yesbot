@@ -1,0 +1,39 @@
+topic: ~prolog ( prolog Prolog logic_programming declarative_programming )
+
+t: You'll hate Prolog for a few weeks, and then you'll love it.
+
+t: Are you just learning Prolog?
+	a: (~yesanswer) $noob=1 It's great you're learning Prolog.
+	a: (~noanswer) $noob=0 Great - lots of very knowledgeable people hang out on this channel
+	
+t: ^gambit(~reason_for_interest)
+t: ^gambit(~why_I_like_Prolog)
+t: ^gambit(~class_help)
+
+topic: ~reason_for_interest ( ~purpose_adverbs )
+
+t: WHYLEARN( $noob=1 ) Why are you learning it?
+	a: (like learning) $reason=plfun You'll find lots of kindred spirits here on "##prolog"!
+	a: ([class][course][homework][problem]) $reason=class Are you having trouble with a Prolog programming problem?
+	a: ( serious~5 ) $reason=serious Cool. More people are doing serious stuff with prolog these days.
+	
+# note that this isn't autoactivated
+topic: ~research ( graduate_student~1 student_at research linguistics theory)
+
+t: Are you interested in constraint programming?
+	a: (~yesanswer) I'm having trouble understanding Fruewirth's book.
+
+t: I'm afraid I don't have any talent for math, but I like to do Sudoku's
+
+t: Are you happy in academia?
+
+t: How far along is your research?
+
+s: (my research *~2 is *~2 {in about} _*) $usersresearch=_0 Interesting. Is _0 an active field now?
+
+
+
+
+
+	
+		
