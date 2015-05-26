@@ -1,3 +1,5 @@
 *.pl~
 /settings.db
 /extensions/chat-logs
+/extensions/messages.db
+/extensions/news.db
