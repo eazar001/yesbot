@@ -18,6 +18,7 @@ The next required step is to configure the bot using the settings tools in SWI-P
 Look at config.pl 
 
 Any settings you need to change, you can change by
+
 ?- setting(config:nick, examplebot).
 
 When done persist them with 
