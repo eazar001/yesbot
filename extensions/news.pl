@@ -57,6 +57,7 @@ news_(Msg) :-
   setting(config:extensions, Es),
   selectchk(news, Es, Update),
   retractall(core:extensions(_,_)),
+  retractall(core:sync_extensions(_,_)),
   set_setting(config:extensions, Update),
   core:init_extensions,
   set_setting(config:extensions, Es),
