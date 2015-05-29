@@ -4,26 +4,40 @@
 
 :- module(utilities,
      [ run_det/1
-      ,run_det/3
+      ,run_det/2
+      ,run_det_sync/3
       ,init_timer/1
       ,add_new_extensions/1
-      ,load_new_extensions/1 ]).
+      ,load_new_extensions/1
+      ,is_sync/1 ]).
 
 :- use_module(config).
-
+:- use_module(library(func)).
 
 %--------------------------------------------------------------------------------%
 % Concurrency
 %--------------------------------------------------------------------------------%
 
 
-%% run_det(+Msg:compound, :Extension, -E:compound) is det.
+%% run_det(+Msg:compound, :Extension) is det.
 %
-% Concurrently call a list of extension predicates on the current message.
-% The extension predicates can possibly be nondet, but will still execute
-% concurrently without undue interruption.
+% Used to find all solutions to an extensionized goal and evaluate it as
+% deterministic. This predicate should only be used for extensions that are
+% intended to be dispatched asynchronously. Extensions that are desired
+% synchronous should be prefixed with 'sync-', and be dispatched in a set of
+% blocking extensions via concurrent/3.
 
-run_det(Msg, Extension, E) :-
+run_det(Msg, Extension) :-
+  E = ignore(((call(Extension:Extension, Msg), fail))),
+  thread_create(E, _Id, [detached(true)]).
+
+
+%% run_set_sync(+Msg:compound, :Extension, :E) is det.
+%
+% Convert an extensionized goal into a ready form for usage with concurrent/3.
+% This predicate is intended to only be used with synchronous extensions.
+
+run_det_sync(Msg, Extension, E) :-
   E = ignore(((call(Extension:Extension, Msg), fail))).
 
 
@@ -35,6 +49,15 @@ run_det(Msg, Extension, E) :-
 
 run_det(Goal) :-
   ignore((Goal, fail)).
+
+
+%% is_sync(+Name:atom) is semidet.
+%
+% True if the extension name is prefixed with 'sync-'. (synchronous)
+is_sync(Name) :-
+  is_sync_(atom_codes $ Name, _Rest).
+
+is_sync_ --> `sync_`.
 
 
 %--------------------------------------------------------------------------------%
@@ -95,6 +118,7 @@ add_new_extensions(New) :-
 load_new_extensions(Es) :-
   set_setting(config:extensions, Es),
   retractall(core:extensions(_,_)),
+  retractall(core:sync_extensions(_,_)),
   core:init_extensions.
 
 

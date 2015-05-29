@@ -39,10 +39,6 @@
 % This predicate will only succeed if Recip is identical to Chan
 
 link_shortener(Msg) :-
-  thread_create(ignore(link_shortener_(Msg)), _Id, [detached(true)]).
-
-
-link_shortener_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
   core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,

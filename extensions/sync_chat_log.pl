@@ -10,13 +10,13 @@
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(chat_log, [chat_log/1]).
+:- module(sync_chat_log, [sync_chat_log/1]).
 
 :- use_module(parser).
 :- dynamic known/3.
 
 
-%% chat_log(+Msg) is semidet.
+%% sync_chat_log(+Msg) is semidet.
 %
 % Attempt to parse a reply from the server and determine whether or not the
 % current line is a valid line to store in an irc chat transcript. If it is, the
@@ -27,7 +27,7 @@
 %
 % This will succeed only if Recip and Chan are identical.
 
-chat_log(Msg) :-
+sync_chat_log(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
   core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
