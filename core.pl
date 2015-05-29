@@ -19,6 +19,7 @@
 :- use_module(dispatch).
 :- use_module(utilities).
 :- use_module(library(socket)).
+:- use_module(library(func)).
 
 :- dynamic known/1.
 :- dynamic get_irc_server/1.
@@ -91,16 +92,21 @@ init_structs :-
 
 
 :- dynamic extensions/2.
+:- dynamic sync_extensions/2.
 
 %% init_extensions is semidet.
 %
 % Assert the extensions along with its length at the top level for access.
-% Import all the modules afterwards.
+% Import all the modules afterwards. By default extensions will be considered
+% asynchronous unless demarcated as the contrary.
 
 init_extensions :-
   desired_extensions(Extensions),
-  length(Extensions, N),
-  asserta(extensions(Extensions, N)),
+  partition(is_sync, Extensions, Sync, Async),
+  length(Sync, N0),
+  length(Async, N1),
+  asserta(sync_extensions(Sync, N0)),
+  asserta(extensions(Async, N1)),
   maplist(import_extension_module, Extensions).
 
 
@@ -224,14 +230,15 @@ start_job(Id) :-
 % an execution list that follows a successful parse of a private message.
 
 process_msg(Msg) :-
-  extensions(Es, N),
-  (
-     N > 0
-  ->
-     maplist(run_det(Msg), Es, Extensions),
-     concurrent(N, Extensions, [])
-  ;
-     true
+  extensions(Async, N0),
+  sync_extensions(Sync, N1),
+  (  N0 > 0
+  -> maplist(run_det(Msg), Async)
+  ;  true
+  ),
+  (  N1 > 0
+  -> concurrent(N0, maplist(run_det_sync(Msg)) $ Sync, [])
+  ;  true
   ).
 
 
@@ -260,6 +267,7 @@ disconnect :-
   retractall(get_irc_stream(_)),
   retractall(connection(_,_,_,_,_,_)),
   retractall(extensions(_,_)),
+  retractall(sync_extensions(_,_)),
   retractall(get_irc_server(_)),
   retractall(known(_)),
   message_queue_destroy(mq),
