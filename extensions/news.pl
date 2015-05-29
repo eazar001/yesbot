@@ -33,7 +33,7 @@ time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  thread_create(ignore(news_db(Msg)), _Id, [detached(true)]).
+  ignore(news_db(Msg)).
 
 
 news_db(Msg) :-

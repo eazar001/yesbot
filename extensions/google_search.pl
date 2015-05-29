@@ -20,10 +20,6 @@ google_end(`&btnI=I\'m+Feeling+Lucky`).
 
 
 google_search(Msg) :-
-  thread_create(ignore(google_search_(Msg)), _Id, [detached(true)]).
-
-
-google_search_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, Text),
   append(`?google `, Q0, Text),
   determine_recipient(google_search, Msg, Rec),

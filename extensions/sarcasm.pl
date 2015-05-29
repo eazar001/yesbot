@@ -20,7 +20,7 @@ public_action([ "reads a book." ]).
 action([1,65,67,84,73,79,78,32|_]).
 
 sarcasm(Msg) :-
-  thread_create(ignore(once(sarcasm_(Msg))), _Id, [detached(true)]).
+  ignore(once(sarcasm_(Msg))).
 
 
 sarcasm_(Msg) :-

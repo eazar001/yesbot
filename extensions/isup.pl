@@ -12,11 +12,8 @@
 
 target("##prolog", "yesbot").
 
+
 isup(Msg) :-
-  thread_create(ignore(isup_(Msg)), _Id, [detached(true)]).
-
-
-isup_(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, Rest),
   append(`?isup `, Q0, Rest),
   atom_codes(Q1, Q0),

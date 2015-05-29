@@ -16,7 +16,7 @@ wiki_end(`&language=en&go=Go`).
 
 
 wiki_search(Msg) :-
-  thread_create(ignore(wiki_search_(Msg)), _Id, [detached(true)]).
+  ignore(wiki_search_(Msg)).
 
 
 wiki_search_(Msg) :-

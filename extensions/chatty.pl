@@ -70,7 +70,7 @@
 
 chatty(Msg) :-
 	debug(chatty(any), '~w', [Msg]),
-        thread_create(ignore(chatty_(Msg)), _Id, [detached(true)]).
+        ignore(chatty_(Msg)).
 
 chatty_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Body),

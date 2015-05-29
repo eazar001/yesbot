@@ -20,7 +20,7 @@
 target("##prolog", "yesbot").
 
 references(Msg) :-
-  thread_create(ignore((references_(Msg))), _Id, [detached(true)]).
+  ignore((references_(Msg))).
 
 references_(Msg) :-
   determine_recipient(references, Msg, Rec),

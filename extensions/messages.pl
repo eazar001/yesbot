@@ -25,7 +25,7 @@ target("##prolog", "yesbot").
 % format :?record message(<nick>, "<msg>")
 
 messages(Msg) :-
-  thread_create(messages_access(Msg), _Id, [detached(true)]).
+  messages_access(Msg).
 
 
 messages_access(Msg) :-

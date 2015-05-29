@@ -37,7 +37,7 @@ target("##prolog", "yesbot").
 
 
 swi_object_search(Msg) :-
-  thread_create(ignore(swi_object_search_(Msg)), _Id, [detached(true)]).
+  ignore(swi_object_search_(Msg)).
 
 
 swi_object_search_(Msg) :-

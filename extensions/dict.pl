@@ -12,7 +12,7 @@
 target("##prolog", "yesbot").
 
 dict(Msg) :-
-  thread_create(ignore(dict_(Msg)), _Id, [detached(true)]).
+  ignore(dict_(Msg)).
 
 
 dict_(Msg) :-
