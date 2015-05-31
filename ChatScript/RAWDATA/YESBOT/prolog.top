@@ -1,4 +1,4 @@
-topic: ~prolog ( prolog Prolog logic_programming declarative_programming )
+topic: ~prolog bot=yesbot ( prolog Prolog logic_programming declarative_programming )
 
 t: You'll hate Prolog for a few weeks, and then you'll love it.
 
@@ -10,7 +10,7 @@ t: ^gambit(~reason_for_interest)
 t: ^gambit(~why_I_like_Prolog)
 t: ^gambit(~class_help)
 
-topic: ~reason_for_interest ( ~purpose_adverbs )
+topic: ~reason_for_interest bot=yesbot ( ~purpose_adverbs )
 
 t: WHYLEARN( $noob=1 ) Why are you learning it?
 	a: (like learning) $reason=plfun You'll find lots of kindred spirits here on "##prolog"!
@@ -31,7 +31,21 @@ t: How far along is your research?
 
 s: (my research *~2 is *~2 {in about} _*) $usersresearch=_0 Interesting. Is _0 an active field now?
 
+topic: ~packs bot=yesbot ( library lib pack extension add-in )
 
+?: ( amazon\_api ) Michael Hendrix has a pack that makes talking to the Amazon API's easier.
+
+?: ( web [ framework lib library ] ) There are a bunch of web frameworks. The built in http/ libraries, PWP (Prolog Web Pages), PSP (Prolog Server Pages) Raivo Laanemet's blog-core related packs like arouter, and the app pack.
+    The built-in libs have a nice tutorial at http://www.pathwayslms.com/swipltuts/html/index.html  Also look at pengines and weblog.
+	
+?: ( client [ lib library] ) There are lots of client libraries. There are built-in HTTP, TCP, and UDP libraries, an atom feed reader, a WSDL reader, a bencoding (torrent) client, and handlers for XML and JSON.
+      There's libs for musicbrainz and notes800 services, and weblog has several feeds built in.
+
+?: ( [probability probabilistic stochastic] ) Lots of probabilistic inference libs. Built in theres' a nice random lib, bims is a nice Baysian inference pack, 
+    cplint and problog are probabilistic logic libs.
+	
+
+	
 
 
 

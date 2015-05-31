@@ -1,4 +1,4 @@
-TOPIC: ~yesbottalk ()
+TOPIC: ~yesbottalk bot=yesbot ()
 # this topic orients the user towards talking with the bot
 # It's the initial topic
 

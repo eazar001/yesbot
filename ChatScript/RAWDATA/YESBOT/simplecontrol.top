@@ -98,6 +98,7 @@ u: () # main per-sentence processing
 	if (%response == 0) 
 	{ 
 		@8 = ^GambitTopics()		# all topics with gambits (excluding system topics)
+		# when you get better at this, exclude a list
 		loop()
 		{
 			$$topic = pick(@8subject)
@@ -122,9 +123,11 @@ t: (^query(direct_v ? chatoutput ? -1 ? @9  ))  # get the sentences  (why is the
 	loop()
 	{
 		$$tmp = ^last(@9subject) # note last output which is quoted string
+		##<<  shut the tts up
 		if (!%server AND %os == windows  AND !$SHUTUP)
 		{
 			$$tmp = ^"talk \"$$tmp\" "
 			popen($$tmp null)
 		}
+		##>>
 	}
