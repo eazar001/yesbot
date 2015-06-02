@@ -101,20 +101,14 @@ init_structs :-
 % asynchronous unless demarcated as the contrary.
 
 init_extensions :-
+  Import_extension_module = (\Extension^use_module(extensions/Extension)),
   desired_extensions(Extensions),
   partition(is_sync, Extensions, Sync, Async),
   length(Sync, N0),
   length(Async, N1),
   asserta(sync_extensions(Sync, N0)),
   asserta(extensions(Async, N1)),
-  maplist(import_extension_module, Extensions).
-
-
-%% import_extension_module(+Extensions:atom) is semidet.
-
-%% Load an extension from the 'extensions' directory
-import_extension_module(Extension) :-
-  use_module(extensions/Extension).
+  maplist(Import_extension_module, Extensions).
 
 
 %--------------------------------------------------------------------------------%
@@ -130,7 +124,6 @@ import_extension_module(Extension) :-
 
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
-  init_queue(_MQ),
   init_timer(_TQ),
   asserta(known(tq)),
   repeat,
@@ -148,22 +141,23 @@ read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
   (  Reply = end_of_file
   -> true
-  ;  thread_send_message(mq, read_server_handle(Reply))
+  ;  read_server_handle(Reply)
   ).
 
 
-%% read_server_handle(+Reply) is det.
+%% read_server_handle(+Reply:codes) is det.
 %
 % Concurrently process server lines via loaded extensions and output the server
 % line to stdout for debugging.
 
 read_server_handle(Reply) :-
-  concurrent(2,
-    [ run_det(core:process_server(Reply))
-     ,format('~s~n', [Reply]) ], []).
+  parse_line(Reply, Msg),
+  thread_create(run_det(core:process_server(Msg)), _Id, [detached(true)]),
+  process_msg_sync(Msg),
+  format('~s~n', [Reply]).
 
 
-%% process_server(+Reply) is nondet.
+%% process_server(+Msg:compound) is nondet.
 %
 % All processing of server message will be handled here. Pings will be handled by
 % responding with a pong to keep the connection alive. If the message is "001"
@@ -173,8 +167,7 @@ read_server_handle(Reply) :-
 % serialized with respect to process_msg/1 so as to avoid race conditions.
 % Anything else will be processed as an incoming message.
 
-process_server(Line) :-
-  parse_line(Line, Msg),
+process_server(Msg) :-
   thread_send_message(tq, true),
   (
      Msg = msg("PING", [], Origin),
@@ -190,35 +183,6 @@ process_server(Line) :-
 
 
 %--------------------------------------------------------------------------------%
-
-
-%% init_queue(-Id:integer) is semidet.
-%
-% Initialize a message queue to store server lines to be processed in the future.
-% Server lines will be processed sequentially.
-
-init_queue(Id) :-
-  message_queue_create(Id, [alias(mq)]),
-  thread_create(start_job(Id), _, [alias(msg_handler)]).
-
-
-%% start_job(+Id:integer) is failure.
-%
-% Wait for any messages directed to the Id of the message queue. Fetch the
-% message from the thread and call Goal. Catch any errors and print the messages.
-% Keep thread alive to watch for new jobs to execute.
-
-start_job(Id) :-
-  repeat,
-    thread_get_message(Id, Goal),
-    (  catch(Goal, E, print_message(error, E))
-    -> true
-    ;  print_message(error, goal_failed(Goal, worker(Id)))
-    ),
-    fail.
-
-
-%--------------------------------------------------------------------------------%
 % Handle Incoming Server Messages
 %--------------------------------------------------------------------------------%
 
@@ -230,14 +194,20 @@ start_job(Id) :-
 % an execution list that follows a successful parse of a private message.
 
 process_msg(Msg) :-
-  extensions(Async, N0),
-  sync_extensions(Sync, N1),
-  (  N0 > 0
+  extensions(Async, N),
+  (  N > 0
   -> maplist(run_det(Msg), Async)
   ;  true
-  ),
-  (  N1 > 0
-  -> concurrent(N0, maplist(run_det_sync(Msg)) $ Sync, [])
+  ).
+
+
+%% process_msg_sync(+Msg:compound) is nondet.
+%
+% This is a blocking (synchronous) version of process_msg/1.
+process_msg_sync(Msg) :-
+  sync_extensions(Sync, N),
+  (  N > 0
+  -> concurrent(N, maplist(run_det_sync(Msg)) $ Sync, [])
   ;  true
   ).
 
@@ -270,10 +240,8 @@ disconnect :-
   retractall(sync_extensions(_,_)),
   retractall(get_irc_server(_)),
   retractall(known(_)),
-  message_queue_destroy(mq),
   message_queue_destroy(tq),
   thread_join(ping_checker, _),
-  thread_join(msg_handler, _),
   get_tcp_socket(Socket),
   tcp_close_socket(Socket),
   retractall(get_socket(_)),
