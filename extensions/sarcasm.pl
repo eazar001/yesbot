@@ -42,7 +42,7 @@ public_action :-
   target(Chan),
   public_action(As),
   random_member(R0, As),
-  format(codes(Response), `~cACTION ~s~c`, [1,R0,1]),
+  format(string(Response), `~cACTION ~s~c`, [1,R0,1]),
   send_msg(priv_msg, Response, Chan).
 
 
