@@ -28,7 +28,7 @@
 % blocking extensions via concurrent/3.
 
 run_det(Msg, Extension) :-
-  E = ignore(((call(Extension:Extension, Msg), fail))),
+  E = ignore((call(Extension:Extension, Msg), fail)),
   thread_create(E, _Id, [detached(true)]).
 
 
@@ -38,7 +38,7 @@ run_det(Msg, Extension) :-
 % This predicate is intended to only be used with synchronous extensions.
 
 run_det_sync(Msg, Extension, E) :-
-  E = ignore(((call(Extension:Extension, Msg), fail))).
+  E = ignore((call(Extension:Extension, Msg), fail)).
 
 
 %% run_det(:Goal) is det.
@@ -53,7 +53,7 @@ run_det(Goal) :-
 
 %% is_sync(+Name:atom) is semidet.
 %
-% True if the extension name is prefixed with 'sync-'. (synchronous)
+% True if the extension name is prefixed with 'sync_'. (synchronous)
 is_sync(Name) :-
   is_sync_(atom_codes $ Name, _Rest).
 
