@@ -16,6 +16,7 @@ u: (question * prolog) ^gambit(~questaboutprolog)
 u: (test the bot) ^gambit(~testbot).
 
 ?: (are you *~2 [bot robot chatbot]) Yes, I'm a chatbot. I'm driven by ChatScript, available at "http://chatscript.sourceforge.net/"
+      and by SWI-Prolog.
 
 # TBD ~questionhelp
 # TBD ~questaboutprolog

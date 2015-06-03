@@ -1,4 +1,4 @@
-topic: ~prolog bot=yesbot ( prolog Prolog logic_programming declarative_programming )
+topic: ~prolog bot=yesbot ( Prolog logic_programming declarative_programming )
 
 t: You'll hate Prolog for a few weeks, and then you'll love it.
 
@@ -43,6 +43,19 @@ topic: ~packs bot=yesbot ( library lib pack extension add-in )
 
 ?: ( [probability probabilistic stochastic] ) Lots of probabilistic inference libs. Built in theres' a nice random lib, bims is a nice Baysian inference pack, 
     cplint and problog are probabilistic logic libs.
+	
+topic: ~why_I_like_Prolog bot=yesbot ()
+
+t: I love Prolog.
+	a: ( ~why ) There are lots of reasons, but the biggest one is how short programs written in it are.
+
+t:  ( compare *~2 functional language ) Well, logic languages are sort of a step  beyond functional languages.
+
+topic ~class_help ( class homework problem exercise )
+
+t: I'm afraid I can't help with homework right now, I'm not smart enough.
+
+
 	
 
 	
