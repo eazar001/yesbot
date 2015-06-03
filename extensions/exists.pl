@@ -14,7 +14,7 @@ exists(Msg) :-
   determine_recipient(exists, Msg, Recipient),
   core:extensions(Es, _),
   (  memberchk(Query, Es)
-  -> send_msg(priv_msg, "Loaded.", Recipient)
+  -> true
   ;  send_msg(priv_msg, "Not loaded.", Recipient)
   ).
 
