@@ -9,10 +9,16 @@
       ,init_timer/1
       ,add_new_extensions/1
       ,load_new_extensions/1
-      ,is_sync/1 ]).
+      ,is_sync/1
+      ,script_extension/2
+      ,is_script/1
+      ,valid_extensions/1
+      ,check_valid_extensions/1 ]).
 
 :- use_module(config).
 :- use_module(library(func)).
+:- use_module(library(dcg/basics)).
+
 
 %--------------------------------------------------------------------------------%
 % Concurrency
@@ -116,9 +122,57 @@ add_new_extensions(New) :-
 % predicate call must precede a call to save_settings/0.
 
 load_new_extensions(Es) :-
+  check_valid_extensions(Es),
   set_setting(config:extensions, Es),
   retractall(core:extensions(_,_)),
   retractall(core:sync_extensions(_,_)),
   core:init_extensions.
+
+
+%%%%%%%%%%%%%%%%%
+% Sanity Checks %
+%%%%%%%%%%%%%%%%%
+
+
+%% script_extension(+File:atom, Without:atom) is semidet.
+%
+% True if File ends in `.pl` and Without is an atom devoid of this ending.
+script_extension(File, Without) :-
+  string_without(`.`, WO, atom_codes $ File, `.pl`),
+  atom_codes(Without, WO).
+
+
+%% is_script(+File:atom) is semidet.
+%
+% True if File is a prolog script file (ending in `.pl`).
+is_script(File) :-
+  script_extension(File, _).
+
+
+%% check_valid_extensions(Es) is det.
+%
+% True iff Es is a valid subset of extensions. An existence error will be thrown
+% otherwise.
+
+check_valid_extensions(Es) :-
+  (  valid_extensions(Es)
+  -> true
+  ;  existence_error(invalid_subset, Es)
+  ).
+
+
+%% valid_extensions(+Extensions:list(atom)) is semidet.
+%
+% True if Extensions is a subset of extensions available to yesbot.
+valid_extensions(Extensions) :-
+  % Get all files from extensions directory
+  directory_files(extensions, Files),
+  
+  % Filter all files by pl scripts
+  include(is_script, Files, A),
+  
+  % Transform all scripts into extension names
+  maplist(script_extension, A, B),
+  subset(Extensions, B).
 
 
