@@ -201,7 +201,10 @@ get_latest_version(Type) :-
      retractall_version(Type, _),
      assert_version(Type, Version),
      send_msg(priv_msg, Update, Chan),
-     send_msg(priv_msg, Link, Chan)
+     (  Type = stable
+     -> send_msg(priv_msg, "http://www.swi-prolog.org/download/stable", Chan)
+     ;  send_msg(priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
+     )
   ;
      true
   ).
