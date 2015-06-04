@@ -15,9 +15,13 @@ lambda, func, and mavis packs using pack_install/1.
 
 The next required step is to configure the bot using the settings tools in SWI-Prolog. 
 
-Look at config.pl 
+Look at config.pl (using swipl config.pl)
 
-Any settings you need to change, you can change by 
+If you would like to change which extensions are loaded on bot startup you must use
+
+?- set_extensions([plugin1, plugin2]). % replace these plugins with actual valid plugins
+
+Any other settings you need to change, you can change by doing
 
 ?- setting(config:nick, examplebot).
 
