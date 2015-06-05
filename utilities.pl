@@ -13,7 +13,8 @@
       ,script_extension/2
       ,is_script/1
       ,valid_extensions/1
-      ,check_valid_extensions/1 ]).
+      ,check_valid_extensions/1
+      ,priv_msg/2 ]).
 
 :- use_module(config).
 :- use_module(library(func)).
@@ -174,5 +175,22 @@ valid_extensions(Extensions) :-
   % Transform all scripts into extension names
   maplist(script_extension, A, B),
   subset(Extensions, B).
+
+
+%--------------------------------------------------------------------------------%
+% Sending Messages
+%--------------------------------------------------------------------------------%
+
+
+%% priv_message(+Text:string, +Recipient:string) is det.
+%
+% This is a convenience predicate for sending private messages to recipients on
+% IRC channels. If there are any newlines they will be converted into individual
+% messages (i.e. paragraph style handling).
+
+priv_msg(Text, Recipient) :-
+  Send_msg = (\Msg^send_msg(priv_msg, Msg, Recipient)),
+  split_string(Text, "\n", "", Paragraph),
+  maplist(Send_msg, Paragraph).
 
 
