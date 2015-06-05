@@ -23,22 +23,22 @@
 % Attempt to unify with a type and a corresponding string template. The string
 % template will be fed to dispatch in order to send a message.
 
-% ADMIN [Target] VALIDATED
+% ADMIN [Target]
 cmd(admin, 'ADMIN ~s\r~n').
 
-% AWAY [Message] VALIDATED
+% AWAY [Message]
 cmd(away, 'AWAY :~s\r~n').
 
 % CONNECT [Server, Port]
 cmd(connect, 'CONNECT ~s ~s\r~n').
 
-% DIE VALIDATED
+% DIE
 cmd(die, 'DIE\r~n').
 
-% HELP VALIDATED
+% HELP
 cmd(help, 'HELP\r~n').
 
-% INFO VALIDATED
+% INFO
 cmd(info, 'INFO\r~n').
 
 % ISON [Names] (comma separated values)
@@ -47,34 +47,28 @@ cmd(ison, 'ISON :~s\r~n').
 % KILL [Client, Comment]
 cmd(kill, 'KILL ~s :~s\r~n').
 
-% LINKS VALIDATED
+% LINKS
 cmd(links, 'LINKS\r~n').
-
-% LIST (list all channels on current server)
-cmd(list, 'LIST\r~n').
 
 % LIST [Channels] (comma separated values)
 cmd(list, 'LIST :~s\r~n').
 
-% LUSERS VALIDATED
+% LUSERS
 cmd(lusers, 'LUSERS :~s\r~n').
 
-% MODE [Nickname/Channel, Flags]
-cmd(mode, 'MODE ~s :~s\r~n').
-
-% NAMES [Channels] VALIDATED
+% NAMES [Channels]
 cmd(names, 'NAMES :~s\r~n').
 
 % OPER [Username, Pass]
 cmd(oper, 'OPER ~s ~s\r~n').
 
-% REHASH VALIDATED
+% REHASH
 cmd(rehash, 'REHASH\r~n').
 
-% RESTART VALIDATED
+% RESTART
 cmd(restart, 'RESTART\r~n').
 
-% RULES VALIDATED
+% RULES
 cmd(rules, 'RULES\r~n').
 
 % SERVER [Servername, Hopcount, Info]
@@ -83,17 +77,8 @@ cmd(server, 'SERVER ~s ~s :~s\r~n').
 % SERVICE [Nick, Reserved, Distribution, Type, Reserved, Info]
 cmd(service, 'SERVICE ~s ~s ~s ~s ~s :~s\r~n').
 
-% SERVLIST VALIDATED
+% SERVLIST
 cmd(servlist, 'SERVLIST\r~n').
-
-% SQUERY [Servicename, Text]
-cmd(squery, 'SQUERY ~s :~s\r~n').
-
-% SQUIT [Server, Comment]
-cmd(squit, 'SQUIT ~s :~s\r~n').
-
-% SILENCE [+/-<hostmask>]
-cmd(silence, 'SILENCE :~s\r~n').
 
 % STATS [Query]
 cmd(stats, 'STATS ~s\r~n').
@@ -104,10 +89,10 @@ cmd(userhost, 'USERHOST :~s\r~n').
 % USERIP [NICK]
 cmd(userip, 'USERIP ~s\r~n').
 
-% USERS VALIDATED
+% USERS
 cmd(users, 'USERS\r~n').
 
-% VERSION VALIDATED
+% VERSION
 cmd(version, 'VERSION\r~n').
 
 % WHO [Name]
@@ -116,7 +101,7 @@ cmd(who, 'WHO ~s\r~n').
 % WHO [Name] (is an op)
 cmd(who_op, 'WHO ~s o\r~n').
 
-% WHO (are ops) VALIDATED
+% WHO (are ops)
 cmd(who_ops, 'WHO o\r~n').
 
 % WHOIS [Nicks]
@@ -131,10 +116,10 @@ cmd(notice, 'NOTICE ~s :~s\r~n').
 % PRIVMSG [Target, PrivMsg]
 cmd(priv_msg, 'PRIVMSG ~s :~s\r~n').
 
-% TIME [Server] VALIDATED
+% TIME [Server]
 cmd(time, 'TIME ~s\r~n').
 
-% KICK [Chan, Target] VALIDATED
+% KICK [Chan, Target]
 cmd(kick, 'KICK ~s ~s\r~n').
 
 % INVITE [Target, Chan]
@@ -143,22 +128,22 @@ cmd(invite, 'INVITE ~s ~s\r~n').
 % NAMES [Chan]
 cmd(names, 'NAMES ~s\r~n').
 
-% LIST [CSV] (a csv of channels)
-cmd(list, 'LIST ~s\r~n').
+% LIST [Chans] (a csv of channels)
+cmd(list, 'LIST :~s\r~n').
 
 % TOPIC [Chan, Topic]
 cmd(topic, 'TOPIC ~s :~s\r~n').
 
-% MODE [+/-, Mode, NICK]
-cmd(user_mode, 'MODE ~s~s ~s\r~n').
+% MODE [+/-(Mode), NICK]
+cmd(mode, 'MODE ~s ~s\r~n').
 
 % PART [CSV] (a csv of channels)
 cmd(part, 'PART :~s\r~n').
 
-% PING [Target] VALIDATED
+% PING [Target]
 cmd(ping, 'PING ~s\r~n').
 
-% PONG [Target] VALIDATED
+% PONG [Target]
 cmd(pong, 'PONG ~s\r~n').
 
 % PASS [Pass]
@@ -173,7 +158,7 @@ cmd(nick, 'NICK ~s\r~n').
 % JOIN [Chan]
 cmd(join, 'JOIN ~s\r~n').
 
-% QUIT VALIDATED
+% QUIT
 cmd(quit, 'QUIT :disconnect\r\n').
 
 
