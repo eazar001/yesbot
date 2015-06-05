@@ -23,19 +23,16 @@
 % Attempt to unify with a type and a corresponding string template. The string
 % template will be fed to dispatch in order to send a message.
 
-% ADMIN [Target]
+% ADMIN [Target] VALIDATED
 cmd(admin, 'ADMIN ~s\r~n').
 
-% AWAY [Message]
+% AWAY [Message] VALIDATED
 cmd(away, 'AWAY :~s\r~n').
-
-% AWAY (removing away mesage)
-cmd(back, 'AWAY\r~n').
 
 % CONNECT [Server, Port]
 cmd(connect, 'CONNECT ~s ~s\r~n').
 
-% DIE
+% DIE VALIDATED
 cmd(die, 'DIE\r~n').
 
 % HELP
@@ -65,7 +62,7 @@ cmd(lusers, 'LUSERS :~s\r~n').
 % MODE [Nickname/Channel, Flags]
 cmd(mode, 'MODE ~s :~s\r~n').
 
-% NAMES [Channels]
+% NAMES [Channels] VALIDATED
 cmd(names, 'NAMES :~s\r~n').
 
 % OPER [Username, Pass]
@@ -158,10 +155,10 @@ cmd(user_mode, 'MODE ~s~s ~s\r~n').
 % PART [CSV] (a csv of channels)
 cmd(part, 'PART :~s\r~n').
 
-% PING [Target]
+% PING [Target] VALIDATED
 cmd(ping, 'PING ~s\r~n').
 
-% PONG [Target]
+% PONG [Target] VALIDATED
 cmd(pong, 'PONG ~s\r~n').
 
 % PASS [Pass]

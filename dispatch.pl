@@ -35,23 +35,25 @@ return_server(Server) :-
 
 :- discontiguous dispatch:send_msg/3.
 
-%% send_msg(+Type:atom, +Target:string) is semidet.
+%% send_msg(+Type:atom, +Param:string) is semidet.
 %
-% Send message of Type with respect to a specified Target.
-
-send_msg(Type, Target) :-
+% Send message of Type with attention to some parameter Param.
+send_msg(Type, Param) :-
   cmd(Type, Msg),
-  (
-     Type = ping
+  (  Type = ping
   ;
      Type = pong,
      dbg(pong, Debug),
-     format(Debug, [Target])
+     format(Debug, [Param])
   ;
      Type = names
+  ;
+     Type = admin
+  ;
+     Type = away
   ), !,
   core:get_irc_stream(Stream),
-  format(Stream, Msg, [Target]),
+  format(Stream, Msg, [Param]),
   flush_output(Stream),
   thread_send_message(tq, true).
 
@@ -122,12 +124,14 @@ send_msg(Type) :-
   core:get_irc_stream(Stream),
   return_server(Server),
   core:connection(_Nick, _Pass, _Chans, _HostName, _ServerName, _RealName),
-  (
-     Type = quit,
+  (  Type = quit,
      write(Stream, Msg)
   ;
      Type = time,
      format(Stream, Msg, [Server])
+  ;
+     Type = die,
+     write(Stream, Msg)
   ),
   flush_output(Stream),
   thread_send_message(tq, true).
