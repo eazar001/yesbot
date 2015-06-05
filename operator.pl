@@ -16,11 +16,117 @@
 % Convenience commands for specific message relays.
 
 % FIXME: Not all message types are implemented yet.
+% TBD: Validate these commands and link them to dispatch.pl
 
 %% cmd(+Type:atom, -Template:atom) is semidet.
 %
 % Attempt to unify with a type and a corresponding string template. The string
 % template will be fed to dispatch in order to send a message.
+
+% ADMIN [Target]
+cmd(admin, 'ADMIN ~s\r~n').
+
+% AWAY [Message]
+cmd(away, 'AWAY :~s\r~n').
+
+% AWAY (removing away mesage)
+cmd(back, 'AWAY\r~n').
+
+% CONNECT [Server, Port]
+cmd(connect, 'CONNECT ~s ~s\r~n').
+
+% DIE
+cmd(die, 'DIE\r~n').
+
+% HELP
+cmd(help, 'HELP\r~n').
+
+% INFO
+cmd(info, 'INFO\r~n').
+
+% ISON [Names] (comma separated values)
+cmd(ison, 'ISON :~s\r~n').
+
+% KILL [Client, Comment]
+cmd(kill, 'KILL ~s :~s\r~n').
+
+% LINKS
+cmd(links, 'LINKS\r~n').
+
+% LIST (list all channels on current server)
+cmd(list, 'LIST\r~n').
+
+% LIST [Channels] (comma separated values)
+cmd(list, 'LIST :~s\r~n').
+
+% LUSERS
+cmd(lusers, 'LUSERS :~s\r~n').
+
+% MODE [Nickname/Channel, Flags]
+cmd(mode, 'MODE ~s :~s\r~n').
+
+% NAMES [Channels]
+cmd(names, 'NAMES :~s\r~n').
+
+% OPER [Username, Pass]
+cmd(oper, 'OPER ~s ~s\r~n').
+
+% REHASH
+cmd(rehash, 'REHASH\r~n').
+
+% RESTART
+cmd(restart, 'RESTART\r~n').
+
+% RULES
+cmd(rules, 'RULES\r~n').
+
+% SERVER [Servername, Hopcount, Info]
+cmd(server, 'SERVER ~s ~s :~s\r~n').
+
+% SERVICE [Nick, Reserved, Distribution, Type, Reserved, Info]
+cmd(service, 'SERVICE ~s ~s ~s ~s ~s :~s\r~n').
+
+% SERVLIST
+cmd(servlist, 'SERVLIST\r~n').
+
+% SQUERY [Servicename, Text]
+cmd(squery, 'SQUERY ~s :~s\r~n').
+
+% SQUIT [Server, Comment]
+cmd(squit, 'SQUIT ~s :~s\r~n').
+
+% SILENCE [+/-<hostmask>]
+cmd(silence, 'SILENCE :~s\r~n').
+
+% STATS [Query]
+cmd(stats, 'STATS ~s\r~n').
+
+% USERHOST [Nick(s)]
+cmd(userhost, 'USERHOST :~s\r~n').
+
+% USERIP [NICK]
+cmd(userip, 'USERIP ~s\r~n').
+
+% USERS
+cmd(users, 'USERS\r~n').
+
+% VERSION
+cmd(version, 'VERSION\r~n').
+
+% WHO [Name]
+cmd(who, 'WHO ~s\r~n').
+
+% WHO [Name] (is an op)
+cmd(who_op, 'WHO ~s o\r~n').
+
+% WHO (are ops)
+cmd(who_ops, 'WHO o\r~n').
+
+% WHOIS [Nicks]
+cmd(whois, 'WHOIS :~s\r~n').
+
+% WHOWAS [Nick]
+cmd(whowas, 'WHOWAS ~s\r~n').
 
 % NOTICE [Target, Notice]
 cmd(notice, 'NOTICE ~s :~s\r~n').
@@ -44,13 +150,13 @@ cmd(names, 'NAMES ~s\r~n').
 cmd(list, 'LIST ~s\r~n').
 
 % TOPIC [Chan, Topic]
-cmd(topic, 'TOPIC ~s ~s\r~n').
+cmd(topic, 'TOPIC ~s :~s\r~n').
 
 % MODE [+/-, Mode, NICK]
 cmd(user_mode, 'MODE ~s~s ~s\r~n').
 
 % PART [CSV] (a csv of channels)
-cmd(part, 'PART ~s\r~n').
+cmd(part, 'PART :~s\r~n').
 
 % PING [Target]
 cmd(ping, 'PING ~s\r~n').
