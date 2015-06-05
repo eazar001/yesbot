@@ -35,10 +35,10 @@ cmd(connect, 'CONNECT ~s ~s\r~n').
 % DIE VALIDATED
 cmd(die, 'DIE\r~n').
 
-% HELP
+% HELP VALIDATED
 cmd(help, 'HELP\r~n').
 
-% INFO
+% INFO VALIDATED
 cmd(info, 'INFO\r~n').
 
 % ISON [Names] (comma separated values)
@@ -47,7 +47,7 @@ cmd(ison, 'ISON :~s\r~n').
 % KILL [Client, Comment]
 cmd(kill, 'KILL ~s :~s\r~n').
 
-% LINKS
+% LINKS VALIDATED
 cmd(links, 'LINKS\r~n').
 
 % LIST (list all channels on current server)
@@ -56,7 +56,7 @@ cmd(list, 'LIST\r~n').
 % LIST [Channels] (comma separated values)
 cmd(list, 'LIST :~s\r~n').
 
-% LUSERS
+% LUSERS VALIDATED
 cmd(lusers, 'LUSERS :~s\r~n').
 
 % MODE [Nickname/Channel, Flags]
@@ -68,13 +68,13 @@ cmd(names, 'NAMES :~s\r~n').
 % OPER [Username, Pass]
 cmd(oper, 'OPER ~s ~s\r~n').
 
-% REHASH
+% REHASH VALIDATED
 cmd(rehash, 'REHASH\r~n').
 
-% RESTART
+% RESTART VALIDATED
 cmd(restart, 'RESTART\r~n').
 
-% RULES
+% RULES VALIDATED
 cmd(rules, 'RULES\r~n').
 
 % SERVER [Servername, Hopcount, Info]
@@ -83,7 +83,7 @@ cmd(server, 'SERVER ~s ~s :~s\r~n').
 % SERVICE [Nick, Reserved, Distribution, Type, Reserved, Info]
 cmd(service, 'SERVICE ~s ~s ~s ~s ~s :~s\r~n').
 
-% SERVLIST
+% SERVLIST VALIDATED
 cmd(servlist, 'SERVLIST\r~n').
 
 % SQUERY [Servicename, Text]
@@ -104,10 +104,10 @@ cmd(userhost, 'USERHOST :~s\r~n').
 % USERIP [NICK]
 cmd(userip, 'USERIP ~s\r~n').
 
-% USERS
+% USERS VALIDATED
 cmd(users, 'USERS\r~n').
 
-% VERSION
+% VERSION VALIDATED
 cmd(version, 'VERSION\r~n').
 
 % WHO [Name]
@@ -116,7 +116,7 @@ cmd(who, 'WHO ~s\r~n').
 % WHO [Name] (is an op)
 cmd(who_op, 'WHO ~s o\r~n').
 
-% WHO (are ops)
+% WHO (are ops) VALIDATED
 cmd(who_ops, 'WHO o\r~n').
 
 % WHOIS [Nicks]
@@ -131,10 +131,10 @@ cmd(notice, 'NOTICE ~s :~s\r~n').
 % PRIVMSG [Target, PrivMsg]
 cmd(priv_msg, 'PRIVMSG ~s :~s\r~n').
 
-% TIME [Server]
+% TIME [Server] VALIDATED
 cmd(time, 'TIME ~s\r~n').
 
-% KICK [Chan, Target]
+% KICK [Chan, Target] VALIDATED
 cmd(kick, 'KICK ~s ~s\r~n').
 
 % INVITE [Target, Chan]
@@ -173,7 +173,7 @@ cmd(nick, 'NICK ~s\r~n').
 % JOIN [Chan]
 cmd(join, 'JOIN ~s\r~n').
 
-% QUIT
+% QUIT VALIDATED
 cmd(quit, 'QUIT :disconnect\r\n').
 
 

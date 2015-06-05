@@ -51,6 +51,28 @@ send_msg(Type, Param) :-
      Type = admin
   ;
      Type = away
+  ;
+     Type = help
+  ;
+     Type = info
+  ;
+     Type = links
+  ;
+     Type = lusers
+  ;
+     Type = rehash
+  ;
+     Type = restart
+  ;
+     Type = rules
+  ;
+     Type = servlist
+  ;
+     Type = users
+  ;
+     Type = version
+  ;
+     Type = who_ops
   ), !,
   core:get_irc_stream(Stream),
   format(Stream, Msg, [Param]),
@@ -61,7 +83,6 @@ send_msg(Type, Param) :-
 %% send_msg(+Type:atom, +Str:text, +Target:string) is semidet.
 %
 % send a Str of Type to a specified Target.
-
 send_msg(Type, Str, Target) :-
   cmd(Type, Msg),
   (  Type = priv_msg
@@ -76,7 +97,6 @@ send_msg(Type, Str, Target) :-
 %% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
 %
 % Send a message of Type to Target in Chan.
-
 send_msg(Type, Chan, Target) :-
   cmd(Type, Msg),
   core:get_irc_stream(Stream),
