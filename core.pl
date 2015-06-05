@@ -170,7 +170,8 @@ read_server_handle(Reply) :-
 process_server(Msg) :-
   thread_send_message(tq, true),
   (
-     Msg = msg("PING", [], Origin),
+     Msg = msg("PING", [], O),
+     string_codes(Origin, O),
      send_msg(pong, Origin)
   ;
      Msg = msg(Server, "001", _, _),

@@ -29,9 +29,6 @@ cmd(admin, 'ADMIN ~s\r~n').
 % AWAY [Message]
 cmd(away, 'AWAY :~s\r~n').
 
-% AWAY (removing away mesage)
-cmd(back, 'AWAY\r~n').
-
 % CONNECT [Server, Port]
 cmd(connect, 'CONNECT ~s ~s\r~n').
 
@@ -53,17 +50,11 @@ cmd(kill, 'KILL ~s :~s\r~n').
 % LINKS
 cmd(links, 'LINKS\r~n').
 
-% LIST (list all channels on current server)
-cmd(list, 'LIST\r~n').
-
 % LIST [Channels] (comma separated values)
 cmd(list, 'LIST :~s\r~n').
 
 % LUSERS
 cmd(lusers, 'LUSERS :~s\r~n').
-
-% MODE [Nickname/Channel, Flags]
-cmd(mode, 'MODE ~s :~s\r~n').
 
 % NAMES [Channels]
 cmd(names, 'NAMES :~s\r~n').
@@ -88,15 +79,6 @@ cmd(service, 'SERVICE ~s ~s ~s ~s ~s :~s\r~n').
 
 % SERVLIST
 cmd(servlist, 'SERVLIST\r~n').
-
-% SQUERY [Servicename, Text]
-cmd(squery, 'SQUERY ~s :~s\r~n').
-
-% SQUIT [Server, Comment]
-cmd(squit, 'SQUIT ~s :~s\r~n').
-
-% SILENCE [+/-<hostmask>]
-cmd(silence, 'SILENCE :~s\r~n').
 
 % STATS [Query]
 cmd(stats, 'STATS ~s\r~n').
@@ -146,14 +128,14 @@ cmd(invite, 'INVITE ~s ~s\r~n').
 % NAMES [Chan]
 cmd(names, 'NAMES ~s\r~n').
 
-% LIST [CSV] (a csv of channels)
-cmd(list, 'LIST ~s\r~n').
+% LIST [Chans] (a csv of channels)
+cmd(list, 'LIST :~s\r~n').
 
 % TOPIC [Chan, Topic]
 cmd(topic, 'TOPIC ~s :~s\r~n').
 
-% MODE [+/-, Mode, NICK]
-cmd(user_mode, 'MODE ~s~s ~s\r~n').
+% MODE [+/-(Mode), NICK]
+cmd(mode, 'MODE ~s ~s\r~n').
 
 % PART [CSV] (a csv of channels)
 cmd(part, 'PART :~s\r~n').
