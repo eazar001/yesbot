@@ -53,29 +53,9 @@ send_msg(Type, Param) :-
   ;
      Type = away
   ;
-     Type = help
-  ;
-     Type = info
-  ;
-     Type = links
-  ;
      Type = lusers
   ;
-     Type = rehash
-  ;
-     Type = restart
-  ;
-     Type = rules
-  ;
-     Type = servlist
-  ;
-     Type = users
-  ;
-     Type = stats
-  ;
      Type = who
-  ;
-     Type = who_ops
   ;
      Type = time
   ;
@@ -164,15 +144,33 @@ send_msg(Type) :-
   core:get_irc_stream(Stream),
   core:connection(_Nick, _Pass, _Chans, _HostName, _ServerName, _RealName),
   (
-     Type = quit,
-     write(Stream, Msg)
+     Type = quit
   ;
-     Type = die,
-     write(Stream, Msg)
+     Type = die
   ;
-     Type = version,
-     write(Stream, Msg)
+     Type = version
+  ;
+     Type = help
+  ;
+     Type = info
+  ;
+     Type = links
+  ;
+     Type = rehash
+  ;
+     Type = restart
+  ;
+     Type = rules
+  ;
+     Type = servlist
+  ;
+     Type = stats
+  ;
+     Type = users
+  ;
+     Type = who_ops
   ),
+  write(Stream, Msg),
   flush_output(Stream),
   thread_send_message(tq, true).
 
