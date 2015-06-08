@@ -13,6 +13,7 @@
 :- module(sync_chat_log, [sync_chat_log/1]).
 
 :- use_module(parser).
+:- use_module(info).
 :- dynamic known/3.
 
 
@@ -29,7 +30,7 @@
 
 sync_chat_log(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
   prefix_id(Prefix, Nick, _, _),
   (  exists_directory('extensions/chat-logs')

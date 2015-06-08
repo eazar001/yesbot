@@ -18,14 +18,12 @@
 :- use_module(parser).
 :- use_module(dispatch).
 :- use_module(utilities).
+:- use_module(info).
 :- use_module(library(socket)).
 :- use_module(library(func)).
 
-:- dynamic known/1.
-:- dynamic get_irc_server/1.
-:- dynamic get_irc_stream/1.
 :- dynamic get_tcp_socket/1.
-:- dynamic connection/6.
+
 
 %--------------------------------------------------------------------------------%
 % Connection Details
@@ -50,7 +48,7 @@ connect :-
        stream_pair(Stream, _Read, Write),
        set_stream(Write, encoding(utf8)),
        asserta(get_tcp_socket(Socket)),
-       asserta(get_irc_stream(Stream)),
+       asserta(info:get_irc_stream(Stream)),
        register_and_join
     ),
     read_server_loop(_Reply),
@@ -61,7 +59,6 @@ connect :-
 %% register_and_join is semidet.
 %
 % Present credentials and register user on the irc server.
-
 register_and_join :-
   maplist(send_msg, [pass, user, nick, join]).
 
@@ -83,32 +80,7 @@ init_structs :-
   maplist(atom_string, [N_, P_, Hn_, Sn_, Rn_], Strs),
   Strs = [N, P, Hn, Sn, Rn],
   Connection =.. [connection, N, P, Chans, Hn, Sn, Rn],
-  asserta(Connection).
-
-
-%--------------------------------------------------------------------------------%
-% Extension Loading
-%--------------------------------------------------------------------------------%
-
-
-:- dynamic extensions/2.
-:- dynamic sync_extensions/2.
-
-%% init_extensions is semidet.
-%
-% Assert the extensions along with its length at the top level for access.
-% Import all the modules afterwards. By default extensions will be considered
-% asynchronous unless demarcated as the contrary.
-
-init_extensions :-
-  Import_extension_module = (\Extension^use_module(extensions/Extension)),
-  desired_extensions(Extensions),
-  partition(is_sync, Extensions, Sync, Async),
-  length(Sync, N0),
-  length(Async, N1),
-  asserta(sync_extensions(Sync, N0)),
-  asserta(extensions(Async, N1)),
-  maplist(Import_extension_module, Extensions).
+  asserta(info:Connection).
 
 
 %--------------------------------------------------------------------------------%
@@ -221,7 +193,6 @@ process_msg_sync(Msg) :-
 %% reconnect is semidet.
 %
 % Disconnect from the server, run cleanup routine, and attempt to reconnect.
-
 reconnect :-
   disconnect,
   connect.
@@ -235,12 +206,7 @@ reconnect :-
 disconnect :-
   get_irc_stream(Stream),
   send_msg(quit),
-  retractall(get_irc_stream(_)),
-  retractall(connection(_,_,_,_,_,_)),
-  retractall(extensions(_,_)),
-  retractall(sync_extensions(_,_)),
-  retractall(get_irc_server(_)),
-  retractall(known(_)),
+  info_cleanup,
   message_queue_destroy(tq),
   thread_join(ping_checker, _),
   get_tcp_socket(Socket),

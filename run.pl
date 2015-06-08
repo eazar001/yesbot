@@ -36,8 +36,8 @@ safety :-
     has been emptied and will be running nothing if you do \c
     not take action. Please update this setting to a valid \c
     one.'),
-  retractall(core:extensions(_,_)),
-  retractall(core:sync_extensions(_,_)),
+  retractall(info:extensions(_,_)),
+  retractall(info:sync_extensions(_,_)),
   set_setting(config:extensions, []),
   save_settings.
 

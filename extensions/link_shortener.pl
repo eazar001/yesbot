@@ -16,6 +16,7 @@
 :- use_module(dispatch).
 :- use_module(parser).
 :- use_module(utilities).
+:- use_module(info).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
 :- use_module(library(http/http_open)).
@@ -40,7 +41,7 @@
 
 link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
   has_link(_, L, M, _),
   atom_codes(Link, L),
