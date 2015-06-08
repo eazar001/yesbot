@@ -2,6 +2,7 @@
 :- module(exists, [exists/1]).
 
 :- use_module(dispatch).
+:- use_module(info).
 :- use_module(submodules/utils).
 
 
@@ -12,7 +13,7 @@ exists(Msg) :-
   append(`?`, Q, Text),
   atom_codes(Query, Q),
   determine_recipient(exists, Msg, Recipient),
-  core:extensions(Es, _),
+  extensions(Es, _),
   (  memberchk(Query, Es)
   -> true
   ;  send_msg(priv_msg, "Not loaded.", Recipient)

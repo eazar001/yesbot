@@ -20,6 +20,7 @@
 :- module(chatty, [chatty/1]).
 
 :- use_module(dispatch).
+:- use_module(info).
 :- use_module(parser).
 :- use_module(utilities).
 :- use_module(submodules/html).
@@ -79,10 +80,10 @@ chatty_(Msg) :-
   respond_privmsg(Prefix, Chan, Body).
 
 in_right_chan(msg(_, _, [Chan], _)) :-
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans).
 in_right_chan(msg(_, _, [Chan])) :-
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans).
 
 %%	respond_privmsg(+Prefix:prefix, +Chan:string, +Body:string) is

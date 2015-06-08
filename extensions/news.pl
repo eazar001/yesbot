@@ -7,6 +7,8 @@
       ,news_abort/0 ]).
 
 :- use_module(dispatch).
+:- use_module(info).
+:- use_module(config).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
 :- use_module(submodules/utils).
@@ -56,10 +58,10 @@ news_(Msg) :-
   Msg = msg(_Prefix, "JOIN", [Chan]),
   setting(config:extensions, Es),
   selectchk(news, Es, Update),
-  retractall(core:extensions(_,_)),
-  retractall(core:sync_extensions(_,_)),
+  retractall(info:extensions(_,_)),
+  retractall(info:sync_extensions(_,_)),
   set_setting(config:extensions, Update),
-  core:init_extensions,
+  init_extensions,
   set_setting(config:extensions, Es),
   thread_create(news_loop, _, [alias(news), detached(true)]).
 
