@@ -48,7 +48,7 @@ connect :-
        stream_pair(Stream, _Read, Write),
        set_stream(Write, encoding(utf8)),
        asserta(get_tcp_socket(Socket)),
-       asserta(get_irc_stream(Stream)),
+       asserta(info:get_irc_stream(Stream)),
        register_and_join
     ),
     read_server_loop(_Reply),
@@ -80,32 +80,7 @@ init_structs :-
   maplist(atom_string, [N_, P_, Hn_, Sn_, Rn_], Strs),
   Strs = [N, P, Hn, Sn, Rn],
   Connection =.. [connection, N, P, Chans, Hn, Sn, Rn],
-  asserta(Connection).
-
-
-%--------------------------------------------------------------------------------%
-% Extension Loading
-%--------------------------------------------------------------------------------%
-
-
-:- dynamic extensions/2.
-:- dynamic sync_extensions/2.
-
-%% init_extensions is semidet.
-%
-% Assert the extensions along with its length at the top level for access.
-% Import all the modules afterwards. By default extensions will be considered
-% asynchronous unless demarcated as the contrary.
-
-init_extensions :-
-  Import_extension_module = (\Extension^use_module(extensions/Extension)),
-  desired_extensions(Extensions),
-  partition(is_sync, Extensions, Sync, Async),
-  length(Sync, N0),
-  length(Async, N1),
-  asserta(sync_extensions(Sync, N0)),
-  asserta(extensions(Async, N1)),
-  maplist(Import_extension_module, Extensions).
+  asserta(info:Connection).
 
 
 %--------------------------------------------------------------------------------%
