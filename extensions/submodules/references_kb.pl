@@ -183,7 +183,7 @@ amzi &
 "Amzi! inc. Adventure in Prolog".
 
 yesbot &
-"https://github.com/eazar001/yesbot/commits/prolog-irc" &
+"https://github.com/eazar001/yesbot/tree/prolog-irc" &
 "Bug to report? Feature request? Want to hack me?".
 
 'c++' &
