@@ -35,11 +35,11 @@ time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  ignore(news_db(Msg)).
+  ignore(news_trigger(Msg)).
 
 
-news_db(Msg) :-
-  with_mutex(db,
+news_trigger(Msg) :-
+  with_mutex(news_db,
     (  db_attach('extensions/news.db', []),
        ignore(news_(Msg))
     )

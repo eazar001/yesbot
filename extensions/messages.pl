@@ -29,7 +29,7 @@ messages(Msg) :-
 
 
 messages_access(Msg) :-
-  with_mutex(db,
+  with_mutex(messages_db,
     (  db_attach('extensions/messages.db', []),
        ignore(messages_(Msg))
     )
