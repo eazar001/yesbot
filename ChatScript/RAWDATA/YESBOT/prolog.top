@@ -1,4 +1,4 @@
-concept ~packname [amazon\_api app arouter assertions 
+concept: ~packname [amazon\_api app arouter assertions 
 	atom\_feed bencode bims bio\_db bio\_db\_repo blog\_core
 	by\_unix callgraph condition cowspeak cplint db\_facts dcg\_util
 	dcgutils delay dia dict\_schema dirtree djson docstore dotcloud
