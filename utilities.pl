@@ -9,7 +9,8 @@
       ,init_timer/1
       ,is_sync/1
       ,priv_msg/2
-      ,priv_msg/3 ]).
+      ,priv_msg/3
+      ,priv_msg_paragraph/3 ]).
 
 :- use_module(config).
 :- use_module(info).
@@ -123,7 +124,7 @@ priv_msg(Text, Recipient, Options) :-
   option(encoding(Encoding), Options, utf8),
   get_irc_write_stream(Stream),
   set_stream(Stream, encoding(Encoding)),
-  priv_msg_auto_nl(Text, Recipient, Paragraph),
+  priv_msg_paragraph(Text, Recipient, Paragraph),
   (
      option(auto_nl(true), Options, true)
   ->
@@ -139,7 +140,7 @@ priv_msg(Text, Recipient, Options) :-
   ).
 
 
-priv_msg_auto_nl(Text, Recipient, Paragraph) :-
+priv_msg_paragraph(Text, Recipient, Paragraph) :-
   min_msg_len(Min),
   string_length(Recipient, N0),
   N is N0 + Min,
