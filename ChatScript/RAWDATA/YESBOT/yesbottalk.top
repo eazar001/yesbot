@@ -15,6 +15,13 @@ u: (<<problem class course exercise>>) ^keep() ^gambit(~questionhelp)
 u: (question * prolog) ^gambit(~questaboutprolog)
 u: (test the bot) ^gambit(~testbot).
 
+#! do you mind a prolog question?
+?: ( mind *~5 question ) No, it's what the channel's here for. Is it homework?
+	a: (~yesanswer) OK, some of us feel you'll learn more working if we don't just give you the answer, but we'll try to help.
+	a: (~noanswer) OK, well, if you have code, can you pastebin it or something? Or is this a theory question?
+		b: ( ~not  theory ) OK, if it's code, pastebin it
+		b: ( theory ) So what's your question? ^gambit(~questionhelp)
+
 ?: (are you *~2 [bot robot chatbot]) Yes, I'm a chatbot. I'm driven by ChatScript, available at "http://chatscript.sourceforge.net/"
       and by SWI-Prolog.
 
@@ -22,13 +29,16 @@ u: (test the bot) ^gambit(~testbot).
 # TBD ~questaboutprolog
 # TBD need a keyword driven AI topic
 
-topic: ~questionhelp ()
+topic: ~questionhelp bot=yesbot  (question help problem advice)
 t: no help section yet
 
-topic: ~questaboutprolog ()
+topic: ~questaboutprolog bot=yesbot ()
 t: no general questions about prolog section yet
 
-topic: ~ai (ai artificial_intelligence agi)
-t: no topic about ai yet
+topic: ~ai bot=yesbot (ai artificial_intelligence agi)
+
+t: Prolog is all about searching through problem spaces, so it's a natural match for AI problems
+
+
 
 

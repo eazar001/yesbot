@@ -16,17 +16,19 @@ concept: ~packname [amazon\_api app arouter assertions
 
 topic: ~prolog bot=yesbot ( Prolog logic_programming declarative_programming )
 
-t: You'll hate Prolog for a few weeks, and then you'll love it.
-	a: ( not *~3 hate ) Well, it just gets better with time
-	a: ( hate ) I'm baffled why the whole world isn't run on Prolog
-
 t: Are you just learning Prolog?
 	a: (~yesanswer) $noob=1 It's great you're learning Prolog.
 	a: (~noanswer) $noob=0 Great - lots of very knowledgeable people hang out on this channel
 	
+t: ($noob == 1)You'll hate Prolog for a few weeks, and then you'll love it.
+	a: ( not *~3 hate ) Well, it just gets better with time
+	a: ( hate ) I'm baffled why the whole world isn't run on Prolog
+	
 t: ^gambit(~reason_for_interest)
 t: ^gambit(~why_I_like_Prolog)
 t: ^gambit(~class_help)
+
+u: ( !~not love Prolog ) ^gambit(~why_I_like_Prolog)
 
 topic: ~reason_for_interest bot=yesbot ( ~purpose_adverbs )
 
@@ -36,7 +38,7 @@ t: WHYLEARN( $noob=1 ) Why are you learning it?
 	a: ( serious~5 ) $reason=serious Cool. More people are doing serious stuff with prolog these days.
 	
 # note that this isn't autoactivated
-topic: ~research ( graduate_student~1 student_at research linguistics theory)
+topic: ~research bot=yesbot ( graduate_student~1 student_at research linguistics theory)
 
 t: Are you interested in constraint programming?
 	a: (~yesanswer) I'm having trouble understanding Fruewirth's book.
@@ -97,15 +99,16 @@ topic: ~why_I_like_Prolog bot=yesbot ()
 
 t: I love Prolog.
 	a: ( ~why ) There are lots of reasons, but the biggest one is how short programs written in it are.
+	a: ( me *~2 too ) You too? Welcome to \#\#prolog, home of people who love Prolog. Or Mercury, or Logtalk, or CHR, or...
 
-t:  ( compare *~2 functional language ) Well, logic languages are sort of a step  beyond functional languages.
+u:  ( compare *~2 functional language ) Well, logic languages are sort of a step  beyond functional languages.
 
 topic ~class_help ( class homework problem exercise )
 
 t: I'm afraid I can't help with homework right now, I'm not smart enough.
 
 
-topic ~the_presidents_analyst ( tedium presidents_analyst )
+topic: ~the_presidents_analyst bot=yesbot ( tedium presidents_analyst )
 
 t: Personally, I find submarine travel such teedium... teeedium... tedium....
 

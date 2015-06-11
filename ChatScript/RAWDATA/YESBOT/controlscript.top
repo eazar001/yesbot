@@ -1,0 +1,191 @@
+# this function is executed once for every new user chatting with the Kuwa Amiable bot
+outputmacro: yesbot()  # you get yesbot by default
+$token = #DO_INTERJECTION_SPLITTING  | #DO_SUBSTITUTE_SYSTEM   | #DO_NUMBER_MERGE | #DO_DATE_MERGE  | #DO_PROPERNAME_MERGE  | #DO_SPELLCHECK  | #DO_PARSE 
+
+^addtopic(~yesbottalk)
+$control_main = ~control
+$control_post = ~XPOSTPROCESS
+$userprompt = ^"%user: >"
+$botprompt = ^"Yesbot: "
+
+table: defaultbot (^name)
+^createfact(^name defaultbot defaultbot)
+DATA:
+yesbot
+
+topic: ~control system ()
+
+# on startup, talk yesbottalk
+u: ( %input<%userfirstline) 
+	gambit(~yesbottalk)
+
+u: (< shut up >) $shutup = 1
+u: (< talk  >) $shutup = null
+
+u: (\[ callback \]) Callback seen.
+u: (\[ loopback \]) Loopback seen.
+u: (\[ alarm \]) Alarm seen.
+u: (< loopback test) \[ loopback=1000 \] Loopback requested.
+u: (< callback test) \[ callback=1000 \] Callback requested.
+u: (< alarm test) \[ alarm=5000 \] Alarm requested.
+
+# main per-sentence algorithm
+# attempt to find a rejoinder
+# attempt to find a responder 
+# if we're in a story and haven't said our next piece, say it
+# if we're at start of conversation, gambit the current topic
+# if we still haven't generated output for this sentence, and we haven't 
+#        generated a storyline (for some other sentence), look for a topic
+#        with matching keywords and gambit it.
+# if that fails, run the keywordless topic
+# if we've still been silent, try a quibble 50% of time
+# if we (not user!) have said something with rejoinders, or asked a question, stop here
+# otherwise, gambit the current topic if keywords match it
+# otherwise, gambit any topic that keyword matches
+# otherwise, gambit the current topic even if no keywords match
+# otherwise, gambit any topic
+# otherwise, say I don't know what to say
+
+
+u: () # main per-sentence processing
+    # we need to know if we've generated a response for this sentence, so we
+	# can stop looking for a response after we have one
+    # we're going to record how many responses we've generated since volley start
+	# if %response changes we've added responses for this sentence
+	$$start_of_sentence_response_count = %response
+	$last_response_reason = "none"
+	$last_response_gambit = "none"
+	
+	$$currenttopic = %topic		# get the current topic at start of volley
+
+	if ( $$start_of_sentence_response_count == %response ) 
+	{
+		nofail(TOPIC ^rejoinder())
+		if ($$start_of_sentence_response_count < %response){ $last_response_reason = "rejoinder" }
+	}	# try for rejoinders. might generate an answer directly from what we are looking for.
+
+	# current topic tries to respond to this input
+	if ( $$start_of_sentence_response_count == %response ) 
+	{ 
+		nofail(TOPIC ^respond($$currenttopic)) 
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "responder" }
+	} 
+	
+	if($instory AND !$$gotstoryline)
+	{
+		^gambit($instory)
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "story line gambit" }
+	}
+	
+	if (%length == 0 AND $$start_of_sentence_response_count == %response )
+	{
+		nofail(TOPIC ^gambit($$currenttopic))  # gambit current topic since no input (usually start of conversation)
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "start of conversation" }
+	}
+
+	if ($$start_of_sentence_response_count == %response AND !$$gotstoryline) # see if some other topic has keywords matching his input (given we have no response yet)
+	{
+		@8 = ^keywordtopics()	# get topics referred in input
+		loop()
+		{
+			$$topic = first(@8subject)
+			nofail(TOPIC ^respond($$topic))
+			if ($$start_of_sentence_response_count < %response) { $last_response_reason = "other topic with keyword match" }
+			if ($$start_of_sentence_response_count != %response) # stop when we find something to say
+			{
+				^end(RULE)	# we are done, this terminates the loop (not the rule)
+			}
+		}
+	}	
+
+	# if no topic reacts, go to the last ditch keywordless topic
+	if ($$start_of_sentence_response_count == %response AND !$$gotstoryline) 
+	{
+		nofail(TOPIC ^respond(~keywordless))
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "keywordless topic" }
+	}
+
+	# having no good response we know, now generate quibbles
+
+	# now we need to find fake responses 
+	# we only quibble if there's no other output
+	if (0 == %response AND %rand > 50)
+	{
+		nofail(TOPIC respond(~QUIBBLE_ALL))
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "quibble" }
+	}
+
+	# if we have rejoinders for what we said OR we asked a question, stop here
+	if (%outputrejoinder OR %lastquestion OR  $$gotstoryline) 
+	{
+		end(TOPIC)
+	}
+
+	if ($$start_of_sentence_response_count == %response AND ^marked($$currenttopic)  AND !$$gotstoryline) 
+	{ 
+		nofail(TOPIC ^gambit($$currenttopic)) 
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "current topic keyword gambit" }
+	} # gambit current topic since keywords match current topic
+
+	if ($$start_of_sentence_response_count == %response  AND !$$gotstoryline) # gambit from ANY matching topic
+	{
+		@8 = ^keywordtopics()	# get topics referred in input
+		loop()
+		{
+			$$topic = first(@8subject)
+			nofail(TOPIC ^Gambit($$topic))	# gambit in best matching topic
+			if ($$start_of_sentence_response_count != %response) # stop when we find something
+			{
+				 $last_response_reason = "gambit any keyword match"
+				 $last_response_gambit = $$topic
+				^end(RULE)
+			}
+		}
+	}
+	
+	if ($$start_of_sentence_response_count == %response AND !$$gotstoryline)
+	{ 
+		nofail(TOPIC ^gambit($$currenttopic)) 
+	} # gambit from current topic even though no keywords matched
+	
+	if ($$start_of_sentence_response_count == %response AND !$$gotstoryline) 
+	{ 
+		@8 = ^GambitTopics()		# all topics with gambits (excluding system topics)
+		# when you get better at this, exclude a list
+		loop()
+		{
+			$$topic = pick(@8subject)
+			nofail(TOPIC ^Gambit($$topic))	# try a topic at random
+			if ($$start_of_sentence_response_count != %response)
+			{
+				 $last_response_reason = "gambit any topic with a gambit"
+				 $last_response_gambit = $$topic
+
+				^end(RULE)
+			}
+		}
+	}
+
+	# if we've said nothing and we're at the end of the volley, say something
+	if (%response == 0 AND !%more) # AO 10:15pm 5/27/2015 
+	{
+		 ^repeat() 
+		 $last_response_reason = "hard coded response"
+
+		 I don't know what to say. 
+	}
+
+topic: ~XPOSTPROCESS system () # gambits only - not allowed to write to  output - generates speech on windows -- for Linux you'd want to install Festival (or equivalent) and call that instead.
+
+t: (^query(direct_v ? chatoutput ? -1 ? @9  ))  # get the sentences  (why is the object) -- no longer has quotes around it
+	loop()
+	{
+		$$tmp = ^last(@9subject) # note last output which is quoted string
+		##<<  shut the tts up
+		if (!%server AND %os == windows  AND !$SHUTUP)
+		{
+			$$tmp = ^"talk \"$$tmp\" "
+			popen($$tmp null)
+		}
+		##>>
+	}

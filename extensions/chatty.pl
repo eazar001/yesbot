@@ -163,7 +163,7 @@ do_start_conversation(Prefix, Chan) :-
 	asserta(conversation(Nick, Chan, Now)),
 	setting(chatty:chatscript_bot_name, Bot),
 	start_conversation(Nick, Bot, Reply),
-	send_msg(priv_msg, Reply, Chan).
+	priv_msg(Reply, Chan, [auto_nl(true), at_most(8)]).
 
 do_end_conversation(Prefix, Chan) :-
 	prefix_id(Prefix, Nick, _User, _Host),
@@ -181,9 +181,9 @@ talk_with_bot(Prefix, Chan, Body, EndConversation) :-
 	(   phrase(bot_ends_convo(CParthianShot), CReply)
 	->  EndConversation = true,
 	    string_codes(ParthianShot, CParthianShot),
-	    send_msg(priv_msg, ParthianShot, Chan)
+	    priv_msg(ParthianShot, Chan, [auto_nl(true), at_most(8)])
 	;   EndConversation = false,
-	    send_msg(priv_msg, Reply, Chan)
+	    priv_msg(Reply, Chan, [auto_nl(true), at_most(8)])
 	).
 
 bot_ends_convo(ParthianShot) -->
