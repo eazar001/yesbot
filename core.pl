@@ -46,6 +46,7 @@ connect :-
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
        stream_pair(Stream, _Read, Write),
+       asserta(info:get_irc_write_stream(Write)),
        set_stream(Write, encoding(utf8)),
        asserta(get_tcp_socket(Socket)),
        asserta(info:get_irc_stream(Stream)),
@@ -142,15 +143,30 @@ read_server_handle(Reply) :-
 process_server(Msg) :-
   thread_send_message(tq, true),
   (
+     % Handle pings
      Msg = msg("PING", [], O),
      string_codes(Origin, O),
      send_msg(pong, Origin)
   ;
+     % Get irc server and assert info
      Msg = msg(Server, "001", _, _),
      retractall(get_irc_server(_)),
      asserta(get_irc_server(Server)),
-     asserta(known(irc_server))
+     asserta(known(irc_server)),
+     % Request own user info
+     nick(Nick),
+     send_msg(who, atom_string $ Nick)
   ;
+     % Get own host and nick info
+     Msg = msg(_Server, "352", Params, _),
+     nick(N),
+     atom_string(N, Nick),
+     Params = [_Asker, _Chan, H, Host, _, Nick| _],
+     % Calculate the minimum length for a private message and assert info
+     format(string(Template), ':~s!~s@~s PRIVMSG :\r\n ', [Nick,H,Host]),
+     asserta(info:min_msg_len(string_length $ Template))
+  ;
+     % Run extensions
      process_msg(Msg)
   ).
 
