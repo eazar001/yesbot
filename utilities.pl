@@ -7,12 +7,17 @@
       ,run_det/2
       ,run_det_sync/3
       ,init_timer/1
-      ,add_new_extensions/1
-      ,load_new_extensions/1
-      ,is_sync/1 ]).
+      ,is_sync/1
+      ,priv_msg/2
+      ,priv_msg/3 ]).
 
 :- use_module(config).
+:- use_module(info).
 :- use_module(library(func)).
+:- use_module(library(dcg/basics)).
+:- use_module(library(predicate_options)).
+:- use_module(library(list_util)).
+
 
 %--------------------------------------------------------------------------------%
 % Concurrency
@@ -93,32 +98,67 @@ check_pings(Id) :-
 
 
 %--------------------------------------------------------------------------------%
-% Hot loading
+% Sending Messages
 %--------------------------------------------------------------------------------%
 
 
-%% add_new_extensions(+New:list(atom)) is semidet.
+:- predicate_options(priv_msg/3, 3,
+     [ auto_nl(boolean)
+      ,at_most(nonneg)
+      ,encoding(encoding) ]).
+
+
+%% priv_message(+Text:string, +Recipient:string) is det.
 %
-% Adds new extensions on top of whatever extensions are currently loaded in the
-% the bot at the moment. These settings will not persist on restart; persisting
-% these settings must be done by preceding a save_settings/0 call with this call.
+% This is a convenience predicate for sending private messages to recipients on
+% IRC channels. If there are any newlines they will be converted into individual
+% messages (i.e. paragraph style handling).
 
-add_new_extensions(New) :-
-  setting(config:extensions, Es),
-  append(New, Es, Extensions),
-  load_new_extensions(Extensions).
+priv_msg(Text, Recipient) :-
+  priv_msg(Text, Recipient, [auto_nl(true)]).
 
 
-%% load_new_extensions(+Es:list(atom)) is semidet.
-%
-% Load a new set of extensions and initalize them into the current bot session.
-% This will not save these settings on restart. To make them persistent, this
-% predicate call must precede a call to save_settings/0.
+priv_msg(Text, Recipient, Options) :-
+  Send_msg = (\Msg^send_msg(priv_msg, Msg, Recipient)),
+  option(encoding(Encoding), Options, utf8),
+  get_irc_write_stream(Stream),
+  set_stream(Stream, encoding(Encoding)),
+  priv_msg_auto_nl(Text, Recipient, Paragraph),
+  (
+     option(auto_nl(true), Options, true)
+  ->
+     option(at_most(Limit), Options, length $ Paragraph),  % auto-nl
+     take(Paragraph, Limit, P),
+     maplist(Send_msg, P)
+  ;
+     maplist(Send_msg, Paragraph) % no auto-nl
+  ),
+  (  stream_property(Stream, encoding(utf8))
+  -> true
+  ;  set_stream(Stream, encoding(utf8))
+  ).
 
-load_new_extensions(Es) :-
-  set_setting(config:extensions, Es),
-  retractall(core:extensions(_,_)),
-  retractall(core:sync_extensions(_,_)),
-  core:init_extensions.
 
+priv_msg_auto_nl(Text, Recipient, Paragraph) :-
+  min_msg_len(Min),
+  string_length(Recipient, N0),
+  N is N0 + Min,
+  Length is 512 - N,
+  insert_nl_at(Length, string_codes $ Text, Formatted),
+  split_string(Formatted, "\n", "", Paragraph).
+
+
+insert_nl_at(Num, Codes, Formatted) :-
+  insert_nl_at(Codes, F, Num, Num),
+  string_codes(Formatted, F).
+
+insert_nl_at([], [], _, _).
+insert_nl_at([X|Xs], [X|Ys], N, N0) :-
+  N0 > 1, !,
+  N1 is N0-1,
+  insert_nl_at(Xs, Ys, N, N1).
+
+insert_nl_at([X|Xs], [X,10|Ys], N, 1) :-
+  insert_nl_at(Xs, Ys, N, N).
+  
 

@@ -7,6 +7,8 @@
       ,news_abort/0 ]).
 
 :- use_module(dispatch).
+:- use_module(info).
+:- use_module(config).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
 :- use_module(submodules/utils).
@@ -33,11 +35,11 @@ time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  ignore(news_db(Msg)).
+  ignore(news_trigger(Msg)).
 
 
-news_db(Msg) :-
-  with_mutex(db,
+news_trigger(Msg) :-
+  with_mutex(news_db,
     (  db_attach('extensions/news.db', []),
        ignore(news_(Msg))
     )
@@ -56,10 +58,10 @@ news_(Msg) :-
   Msg = msg(_Prefix, "JOIN", [Chan]),
   setting(config:extensions, Es),
   selectchk(news, Es, Update),
-  retractall(core:extensions(_,_)),
-  retractall(core:sync_extensions(_,_)),
+  retractall(info:extensions(_,_)),
+  retractall(info:sync_extensions(_,_)),
   set_setting(config:extensions, Update),
-  core:init_extensions,
+  init_extensions,
   set_setting(config:extensions, Es),
   thread_create(news_loop, _, [alias(news), detached(true)]).
 
@@ -201,7 +203,10 @@ get_latest_version(Type) :-
      retractall_version(Type, _),
      assert_version(Type, Version),
      send_msg(priv_msg, Update, Chan),
-     send_msg(priv_msg, Link, Chan)
+     (  Type = stable
+     -> send_msg(priv_msg, "http://www.swi-prolog.org/download/stable", Chan)
+     ;  send_msg(priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
+     )
   ;
      true
   ).

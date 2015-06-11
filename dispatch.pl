@@ -12,7 +12,7 @@
        send_msg/3 ]).
 
 :- use_module(operator).
-
+:- use_module(info).
 
 %--------------------------------------------------------------------------------%
 % Command Routing
@@ -27,57 +27,78 @@
 % 'unknown'.
 
 return_server(Server) :-
-  (  core:known(irc_server)
-  -> core:get_irc_server(Server)
+  (  known(irc_server)
+  -> get_irc_server(Server)
   ;  Server = unknown
   ).
 
 
 :- discontiguous dispatch:send_msg/3.
 
-%% send_msg(+Type:atom, +Target:string) is semidet.
+%% send_msg(+Type:atom, +Param:string) is semidet.
 %
-% Send message of Type with respect to a specified Target.
-
-send_msg(Type, Target) :-
+% Send message of Type with attention to some parameter Param.
+send_msg(Type, Param) :-
   cmd(Type, Msg),
   (
      Type = ping
   ;
      Type = pong,
      dbg(pong, Debug),
-     format(Debug, [Target])
+     format(Debug, [Param])
   ;
      Type = names
+  ;
+     Type = admin
+  ;
+     Type = away
+  ;
+     Type = lusers
+  ;
+     Type = who
+  ;
+     Type = time
+  ;
+     Type = whois
+  ;
+     Type = whowas
+  ;
+     Type = list
+  ;
+     Type = part
+  ;
+     Type = userhost
+  ;
+     Type = userip
   ), !,
-  core:get_irc_stream(Stream),
-  format(Stream, Msg, [Target]),
+  get_irc_stream(Stream),
+  format(Stream, Msg, [Param]),
   flush_output(Stream),
   thread_send_message(tq, true).
 
 
 %% send_msg(+Type:atom, +Str:text, +Target:string) is semidet.
 %
-% send a Str of Type to a specified Target.
-
+% Send a Str of Type to a specified Target.
 send_msg(Type, Str, Target) :-
   cmd(Type, Msg),
   (  Type = priv_msg
   ;  Type = notice
+  ;  Type = topic
+  ;  Type = mode
+  ;  Type = oper
   ), !,
-  core:get_irc_stream(Stream),
+  get_irc_stream(Stream),
   format(Stream, Msg, [Target, Str]),
   flush_output(Stream),
   thread_send_message(tq, true).
 
-
 %% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
 %
 % Send a message of Type to Target in Chan.
-
 send_msg(Type, Chan, Target) :-
   cmd(Type, Msg),
-  core:get_irc_stream(Stream),
+  get_irc_stream(Stream),
   (
      Type = kick,
      format(Stream, Msg, [Chan, Target])
@@ -93,11 +114,12 @@ send_msg(Type, Chan, Target) :-
 %
 % Send a message of Type.
 
-% This clause will deal with deal with message types that are possibly timer-independent
+% This clause will deal with deal with message types that are possibly
+% timer-independent
 send_msg(Type) :-
   cmd(Type, Msg),
-  core:get_irc_stream(Stream),
-  core:connection(Nick, Pass, Chans, HostName, ServerName, RealName),
+  get_irc_stream(Stream),
+  connection(Nick, Pass, Chans, HostName, ServerName, RealName),
   (
      Type = pass,
      format(Stream, Msg, [Pass])
@@ -112,23 +134,43 @@ send_msg(Type) :-
      maplist(format(Stream, Msg), Chans)
   ), !,
   flush_output(Stream),
-  (  core:known(tq)
+  (  known(tq)
   -> thread_send_message(tq, true)
   ;  true
   ).
 
 send_msg(Type) :-
   cmd(Type, Msg),
-  core:get_irc_stream(Stream),
-  return_server(Server),
-  core:connection(_Nick, _Pass, _Chans, _HostName, _ServerName, _RealName),
+  get_irc_stream(Stream),
+  connection(_Nick, _Pass, _Chans, _HostName, _ServerName, _RealName),
   (
-     Type = quit,
-     write(Stream, Msg)
+     Type = quit
   ;
-     Type = time,
-     format(Stream, Msg, [Server])
+     Type = die
+  ;
+     Type = version
+  ;
+     Type = help
+  ;
+     Type = info
+  ;
+     Type = links
+  ;
+     Type = rehash
+  ;
+     Type = restart
+  ;
+     Type = rules
+  ;
+     Type = servlist
+  ;
+     Type = stats
+  ;
+     Type = users
+  ;
+     Type = who_ops
   ),
+  write(Stream, Msg),
   flush_output(Stream),
   thread_send_message(tq, true).
 
