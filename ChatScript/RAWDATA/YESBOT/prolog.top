@@ -1,6 +1,24 @@
+concept ~packname [amazon\_api app arouter assertions 
+	atom\_feed bencode bims bio\_db bio\_db\_repo blog\_core
+	by\_unix callgraph condition cowspeak cplint db\_facts dcg\_util
+	dcgutils delay dia dict\_schema dirtree djson docstore dotcloud
+	edcg environ evil fileutils format\_spec func function\_expansion
+	genutils geoip googleclient graphml gvterm hello httplog interpolate
+	jolog julian julian\_lang\_en lambda lbfgs lcs list\_util logtalk
+	markdown mavis memo maybe miser musicbrainz mutable\_variables nan\_common
+	nanp notes800 odf\_sheet os\_sub pac pac4pl pager pepl pinyin plOpenGl plchatscript
+	plmake plmidi plml plosc plsmf plumdrum prosqlite pubmed quickcheck r\_session
+	rdfs2pl readability\_parser real recaptcha refactor regex requires resbound rtchecks
+	rtp\_qsndqs semantria simple\_template sindice smtp sort\_dict sparkle spawn spuds
+	sql\_compiler sweet swicli swipe switex tap term\_diff thousands tor trill
+	turing type\_check typedef unified\_diff unionfind uri\_qq web webconsole
+	wsdl xlibrary xtools ]
+
 topic: ~prolog bot=yesbot ( Prolog logic_programming declarative_programming )
 
 t: You'll hate Prolog for a few weeks, and then you'll love it.
+	a: ( not *~3 hate ) Well, it just gets better with time
+	a: ( hate ) I'm baffled why the whole world isn't run on Prolog
 
 t: Are you just learning Prolog?
 	a: (~yesanswer) $noob=1 It's great you're learning Prolog.
@@ -42,7 +60,38 @@ topic: ~packs bot=yesbot ( library lib pack extension add-in )
       There's libs for musicbrainz and notes800 services, and weblog has several feeds built in.
 
 ?: ( [probability probabilistic stochastic] ) Lots of probabilistic inference libs. Built in theres' a nice random lib, bims is a nice Baysian inference pack, 
-    cplint and problog are probabilistic logic libs.
+    cplint, trill, and problog are probabilistic logic libs. The first two are packs.
+	
+?: ( amazon ) There's a pack for the Amazon API.
+
+?: ( torrent ) There's a pack, bencode, for the torrent protocol.
+
+?: ( bayesian ) bims is a pack that infers model structure from data.
+
+?: ( [ bio biology genetics peptide gene protein ] ) Check out bio_db pack and bio_db_repo.
+
+?: ( [ blog cms (content management system) ] ) Blog core started as blogging software, but it's gone beyond that to be a capable CMS
+
+?: ( [ unix linux ( !windows shell ) ] ) There's an elegance layer for calling shell commands, by_unix.
+
+?: ( [ (call graph)  callgraph (show Prolog term) ] ) have you see dia, calltree, and gvterm packs?
+
+?: ( [ functional lambda ] ) Check out condition, func, function\_expansion, lambda, and pac packs.
+
+?: ( [ humor funny hilarious ] ) Check out pack evil and cowspeak - Mooo! Moo! MOOO!
+
+?: ( [ database db ] ) Check out packs the built in persistency lib, the built in ODBC lib, CQL, and the packs db_facts and sql_compiler
+
+?: ( [ dcg dcgs grammar ] ) Markus Triska and Annie wrote a tutorial at http://www.pathwayslms.com/swipltuts/dcg/index.html that's useful.
+	There's a useful set of basic DCG's in library\(dcg/basics\), and a few useful dcg packs - dcgutils, edcg, and dcg\_util. Wouter Beek
+	has a massive collection of DCG terms for common items at https://github.com/wouterbeek/Prolog-Library-Collection/tree/master/dcg .
+	There's a lot of material in the tutorial on using pure IO to parse from files using phrase\_from\_file/2 .
+
+?: MAKEPACK ( make a pack ) There's an example pack called hello 
+?: ( example )^reuse(MAKEPACK)
+
+?: ( where *~2 find ~2 [pack ~packname] ) You can see all the packs at http://www.swi-prolog.org/pack/list and install them by querying pack_install(mypack).
+
 	
 topic: ~why_I_like_Prolog bot=yesbot ()
 
@@ -54,6 +103,21 @@ t:  ( compare *~2 functional language ) Well, logic languages are sort of a step
 topic ~class_help ( class homework problem exercise )
 
 t: I'm afraid I can't help with homework right now, I'm not smart enough.
+
+
+topic ~the_presidents_analyst ( tedium presidents_analyst )
+
+t: Personally, I find submarine travel such teedium... teeedium... tedium....
+
+t: T. P. C.
+
+t: I have a cerebrum communicator
+
+t:  take that, you hostile son of a bitch!
+
+
+
+
 
 
 	
