@@ -123,7 +123,7 @@ priv_msg(Text, Recipient, Options) :-
   option(encoding(Encoding), Options, utf8),
   get_irc_write_stream(Stream),
   set_stream(Stream, encoding(Encoding)),
-  priv_msg_auto_nl(Text, Paragraph),
+  priv_msg_auto_nl(Text, Recipient, Paragraph),
   (
      option(auto_nl(true), Options, true)
   ->
@@ -139,12 +139,13 @@ priv_msg(Text, Recipient, Options) :-
   ).
 
 
-priv_msg_auto_nl(Text, Paragraph) :-
+priv_msg_auto_nl(Text, Recipient, Paragraph) :-
   min_msg_len(Min),
-  Length is 512 - Min,
+  string_length(Recipient, N0),
+  N is N0 + Min,
+  Length is 512 - N,
   insert_nl_at(Length, string_codes $ Text, Formatted),
   split_string(Formatted, "\n", "", Paragraph).
-
 
 
 insert_nl_at(Num, Codes, Formatted) :-
