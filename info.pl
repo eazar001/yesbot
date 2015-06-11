@@ -7,6 +7,7 @@
       ,known/1
       ,get_irc_server/1
       ,get_irc_stream/1
+      ,get_irc_write_stream/1
       ,connection/6
       ,extensions/2
       ,sync_extensions/2
@@ -17,6 +18,7 @@
 :- dynamic known/1.
 :- dynamic get_irc_server/1.
 :- dynamic get_irc_stream/1.
+:- dynamic get_irc_write_stream/1.
 :- dynamic connection/6.
 :- dynamic extensions/2.
 :- dynamic sync_extensions/2.

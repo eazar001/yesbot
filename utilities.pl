@@ -8,12 +8,15 @@
       ,run_det_sync/3
       ,init_timer/1
       ,is_sync/1
-      ,priv_msg/2 ]).
+      ,priv_msg/2
+      ,priv_msg/3 ]).
 
 :- use_module(config).
 :- use_module(info).
 :- use_module(library(func)).
 :- use_module(library(dcg/basics)).
+:- use_module(library(predicate_options)).
+:- use_module(library(list_util)).
 
 
 %--------------------------------------------------------------------------------%
@@ -99,6 +102,12 @@ check_pings(Id) :-
 %--------------------------------------------------------------------------------%
 
 
+:- predicate_options(priv_msg/3, 3,
+     [ auto_nl(boolean)
+      ,at_most(nonneg)
+      ,encoding(encoding) ]).
+
+
 %% priv_message(+Text:string, +Recipient:string) is det.
 %
 % This is a convenience predicate for sending private messages to recipients on
@@ -106,8 +115,49 @@ check_pings(Id) :-
 % messages (i.e. paragraph style handling).
 
 priv_msg(Text, Recipient) :-
-  Send_msg = (\Msg^send_msg(priv_msg, Msg, Recipient)),
-  split_string(Text, "\n", "", Paragraph),
-  maplist(Send_msg, Paragraph).
+  priv_msg(Text, Recipient, [auto_nl(true)]).
 
+
+priv_msg(Text, Recipient, Options) :-
+  Send_msg = (\Msg^send_msg(priv_msg, Msg, Recipient)),
+  option(encoding(Encoding), Options, utf8),
+  get_irc_write_stream(Stream),
+  set_stream(Stream, encoding(Encoding)),
+  priv_msg_auto_nl(Text, Paragraph),
+  (
+     option(auto_nl(true), Options, true)
+  ->
+     option(at_most(Limit), Options, length $ Paragraph),  % auto-nl
+     take(Paragraph, Limit, P),
+     maplist(Send_msg, P)
+  ;
+     maplist(Send_msg, Paragraph) % no auto-nl
+  ),
+  (  stream_property(Stream, encoding(utf8))
+  -> true
+  ;  set_stream(Stream, encoding(utf8))
+  ).
+
+
+priv_msg_auto_nl(Text, Paragraph) :-
+  min_msg_len(Min),
+  Length is 512 - Min,
+  insert_nl_at(Length, string_codes $ Text, Formatted),
+  split_string(Formatted, "\n", "", Paragraph).
+
+
+
+insert_nl_at(Num, Codes, Formatted) :-
+  insert_nl_at(Codes, F, Num, Num),
+  string_codes(Formatted, F).
+
+insert_nl_at([], [], _, _).
+insert_nl_at([X|Xs], [X|Ys], N, N0) :-
+  N0 > 1, !,
+  N1 is N0-1,
+  insert_nl_at(Xs, Ys, N, N1).
+
+insert_nl_at([X|Xs], [X,10|Ys], N, 1) :-
+  insert_nl_at(Xs, Ys, N, N).
+  
 

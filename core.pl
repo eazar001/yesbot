@@ -46,6 +46,7 @@ connect :-
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
        stream_pair(Stream, _Read, Write),
+       asserta(info:get_irc_write_stream(Write)),
        set_stream(Write, encoding(utf8)),
        asserta(get_tcp_socket(Socket)),
        asserta(info:get_irc_stream(Stream)),
