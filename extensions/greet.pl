@@ -26,7 +26,7 @@ greet_limit(5).
      current_name(name:atom).
 
 
-chan("#testeazarbot").
+chan("##prolog").
 
 greeting("Howdy partner! It appears that noone has spoken to you in \c
   <ROBOTIC VOICE> ONE </ROBOTIC VOICE> minute(s)!!! \c
