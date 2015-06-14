@@ -49,7 +49,6 @@ greet(Msg) :-
 receive(Msg) :-
   store_names(Msg),
   \+status(initialized),
-  db_attach('extensions/greets.db', []),
   chan(Chan),
   % Listen for joins
   valid_join(Chan, Msg),
@@ -149,6 +148,7 @@ greet_and_kill(Nick) :-
 
 
 store_names(Msg) :-
+  db_attach('extensions/greets.db', []),
   % 353 is code for users present on the channel
   Msg = msg(_Prefix, "353", _, Text),
   split(Text, 32, Names),
