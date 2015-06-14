@@ -9,7 +9,6 @@
 :- use_module(library(lambda)).
 
 :- dynamic status/1.
-:- dynamic stored/1.
 :- dynamic in_channel/1.
 
 greet_limit(5).
@@ -48,9 +47,9 @@ greet(Msg) :-
 
 %% handle joins
 receive(Msg) :-
+  store_names(Msg),
   \+status(initialized),
   db_attach('extensions/greets.db', []),
-  store_names(Msg),
   chan(Chan),
   % Listen for joins
   valid_join(Chan, Msg),
@@ -150,17 +149,10 @@ greet_and_kill(Nick) :-
 
 
 store_names(Msg) :-
-  (
-     \+stored(true)
-  ->
-     % 353 is code for users present on the channel
-     Msg = msg(_Prefix, "353", _, Text),
-     split(Text, 32, Names),
-     maplist(add_name, Names),
-     asserta(stored(true))
-  ;
-     true
-  ).
+  % 353 is code for users present on the channel
+  Msg = msg(_Prefix, "353", _, Text),
+  split(Text, 32, Names),
+  maplist(add_name, Names).
 
 
 add_name(Codes) :-
