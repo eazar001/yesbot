@@ -11,7 +11,7 @@
 :- dynamic status/1.
 :- dynamic in_channel/1.
 
-greet_limit(5).
+greet_limit(60).
 
 
 
@@ -45,9 +45,10 @@ greet(Msg) :-
 % Reception
 %--------------------------------------------------------------------------------%
 
+
 %% handle joins
 receive(Msg) :-
-  store_names(Msg),
+  ignore(store_names(Msg)),
   \+status(initialized),
   chan(Chan),
   % Listen for joins
@@ -82,7 +83,7 @@ receive(Msg) :-
 %--------------------------------------------------------------------------------%
 
 
-initialize(msg(Prefix, _, _)) :-
+initialize(msg(Prefix, _, _, _)) :-
   prefix_id(Prefix, Nick, _, _),
   thread_create(wait(Nick), _Id, [alias(wait), detached(true)]),
   asserta(status(initialized)).
@@ -97,7 +98,7 @@ transmit(die) :-
 %--------------------------------------------------------------------------------%
 
 
-valid_join(Chan, msg(Prefix, "JOIN", [Chan])) :-
+valid_join(Chan, msg(Prefix, "PRIVMSG", [Chan], _)) :-
   prefix_id(Prefix, Nick, _, _),
   atom_string(N, Nick),
   \+current_name(N),
