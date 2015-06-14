@@ -10,9 +10,14 @@
 
 :- dynamic status/1.
 :- dynamic stored/1.
+:- dynamic in_channel/1.
 
-greet_limit(60).
+greet_limit(5).
 
+
+
+% TBD: Repurpose this module for use with 'state.pl' and similar consructs
+% TBD: Add comments to this code!
 
 :- persistent
      greeted(nick:atom).
@@ -21,10 +26,10 @@ greet_limit(60).
      current_name(name:atom).
 
 
-chan("##prolog").
+chan("#testeazarbot").
 
 greeting("Howdy partner! It appears that noone has spoken to you in \c
-  <ROBOTIC VOICE> 1 </ROBOTIC VOICE> minute(s)!!! \c
+  <ROBOTIC VOICE> ONE </ROBOTIC VOICE> minute(s)!!! \c
   I just wanted to let you know, this is a slow moving \c
   channel. Leave the window open for 30 minutes or so and somebody is \c
   likely to notice and come around. Happy prologgin'!").
@@ -34,42 +39,101 @@ greeting("Howdy partner! It appears that noone has spoken to you in \c
 %
 % Evaluate the entire goal with a lock on the database.
 greet(Msg) :-
-  with_mutex(greet_db, greet_(Msg)).
+  with_mutex(greet_db, receive(Msg)).
 
 
-greet_(Msg) :-
+%--------------------------------------------------------------------------------% 
+% Reception
+%--------------------------------------------------------------------------------%
+
+%% handle joins
+receive(Msg) :-
+  \+status(initialized),
   db_attach('extensions/greets.db', []),
   store_names(Msg),
   chan(Chan),
   % Listen for joins
-  Msg = msg(Prefix, "JOIN", [Chan]),
-  prefix_id(Prefix, Nick, _, _),
+  valid_join(Chan, Msg),
   % If the greeting time hasn't been intialized, do so.
-  \+status(initialized),
-  thread_create(idle(Nick), _Id, [alias(idle), detached(true)]),
+  initialize(Msg).
+
+%% handle privmsgs
+receive(Msg) :-
+  chan(Chan),
+  status(initialized),
+  valid_speech(Chan, Msg),
+  transmit(die),
+  in_channel(Nick),
+  assert_current_name(Nick),
+  retractall(status(_)),
+  retractall(in_channel(_)).
+
+%% handle parts
+receive(Msg) :-
+  chan(Chan),
+  status(initialized),
+  valid_part(Chan, Msg),
+  transmit(die),
+  retractall(in_channel(_)),
+  retractall(status(_)).
+  
+  
+
+%--------------------------------------------------------------------------------%
+% Transmission and Initialization
+%--------------------------------------------------------------------------------%
+
+
+initialize(msg(Prefix, _, _)) :-
+  prefix_id(Prefix, Nick, _, _),
+  thread_create(wait(Nick), _Id, [alias(wait), detached(true)]),
   asserta(status(initialized)).
 
-% If the timer has already been initialized, pass the message to idle/1
-greet_(Msg) :-
-  status(initialized),
-  Msg = msg(Prefix, "JOIN", [Chan]),
+
+transmit(die) :-
+  thread_signal(wait, throw(abort)).
+
+
+%--------------------------------------------------------------------------------%
+% Validation
+%--------------------------------------------------------------------------------%
+
+
+valid_join(Chan, msg(Prefix, "JOIN", [Chan])) :-
   prefix_id(Prefix, Nick, _, _),
-  thread_send_message(idle, Msg, []).
+  atom_string(N, Nick),
+  \+current_name(N),
+  \+in_channel(_),
+  asserta(in_channel(N)).
+
+
+valid_speech(Chan, msg(Prefix, "PRIVMSG", [Chan], _)) :-
+  in_channel(Nick),
+  prefix_id(Prefix, T, _, _),
+  atom_string(Talker, T),
+  % The newcomer who joined and the subsequent talker are not the same
+  % The talker must also be a regular
+  Nick \= Talker,
+  current_name(Talker).
+
+%% be sure that this won't cause a bug
+
+valid_part(Chan, msg(Prefix, "PART", [Chan], _)) :-
+  prefix_id(Prefix, Nick, _, _),
+  atom_string(N, Nick),
+  in_channel(N).
+
+
+%--------------------------------------------------------------------------------%
+% Waiting/Procedures
+%--------------------------------------------------------------------------------%
 
 
 %  Kill idle waiting process if someone speaks, and the speaker is a current name.
-idle(Nick) :-
-  chan(Chan),
+wait(Nick) :-
   greet_limit(Limit),
   alarm(Limit, greet_and_kill(Nick), _),
-  repeat,
-    thread_get_message(Msg),
-    % If anyone other than the newcomer speaks cancel the greeting directive
-    Msg = msg(Prefix, "PRIVMSG", [Chan], _),
-    prefix_id(Prefix, Name, _, _),
-    Name \= Nick,
-    current_name(Name),
-    retractall(status(_)), !.
+  thread_get_message(_).
     
 
 greet_and_kill(Nick) :-
@@ -81,6 +145,7 @@ greet_and_kill(Nick) :-
   assert_current_name(N),
   db_sync(gc),
   retractall(status(_)),
+  retractall(in_channel(_)),
   throw(abort).
 
 
@@ -89,7 +154,7 @@ store_names(Msg) :-
      \+stored(true)
   ->
      % 353 is code for users present on the channel
-     Msg = msg(Prefix, "353", _, Text),
+     Msg = msg(_Prefix, "353", _, Text),
      split(Text, 32, Names),
      maplist(add_name, Names),
      asserta(stored(true))
@@ -105,4 +170,11 @@ add_name(Codes) :-
   ;  true
   ).
 
+
+%% nick_exists(+Nick:string) is semidet.
+%
+% Takes a string input for a Nick and determines if this name is in the db.
+nick_exists(Nick) :-
+  atom_string(Name, Nick),
+  current_name(Name).
 
