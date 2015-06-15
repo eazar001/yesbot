@@ -195,4 +195,8 @@ fli &
 "http://www.swi-prolog.org/pldoc/man?section=foreign" &
 "Foreign Language Interface".
 
+style &
+"http://arxiv.org/pdf/0911.2899v3.pdf" &
+"Coding Guidelines for Prolog".
+
 
