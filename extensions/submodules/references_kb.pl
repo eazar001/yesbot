@@ -199,4 +199,8 @@ style &
 "http://arxiv.org/pdf/0911.2899v3.pdf" &
 "Coding Guidelines for Prolog".
 
+'99' &
+"http://www.ic.unicamp.br/~meidanis/courses/mc336/2009s2/prolog/problemas/" &
+"P-99: Ninety-Nine Prolog Problems".
+
 
