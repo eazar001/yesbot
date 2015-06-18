@@ -125,7 +125,7 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   ;
      % Lib/man searches that fail to generate a page
      Status = 404,
-     send_msg(priv_msg, "No matching object found.", Rec),
+     priv_msg("No matching object found.", Rec),
      fail
   ).
 
@@ -155,7 +155,7 @@ found_object(Structure, Link, Query, Quiet, Rec) :-
   ->
      true
   ;
-     send_msg(priv_msg, "No matching object found. ", Rec),
+     priv_msg("No matching object found. ", Rec),
      try_again(Query, Rec)
   ).
 
@@ -167,28 +167,28 @@ found_object(Structure, Link, Query, Quiet, Rec) :-
 
 found(Link, Rec, lib, Structure) :-
   xpath_chk(Structure, //title(normalize_space), Title),
-  send_msg(priv_msg, Title, Rec),
-  send_msg(priv_msg, Link, Rec).
+  priv_msg(Title, Rec),
+  priv_msg(Link, Rec).
 
 found(Link, Rec, man, Structure) :-
   xpath_chk(Structure, //span(@class='sec-title', normalize_space), Title),
-  send_msg(priv_msg, Title, Rec),
-  send_msg(priv_msg, Link, Rec).
+  priv_msg(Title, Rec),
+  priv_msg(Link, Rec).
 
 found(Link, Rec, Qlevel, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef, normalize_space), Table),
   (
      Qlevel = q0,
-     send_msg(priv_msg, Table, Rec),
+     priv_msg(Table, Rec),
      write_first_sentence(Structure, Rec),
-     send_msg(priv_msg, Link, Rec)
+     priv_msg(Link, Rec)
   ;
      Qlevel = q,
-     send_msg(priv_msg, Table, Rec),
+     priv_msg(Table, Rec),
      write_first_sentence(Structure, Rec)
   ;
      Qlevel = qq,
-     send_msg(priv_msg, Table, Rec)
+     priv_msg(Table, Rec)
   ).
 
 
@@ -228,7 +228,7 @@ try_again(Query, Rec) :-
        L = [_|_],
        atomic_list_concat(L, ', ', AtomList),
        format(string(Feedback), "Perhaps you meant one of these: ~a", [AtomList]),
-       send_msg(priv_msg, Feedback, Rec)
+       priv_msg(Feedback, Rec)
     ),
     close(Stream)
   ).
@@ -276,8 +276,8 @@ write_first_sentence(Structure, Rec) :-
   xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
   atom_codes(D, Codes),
   (  sentence(Sentence, Codes, _)
-  -> send_msg(priv_msg, Sentence, Rec)
-  ;  send_msg(priv_msg, Codes, Rec)
+  -> priv_msg(Sentence, Rec)
+  ;  priv_msg(Codes, Rec)
   ).
 
 
