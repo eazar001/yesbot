@@ -27,11 +27,15 @@
 :- persistent
      version(type:atom, number:string).
 
+:- persistent
+     kjv_quote(quote:string).
+
+
 target("##prolog", "yesbot").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
-time_limit(3600). % Time limit in seconds
+news_time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
@@ -73,7 +77,7 @@ news_(Msg) :-
 % every hour for updates. This predicate is always true.
 
 news_loop :-
-  time_limit(Limit),
+  news_time_limit(Limit),
   ignore(news_feed),
   get_time(T1),
   stamp_date_time(T1, DateTime, local),
@@ -106,7 +110,8 @@ news_feed :-
   target(Chan, _),
   news_link(Link),
   ignore(fetch_news(Link, Chan)),
-  ignore(fetch_version).
+  ignore(fetch_version),
+  ignore(fetch_king_james).
 
 
 %% fetch_news(+Link:string, +Chan:string) is semidet.
@@ -123,6 +128,52 @@ fetch_version :-
   ignore(get_latest_version(stable)),
   ignore(get_latest_version(development)).
 
+
+%% fetch_king_james is semidet.
+%
+% Get the latest quote from the KJV site and pass the Quote to fetch_kv_quote/1.
+fetch_king_james :-
+  setup_call_cleanup(
+    http_open("http://kingjamesprogramming.tumblr.com/", Stream, []),
+    (  load_html(Stream, Structure, []),
+       xpath_chk(Structure, //blockquote(normalize_space), Content),
+       fetch_kjv_quote(Content)
+    ),
+    close(Stream)
+  ).
+
+
+%% fetch_kjv_quote(+Content:atom) is det.
+%
+% Analyzes quotes, and only displays quotes that have not yet been displayaed.
+fetch_kjv_quote(Content) :-
+  target(Chan, _),
+  atom_string(Content, Quote),
+  (
+     % Found a stored quote
+     kjv_quote(Q)
+  ->
+     (
+        Q \= Quote
+     ->
+	% Current quote is not equal to stored quote
+	% Therefore delete the old one and store the new one
+	% Display it to the channel
+	retract_kjv_quote(Q),
+	assert_kjv_quote(Quote),  
+	priv_msg(Quote, Chan)
+     ;
+	% Current quote is the same as the stored one
+	% Therefore succeed and don't do anything
+        true
+     )
+  ;
+     % No stored quote found
+     % Therefore store the new quote and display to channel
+     assert_kjv_quote(Quote),
+     priv_msg(Quote, Chan)
+  ).
+  
 
 %% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
 %
