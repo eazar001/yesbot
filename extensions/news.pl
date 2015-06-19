@@ -14,6 +14,7 @@
 :- use_module(submodules/utils).
 :- use_module(library(sgml)).
 :- use_module(library(http/http_open)).
+:- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
 :- use_module(library(solution_sequences)).
@@ -30,11 +31,21 @@
 :- persistent
      kjv_quote(quote:string).
 
+:- persistent
+     commit(comm:string).
+
+
+% TBD: Add SWI-pulls.
+% TBD: Seperate this into two modules.
+
 
 target("##prolog", "yesbot").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
+kjv_link("http://kingjamesprogramming.tumblr.com/").
+swi_commit_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/commits").
+swi_pull_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/pulls").
 news_time_limit(3600). % Time limit in seconds
 
 
@@ -78,11 +89,11 @@ news_(Msg) :-
 
 news_loop :-
   news_time_limit(Limit),
-  ignore(news_feed),
   get_time(T1),
   stamp_date_time(T1, DateTime, local),
   date_time_value(day, DateTime, Day),
   asserta(current_day(Day)),
+  ignore(news_feed(Day)),
   news_check(T1, Limit).
 
 
@@ -93,9 +104,10 @@ news_check(T1, Limit) :-
   get_time(T2),
   Delta is T2 - T1,
   (
-     Delta >= Limit
+     Delta >= Limit,
+     current_day(Day)
   ->
-     ignore(news_feed),
+     ignore(news_feed(Day)),
      get_time(T0),
      news_check(T0, Limit)
   ;
@@ -106,12 +118,13 @@ news_check(T1, Limit) :-
 %% news_feed is semidet.
 %
 % Attempt to scan swi-prolog.org news archive for updates and display to channel.
-news_feed :-
+news_feed(Day) :-
   target(Chan, _),
   news_link(Link),
   ignore(fetch_news(Link, Chan)),
   ignore(fetch_version),
-  ignore(fetch_king_james).
+  ignore(fetch_king_james),
+  ignore(fetch_swi_commit(Day)).
 
 
 %% fetch_news(+Link:string, +Chan:string) is semidet.
@@ -133,8 +146,9 @@ fetch_version :-
 %
 % Get the latest quote from the KJV site and pass the Quote to fetch_kv_quote/1.
 fetch_king_james :-
+  kjv_link(Link),
   setup_call_cleanup(
-    http_open("http://kingjamesprogramming.tumblr.com/", Stream, []),
+    http_open(Link, Stream, []),
     (  load_html(Stream, Structure, []),
        xpath_chk(Structure, //blockquote(normalize_space), Content),
        fetch_kjv_quote(Content)
@@ -145,7 +159,7 @@ fetch_king_james :-
 
 %% fetch_kjv_quote(+Content:atom) is det.
 %
-% Analyzes quotes, and only displays quotes that have not yet been displayaed.
+% Analyzes quotes, and only displays quotes that have not yet been displayed.
 fetch_kjv_quote(Content) :-
   target(Chan, _),
   atom_string(Content, Quote),
@@ -173,7 +187,40 @@ fetch_kjv_quote(Content) :-
      assert_kjv_quote(Quote),
      priv_msg(Quote, Chan)
   ).
-  
+
+
+%% fetch_swi_commit(+Day) is semidet.
+%
+% Access swi commits on github using the JSON API. Then print commits.
+fetch_swi_commit(Day) :-
+  swi_commit_link(Link),
+  setup_call_cleanup(
+    http_open(Link, Stream, []),
+    json_read_dict(Stream, Array),
+    close(Stream)
+  ),
+  print_swi_commit(Array, Day).
+
+
+%% print_swi_commit(+Array, +Day) is failure.
+%
+% Print commits only for this day. Only prints commits that haven't been printed.
+print_swi_commit(Array, Day) :-
+  member(Dict, Array),
+  is_dict(Dict),
+  parse_time(Dict.commit.committer.date, Stamp),
+  stamp_date_time(Stamp, DateTime, local),
+  date_time_value(day, DateTime, Current),
+  Day = Current,
+  Msg = Dict.commit.message,
+  \+commit(Msg),
+  assert_commit(Msg),
+  target(Chan, _),
+  format(string(Report),"swipl-devel commit: ~s~n~s", [Msg, Dict.html_url]),
+  priv_msg(Report, Chan),
+  sleep(5),
+  fail.
+
 
 %% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
 %
@@ -233,7 +280,8 @@ compare_days :-
   ;  retractall(current_day(_)),
      asserta(current_day(Day)),
      db_sync(gc),
-     retractall_heading(_)
+     retractall_heading(_),
+     retractall_commit(_)
   ).
 
 
