@@ -34,6 +34,8 @@
 :- persistent
      commit(comm:string).
 
+:- persistent
+     issue(state:string, number:integer).
 
 % TBD: Add SWI-pulls.
 % TBD: Seperate this into two modules.
@@ -45,7 +47,7 @@ version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
 kjv_link("http://kingjamesprogramming.tumblr.com/").
 swi_commit_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/commits").
-swi_pull_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/pulls").
+swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/issues?state=all").
 news_time_limit(3600). % Time limit in seconds
 
 
@@ -124,7 +126,8 @@ news_feed(Day) :-
   ignore(fetch_news(Link, Chan)),
   ignore(fetch_version),
   ignore(fetch_king_james),
-  ignore(fetch_swi_commit(Day)).
+  ignore(fetch_swi_commit(Day)),
+  ignore(fetch_swi_issue).
 
 
 %% fetch_news(+Link:string, +Chan:string) is semidet.
@@ -221,6 +224,82 @@ print_swi_commit(Array, Day) :-
   sleep(5),
   fail.
 
+
+%% fetch_swi_issue is semidet.
+%
+% Access swi issues on github using the JSON API. Then print issues.
+fetch_swi_issue :-
+  swi_issue_link(Link),
+  setup_call_cleanup(
+    http_open(Link, Stream, []),
+    json_read_dict(Stream, Array),
+    close(Stream)
+  ),
+  print_swi_issue(Array).
+
+
+%% print_swi_issue(+Array) is failure.
+%
+% Print issue opens and closes. Only issue events that haven't been printed.
+print_swi_issue(Array) :-
+  member(Dict, Array),
+  is_dict(Dict),
+  % If pull_request is not a key then P is null (normal issue)
+  catch(P = Dict.pull_request, _E, P = null),
+  handle_swi_issue(P, Dict).
+
+
+% TBD: Remember to display the links of each of these issues for people in-channel
+
+handle_swi_issue(null, Dict) :-
+  Args = [Dict.html_url, Dict.title, Dict.body],
+  S = Dict.state,
+  N = Dict.number,
+  handle_stored_issue(S, N, "swipl-devel issue ", Args),
+  fail.
+
+handle_swi_issue(Paragraph, Dict) :-
+  Paragraph \= null,
+  Args = [Dict.html_url, Dict.title, Dict.body],
+  S = Dict.state,
+  N = Dict.number,
+  handle_stored_issue(S, N, "swipl-devel pull-request ", Args),
+  fail.
+
+
+handle_stored_issue(State, N, Title, Args) :-
+  target(Chan, _),
+  (
+     issue(Stored, N)
+  ->
+     (  State \= Stored
+     ->
+	% If the issue has been mentioned in channel, but the state has changed
+	% retract the issue, and assert is with the new state, while also
+	% the issue again.
+	retract_issue(Stored, N),
+	assert_issue(State, N),
+	format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
+	priv_msg(Report, Chan, [at_most(7)]),
+	sleep(5)
+     ;
+	% Do nothing if the issue has been mentioned and the state is identical
+	true
+     )
+  ;
+     State = "open"
+  ->
+     % If the issue hasn't been mentioned and the state is open 
+     % assert the issue and mention it in the channel
+     format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
+     assert_issue(State, N),
+     priv_msg(Report, Chan, [at_most(7)]),
+     sleep(5)
+  ;
+     % If the issue hasn't been mentioned and has a closed state, do nothing.
+     true
+  ).
+  
 
 %% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
 %
