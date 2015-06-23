@@ -15,6 +15,7 @@
 :- use_module(config).
 :- use_module(info).
 :- use_module(library(func)).
+:- use_module(library(lambda)).
 :- use_module(library(dcg/basics)).
 :- use_module(library(predicate_options)).
 :- use_module(library(list_util)).
@@ -146,7 +147,7 @@ priv_msg_paragraph(Text, Recipient, Paragraph) :-
   N is N0 + Min,
   Length is 512 - N,
   insert_nl_at(Length, string_codes $ Text, Formatted),
-  split_string(Formatted, "\n", "", Paragraph).
+  Paragraph = exclude(\Str^(Str="")) $ split_string(Formatted, "\n") $ "".
 
 
 insert_nl_at(Num, Codes, Formatted) :-
