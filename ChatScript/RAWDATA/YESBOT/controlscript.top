@@ -43,7 +43,6 @@ u: (< alarm test) \[ alarm=5000 \] Alarm requested.
 # otherwise, gambit the current topic if keywords match it
 # otherwise, gambit any topic that keyword matches
 # otherwise, gambit the current topic even if no keywords match
-# otherwise, gambit any topic
 # otherwise, say I don't know what to say
 
 
@@ -90,9 +89,8 @@ u: () # main per-sentence processing
 		{
 			$$topic = first(@8subject)
 			nofail(TOPIC ^respond($$topic))
-			if ($$start_of_sentence_response_count < %response) { $last_response_reason = "other topic with keyword match" }
-			if ($$start_of_sentence_response_count != %response) # stop when we find something to say
-			{
+			if ($$start_of_sentence_response_count < %response) { 
+			     $last_response_reason = "other topic with keyword match" 
 				^end(RULE)	# we are done, this terminates the loop (not the rule)
 			}
 		}
@@ -118,6 +116,7 @@ u: () # main per-sentence processing
 	# if we have rejoinders for what we said OR we asked a question, stop here
 	if (%outputrejoinder OR %lastquestion OR  $$gotstoryline) 
 	{
+	    $last_response_reason = "responder"
 		end(TOPIC)
 	}
 
@@ -146,25 +145,8 @@ u: () # main per-sentence processing
 	if ($$start_of_sentence_response_count == %response AND !$$gotstoryline)
 	{ 
 		nofail(TOPIC ^gambit($$currenttopic)) 
+		if ($$start_of_sentence_response_count < %response) { $last_response_reason = "current topic without keywords" }
 	} # gambit from current topic even though no keywords matched
-	
-	if ($$start_of_sentence_response_count == %response AND !$$gotstoryline) 
-	{ 
-		@8 = ^GambitTopics()		# all topics with gambits (excluding system topics)
-		# when you get better at this, exclude a list
-		loop()
-		{
-			$$topic = pick(@8subject)
-			nofail(TOPIC ^Gambit($$topic))	# try a topic at random
-			if ($$start_of_sentence_response_count != %response)
-			{
-				 $last_response_reason = "gambit any topic with a gambit"
-				 $last_response_gambit = $$topic
-
-				^end(RULE)
-			}
-		}
-	}
 
 	# if we've said nothing and we're at the end of the volley, say something
 	if (%response == 0 AND !%more) # AO 10:15pm 5/27/2015 

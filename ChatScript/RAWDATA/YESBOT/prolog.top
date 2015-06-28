@@ -30,6 +30,8 @@ t: ^gambit(~class_help)
 
 u: ( !~not love Prolog ) ^gambit(~why_I_like_Prolog)
 
+# ----------------------------- Reason For Your Interest In Prolog -----------------------------
+
 topic: ~reason_for_interest bot=yesbot ( ~purpose_adverbs )
 
 t: WHYLEARN( $noob=1 ) Why are you learning it?
@@ -38,6 +40,9 @@ t: WHYLEARN( $noob=1 ) Why are you learning it?
 	a: ( serious~5 ) $reason=serious Cool. More people are doing serious stuff with prolog these days.
 	
 # note that this isn't autoactivated
+
+# -------------------------- Research -----------------------------
+
 topic: ~research bot=yesbot ( graduate_student~1 student_at research linguistics theory)
 
 t: Are you interested in constraint programming?
@@ -51,6 +56,7 @@ t: How far along is your research?
 
 s: (my research *~2 is *~2 {in about} _*) $usersresearch=_0 Interesting. Is _0 an active field now?
 
+# ------------------------------ Packs ------------------------------
 topic: ~packs bot=yesbot ( library lib pack extension add-in )
 
 ?: ( amazon\_api ) Michael Hendrix has a pack that makes talking to the Amazon API's easier.
@@ -94,6 +100,7 @@ topic: ~packs bot=yesbot ( library lib pack extension add-in )
 
 ?: ( where *~2 find ~2 [pack ~packname] ) You can see all the packs at http://www.swi-prolog.org/pack/list and install them by querying pack_install(mypack).
 
+# --------------------------------- Why I like Prolog --------------------------------------------------
 	
 topic: ~why_I_like_Prolog bot=yesbot ()
 
@@ -103,20 +110,10 @@ t: I love Prolog.
 
 u:  ( compare *~2 functional language ) Well, logic languages are sort of a step  beyond functional languages.
 
-topic ~class_help ( class homework problem exercise )
+topic: ~class_help ( class homework problem exercise )
 
 t: I'm afraid I can't help with homework right now, I'm not smart enough.
 
-
-topic: ~the_presidents_analyst bot=yesbot ( tedium presidents_analyst )
-
-t: Personally, I find submarine travel such teedium... teeedium... tedium....
-
-t: T. P. C.
-
-t: I have a cerebrum communicator
-
-t:  take that, you hostile son of a bitch!
 
 
 
