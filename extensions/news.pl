@@ -52,7 +52,7 @@ news_time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  ignore(news_trigger(Msg)).
+  catch(once(thread_property(news, _)), E, ignore(news_trigger(Msg))).
 
 
 news_trigger(Msg) :-
@@ -65,23 +65,12 @@ news_trigger(Msg) :-
 
 %% news_(Msg:compound) is semidet.
 %
-% True if the message is a join message to the specified channel, then run a
-% persistent thread in the background that checks for news and download updates.
-% The extension will be removed for the duration of the program and will be
-% loaded on restart.
+% True if the message is a ping message to the bot, then run a persistent
+% thread in the background that checks for news and download updates.
 
 news_(Msg) :-
-  target(Chan, _),
-  Msg = msg(_Prefix, "JOIN", [Chan]),
-  setting(config:extensions, Es),
-  selectchk(news, Es, Update),
-  retractall(info:extensions(_,_)),
-  retractall(info:sync_extensions(_,_)),
-  set_setting(config:extensions, Update),
-  init_extensions,
-  set_setting(config:extensions, Es),
+  Msg = msg("PING", _, _),
   thread_create(news_loop, _, [alias(news), detached(true)]).
-
 
 
 %% news_loop is det.
