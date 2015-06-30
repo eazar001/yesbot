@@ -83,7 +83,14 @@ news_loop :-
   get_time(T1),
   stamp_date_time(T1, DateTime, local),
   date_time_value(day, DateTime, Day),
-  asserta(current_day(Day)),
+  (
+     current_day(_)
+  ->
+     retractall(current_day(_)),
+     asserta(current_day(Day))
+  ;
+     asserta(current_day(Day))
+  ),
   ignore(news_feed(Day)),
   news_check(T1, Limit).
 
