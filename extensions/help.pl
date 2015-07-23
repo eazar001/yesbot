@@ -91,7 +91,8 @@ keywords("?<keyword> where currently available keywords are: faq, modules, \c
 messages("?record message('somenickname', \"your message text goes here\") to \c
   send a message to a user with 'somenickname' (must have single quotes) with \c
   your desired message text (must have double quotes). The recipient will be \c
-  notified when rejoining the channel. Message limit is 447 chars.").
+  notified when rejoining the channel. Message length is limited to how much \c
+  your client and the bot's client is able to send on irc.").
 
 website_status("?isup <domain> to check on the status of a website, e.g. \c
   ?isup www.google.com   (Do not identify protocol such as http, https, etc.)").
