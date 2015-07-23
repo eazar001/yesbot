@@ -156,6 +156,8 @@ found_object(Structure, Link, Query, Quiet, Rec) :-
      true
   ;
      priv_msg("No matching object found. ", Rec),
+     % Try alternative suggestions only if search is not library or man-specific
+     \+memberchk(Quiet, [lib, man]),
      try_again(Query, Rec)
   ).
 
