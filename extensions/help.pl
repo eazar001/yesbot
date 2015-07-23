@@ -72,7 +72,7 @@ dict("?dict <search term> will attempt to look up a word in dictionary.com").
 
 emoticons("?emote <emoticon> will attempt to define wacky emoticons").
 
-search("?search <predicate/N> OR <f(function/N)> to search for some predicate \c
+search("?search predicate/N OR f(function/N) to search for some predicate \c
   or function with N arity in the swi object database/documentation (use \c
   ?search -q for quiet output OR ?search -qq for quieter). You can also search \c
   for a library using ?search library(libname) [no quietness options available \c
