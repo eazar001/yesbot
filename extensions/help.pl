@@ -76,7 +76,7 @@ search("?search <predicate/N> OR <f(function/N)> to search for some predicate \c
   or function with N arity in the swi object database/documentation (use \c
   ?search -q for quiet output OR ?search -qq for quieter). You can also search \c
   for a library using ?search library(libname) [no quietness options available \c
-  for library searches]. Limited manual searches are done with search \c
+  for library searches]. Limited manual searches are done with ?search \c
   manual(section_name)").
 
 help_msg("?help <option> where your options are keywords, search, google, \c
