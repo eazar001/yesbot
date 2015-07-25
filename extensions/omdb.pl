@@ -9,7 +9,7 @@
 :- use_module(submodules/utils).
 
 
-target("#testeazarbot", "eazarbot").
+target("#testeazarbot", "dead_weight_bot").
 
 
 omdb(Msg) :-
@@ -48,10 +48,11 @@ decode(Dict, Recipient) :-
 decode(Dict, Recipient) :-
   Send = (\Entry^send_msg(priv_msg, Entry, Recipient)),
   Dict.'Response' = "True",
-  findnsols(3, Val:Y, Y = Dict.Val, Ys),
-  writeln(Ys).
-  %send_msg(priv_msg, Dict.'Title', Recipient).
-
+  %findnsols(3, Val:Y, Y = Dict.Val, Ys),
+  %writeln(Ys),
+  send_msg(priv_msg, Dict.'Title', Recipient),
+  send_msg(priv_msg, Dict.'Year', Recipient),
+  send_msg(priv_msg, Dict.'Plot', Recipient).
 
 
   
