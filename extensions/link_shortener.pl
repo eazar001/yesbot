@@ -16,6 +16,7 @@
 :- use_module(dispatch).
 :- use_module(parser).
 :- use_module(utilities).
+:- use_module(info).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
 :- use_module(library(http/http_open)).
@@ -40,7 +41,7 @@
 
 link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
   has_link(_, L, M, _),
   atom_codes(Link, L),
@@ -58,9 +59,10 @@ link_shortener(Msg) :-
         (  T = []
         -> true
         ;  D is T2 - T1,
-	   format(string(Title), "~s   (~2fs)",
+	   format(string(Title), "Title: ~s (~2fs)",
 	     [clean_sequence $ unescape_title $ T, D]),
-	   send_msg(priv_msg, Title, Chan)
+	   normalize_space(string(T0), Title),
+	   send_msg(priv_msg, T0, Chan)
         )
      )
   ).
@@ -87,9 +89,10 @@ make_tiny(Link, Chan) :-
   visit_url(string_concat(F) $ Link, T),
   get_time(T2),
   D is T2 - T1,
-  format(string(Tiny), "~s   (~2fs)", [T, D]),
+  format(string(Tiny), "~s (~2fs)", [T, D]),
+  normalize_space(string(T0), Tiny),
   thread_join(Id, _Status),
-  send_msg(priv_msg, Tiny, Chan).
+  send_msg(priv_msg, T0, Chan).
 
   
 make_tiny_(Link, Chan) :-
@@ -99,9 +102,10 @@ make_tiny_(Link, Chan) :-
   (  T = []
   -> true
   ;  D is T2 - T1,
-     format(string(Title), "~s   (~2fs)",
+     format(string(Title), "Title: ~s (~2fs)",
        [clean_sequence $ unescape_title $ T, D]),
-     send_msg(priv_msg, Title, Chan)
+     normalize_space(string(T0), Title),  
+     send_msg(priv_msg, T0, Chan)
   ).
 
 

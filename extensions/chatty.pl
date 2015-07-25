@@ -20,6 +20,7 @@
 :- module(chatty, [chatty/1]).
 
 :- use_module(dispatch).
+:- use_module(info).
 :- use_module(parser).
 :- use_module(utilities).
 :- use_module(submodules/html).
@@ -79,10 +80,10 @@ chatty_(Msg) :-
   respond_privmsg(Prefix, Chan, Body).
 
 in_right_chan(msg(_, _, [Chan], _)) :-
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans).
 in_right_chan(msg(_, _, [Chan])) :-
-  core:connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans).
 
 %%	respond_privmsg(+Prefix:prefix, +Chan:string, +Body:string) is
@@ -162,7 +163,7 @@ do_start_conversation(Prefix, Chan) :-
 	asserta(conversation(Nick, Chan, Now)),
 	setting(chatty:chatscript_bot_name, Bot),
 	start_conversation(Nick, Bot, Reply),
-	send_msg(priv_msg, Reply, Chan).
+	priv_msg(Reply, Chan, [auto_nl(true), at_most(8)]).
 
 do_end_conversation(Prefix, Chan) :-
 	prefix_id(Prefix, Nick, _User, _Host),
@@ -180,9 +181,9 @@ talk_with_bot(Prefix, Chan, Body, EndConversation) :-
 	(   phrase(bot_ends_convo(CParthianShot), CReply)
 	->  EndConversation = true,
 	    string_codes(ParthianShot, CParthianShot),
-	    send_msg(priv_msg, ParthianShot, Chan)
+	    priv_msg(ParthianShot, Chan, [auto_nl(true), at_most(8)])
 	;   EndConversation = false,
-	    send_msg(priv_msg, Reply, Chan)
+	    priv_msg(Reply, Chan, [auto_nl(true), at_most(8)])
 	).
 
 bot_ends_convo(ParthianShot) -->

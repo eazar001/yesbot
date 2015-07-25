@@ -29,7 +29,7 @@ messages(Msg) :-
 
 
 messages_access(Msg) :-
-  with_mutex(db,
+  with_mutex(messages_db,
     (  db_attach('extensions/messages.db', []),
        ignore(messages_(Msg))
     )
@@ -83,6 +83,7 @@ messages_(Msg) :-
   string_codes(Request, R0),
   term_string(message(N0,T), Request),
   normalize_space(atom(N), N0),
+  N \= yesbot,
   assert_message(S,N,T),
   send_msg(priv_msg, "Done.", Recipient),
   db_sync(gc).
