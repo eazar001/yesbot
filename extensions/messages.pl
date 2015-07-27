@@ -9,6 +9,7 @@
 :- persistent
      message(sender:atom, nick:atom, text:string).
 
+:- dynamic session/1.
 
 target("##prolog", "yesbot").
 
@@ -61,19 +62,22 @@ messages_(Msg) :-
   (
       message(S,N,T),
       atom_string(T, Text),
-      maplist(normalize_atom_string, [N,S], [Nick, Sender])
+      maplist(\Atom^Normalized^(atom_string(Atom, String),
+        normalize_space(string(Normalized), String)), [N,S], [Nick, Sender])
   *->
       format(string(From), "~s says:", [Sender]),
-      send_msg(priv_msg, From, Recipient),
-      send_msg(priv_msg, Text, Recipient),
-      send_msg(priv_msg, "You can type ?play again to play more messages \c
+      priv_msg(From, Recipient),
+      priv_msg(Text, Recipient),
+      priv_msg("You can type ?play again to play more messages \c
         in your queue", Recipient),
       retract_message(S,N,T), !
   ;
-      send_msg(priv_msg, "You have no messages!", Recipient)
+      priv_msg("You have no messages!", Recipient)
   ).
 
 % See if a user is trying to record a message for another user.
+% This is for recording quick messages with the format:
+% ?record message('recipient', "message")
 messages_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Rest),
   prefix_id(Prefix, Sender, _, _),
@@ -85,14 +89,32 @@ messages_(Msg) :-
   normalize_space(atom(N), N0),
   N \= yesbot,
   assert_message(S,N,T),
-  send_msg(priv_msg, "Done.", Recipient),
+  priv_msg("Done.", Recipient),
   db_sync(gc).
 
+% See if a user is trying to record a message for another user.
+% This is for recording continuous messages:
+% ex:
+% >first line
+% >second line
+% done (say anything without the input char to stop recording)
+messages_(Msg) :-
+  Msg = msg(Prefix, "PRIVMSG", _, Request),
+  prefix_id(Prefix, Sender, _, _),
+  (  Request = `?record`,
+     determine_recipient(messages, Msg, Recipient),
+     atom_string(S, Sender),
+     new_session(S), !
+  ;
+     Msg = msg(Prefix, "PRIVMSG", _, [62|Text])
+  ).
+     
 
-%% normalize_atom_string(+Atom:atom, -Normalized:string) is det.
 
-normalize_atom_string(Atom, Normalized) :-
-  atom_string(Atom, String),
-  normalize_space(string(Normalized), String).
-
+%% new_session(+Sender:atom) is semidet.
+%
+% Open a new session with the sender if one doesn't already exist.
+new_session(Sender) :-
+  \+session(Sender),
+  asserta(session(Sender)).
 
