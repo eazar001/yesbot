@@ -3,6 +3,8 @@
 
 :- use_module(dispatch).
 :- use_module(parser).
+:- use_module(library(lambda)).
+:- use_module(library(dcg/basics)).
 :- use_module(library(persistency)).
 :- use_module(submodules/utils).
 
@@ -10,6 +12,7 @@
      message(sender:atom, nick:atom, text:string).
 
 :- dynamic session/1.
+:- dynamic session/2.
 
 target("##prolog", "yesbot").
 
@@ -83,11 +86,12 @@ messages_(Msg) :-
   prefix_id(Prefix, Sender, _, _),
   determine_recipient(messages, Msg, Recipient),
   atom_string(S, Sender),
+  \+session(S), !, % No simple recordings accepted in the middle of session
   append(`?record `, R0, Rest),
   string_codes(Request, R0),
   term_string(message(N0,T), Request),
   normalize_space(atom(N), N0),
-  N \= yesbot,
+  N \= yesbot,  % No messages will be accepted for yesbot
   assert_message(S,N,T),
   priv_msg("Done.", Recipient),
   db_sync(gc).
@@ -101,12 +105,29 @@ messages_(Msg) :-
 messages_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Request),
   prefix_id(Prefix, Sender, _, _),
-  (  Request = `?record`,
-     determine_recipient(messages, Msg, Recipient),
-     atom_string(S, Sender),
-     new_session(S), !
+  atom_string(S, Sender),
+  determine_recipient(messages, Msg, Recipient),
+  nonblanks(`?record`, Request, Rest),
+  phrase(blanks, Rest),
+  (  new_session(S), !  % open new session if new sender
   ;
-     Msg = msg(Prefix, "PRIVMSG", _, [62|Text])
+     % Open session
+     Request = [62|Line], % first char is '>' (recoding a line)
+     with_output_to(codes(Codes, Diff), write(Line)),
+     (  session(S, In-Rest)
+     ->	Rest = Codes,
+	retractall(session(S, _)),
+	asserta(session(S, In-Diff))
+     ;
+	asserta(session(S, Codes-Diff))
+     ), !
+  ;
+     % Closing an open session and completing recording
+     session(S, In-_),
+     retractall(session(S, _)),
+     asserta(session(S, In-[])),
+     priv_msg("Who is this message for? \c
+       (enclose the nick in single quotes)", Recipient)
   ).
      
 
@@ -117,4 +138,5 @@ messages_(Msg) :-
 new_session(Sender) :-
   \+session(Sender),
   asserta(session(Sender)).
+
 
