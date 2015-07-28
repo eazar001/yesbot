@@ -1,5 +1,5 @@
 
-:- module(messages, [messages/1]).
+:- module(messages, [sync_messages/1]).
 
 :- use_module(dispatch).
 :- use_module(parser).
