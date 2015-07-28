@@ -94,10 +94,11 @@ messages("?record message('somenickname', \"your message text goes here\") to \c
   notified when rejoining the channel. Message length is limited to how much \c
   your client and the bot's client is able to send on irc. If you'd like to \c
   send longer messages simple say ?record. Yesbot will then go into recording \c
-  mode where you can record multiple lines that are prefixed with the '>'. \c
-  (For example: >this is a line being recorded in recording mode). \c
-  When you are done you can say anything that is not prefixed with the '>' char.\c
-   Now you can tell Yesbot who you intend to send the message to.").
+  mode where you can record multiple lines that are prefixed with the '>' char \c
+  (WITHOUT THE SINGLE QUOTES). (For example: >this is a line being recorded in \c
+  recording mode). When you are done you can say anything that is not prefixed
+  with the '>' char. Now you can tell Yesbot who you intend to send the message to. \c
+  (In this mode, you do not have to specify your recipients nick in single quotes)").
 
 website_status("?isup <domain> to check on the status of a website, e.g. \c
   ?isup www.google.com   (Do not identify protocol such as http, https, etc.)").
