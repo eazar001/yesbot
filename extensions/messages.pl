@@ -86,7 +86,7 @@ messages_(Msg) :-
   prefix_id(Prefix, Sender, _, _),
   determine_recipient(messages, Msg, Recipient),
   atom_string(S, Sender),
-  \+session(S), !, % No simple recordings accepted in the middle of session
+  \+session(S), % No simple recordings accepted in the middle of session
   append(`?record `, R0, Rest),
   string_codes(Request, R0),
   term_string(message(N0,T), Request),
@@ -94,7 +94,7 @@ messages_(Msg) :-
   N \= yesbot,  % No messages will be accepted for yesbot
   assert_message(S,N,T),
   priv_msg("Done.", Recipient),
-  db_sync(gc).
+  db_sync(gc), !.
 
 % See if a user is trying to record a message for another user.
 % This is for recording continuous messages:
@@ -107,29 +107,50 @@ messages_(Msg) :-
   prefix_id(Prefix, Sender, _, _),
   atom_string(S, Sender),
   determine_recipient(messages, Msg, Recipient),
-  nonblanks(`?record`, Request, Rest),
-  phrase(blanks, Rest),
-  (  new_session(S), !  % open new session if new sender
+  (  nonblanks(`?record`, Request, Rest),
+     phrase(blanks, Rest),
+     new_session(S),
+     priv_msg("Recording...", Recipient), ! % open new session if new sender
   ;
      % Open session
-     Request = [62|Line], % first char is '>' (recoding a line)
+     Request = [62|L0], % first char is '>' (recording a line)
+     format(string(L), "~s~n", [L0]),
+     string_codes(Line, L),
      with_output_to(codes(Codes, Diff), write(Line)),
-     (  session(S, In-Rest)
-     ->	Rest = Codes,
+     (
+        session(S, In-Rest)
+     ->
+        Rest = Codes,
 	retractall(session(S, _)),
 	asserta(session(S, In-Diff))
      ;
 	asserta(session(S, Codes-Diff))
-     ), !
+     ),
+     priv_msg("Line recorded.", Recipient), !
   ;
      % Closing an open session and completing recording
-     session(S, In-_),
-     retractall(session(S, _)),
-     asserta(session(S, In-[])),
-     priv_msg("Who is this message for? \c
-       (enclose the nick in single quotes)", Recipient)
-  ).
-     
+     session(S),
+     session(S, _-[]),
+     retractall(session(S)),
+     priv_msg("Who is this message for?", Recipient)
+  ), !.
+
+% After providing the nickname to yesbot, we can close the session
+% and finish recording
+messages_(Msg) :-
+  Msg = msg(Prefix, "PRIVMSG", _, Nick),
+  prefix_id(Prefix, Sender, _, _),
+  determine_recipient(messages, Msg, Recipient),
+  atom_string(S, Sender),
+  \+session(S),
+  session(S, In-[]),
+  must_be(ground, In),
+  atom_string(N0, Nick),
+  normalize_space(atom(N), N0),
+  string_codes(T, In),
+  assert_message(S,N,T),
+  retractall(session(S,_)),
+  priv_msg("Done.", Recipient).
 
 
 %% new_session(+Sender:atom) is semidet.
