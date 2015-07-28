@@ -16,12 +16,12 @@ help(Msg) :-
      normalize_space(string(Ext), Q),
      determine_recipient(help, Msg, Recipient),
      once(ext_help(Ext, Response)),
-     send_msg(priv_msg, Response, Recipient), !
+     priv_msg(Response, Recipient), !
   ;
      Rest = `?help`,
      determine_recipient(help, Msg, Recipient),
      help_msg(Response),
-     send_msg(priv_msg, Response, Recipient)
+     priv_msg(Response, Recipient)
   ).
 
 
@@ -92,7 +92,12 @@ messages("?record message('somenickname', \"your message text goes here\") to \c
   send a message to a user with 'somenickname' (must have single quotes) with \c
   your desired message text (must have double quotes). The recipient will be \c
   notified when rejoining the channel. Message length is limited to how much \c
-  your client and the bot's client is able to send on irc.").
+  your client and the bot's client is able to send on irc. If you'd like to \c
+  send longer messages simple say ?record. Yesbot will then go into recording \c
+  mode where you can record multiple lines that are prefixed with the '>'. \c
+  (For example: >this is a line being recorded in recording mode). \c
+  When you are done you can say anything that is not prefixed with the '>' char.\c
+   Now you can tell Yesbot who you intend to send the message to.").
 
 website_status("?isup <domain> to check on the status of a website, e.g. \c
   ?isup www.google.com   (Do not identify protocol such as http, https, etc.)").
