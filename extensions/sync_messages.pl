@@ -28,7 +28,7 @@ target("##prolog", "yesbot").
 % and prompt that user if his nick is mapped to a recorded message. messages/0
 % format :?record message(<nick>, "<msg>")
 
-messages(Msg) :-
+sync_messages(Msg) :-
   messages_access(Msg).
 
 
