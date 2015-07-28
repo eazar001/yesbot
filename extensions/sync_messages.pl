@@ -22,22 +22,15 @@ target("##prolog", "yesbot").
 %--------------------------------------------------------------------------------%
 
 
-%% messages(+Msg) is semidet.
+%% sync_messages(+Msg) is semidet.
 %
 % This is the main extension interface. messages/0 will listen for JOIN commands
 % and prompt that user if his nick is mapped to a recorded message. messages/0
 % format :?record message(<nick>, "<msg>")
 
 sync_messages(Msg) :-
-  messages_access(Msg).
-
-
-messages_access(Msg) :-
-  with_mutex(messages_db,
-    (  db_attach('extensions/messages.db', []),
-       ignore(messages_(Msg))
-    )
-  ).
+  db_attach('extensions/messages.db', []),
+  messages_(Msg).
 
 
 % See if a joining user has any messages in the database.
@@ -59,7 +52,7 @@ messages_(Msg) :-
 messages_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _Target, Rest),
   prefix_id(Prefix, Nick, _, _),
-  determine_recipient(messages, Msg, Recipient),
+  determine_recipient(sync_messages, Msg, Recipient),
   atom_codes(R, Rest),
   normalize_space(atom('?play'), R),
   (
@@ -84,7 +77,7 @@ messages_(Msg) :-
 messages_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Rest),
   prefix_id(Prefix, Sender, _, _),
-  determine_recipient(messages, Msg, Recipient),
+  determine_recipient(sync_messages, Msg, Recipient),
   atom_string(S, Sender),
   \+session(S), % No simple recordings accepted in the middle of session
   append(`?record `, R0, Rest),
@@ -106,16 +99,15 @@ messages_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Request),
   prefix_id(Prefix, Sender, _, _),
   atom_string(S, Sender),
-  determine_recipient(messages, Msg, Recipient),
+  determine_recipient(sync_messages, Msg, Recipient),
   (  nonblanks(`?record`, Request, Rest),
      phrase(blanks, Rest),
      new_session(S),
      priv_msg("Recording...", Recipient), ! % open new session if new sender
   ;
      % Open session
-     Request = [62|L0], % first char is '>' (recording a line)
-     format(string(L), "~s~n", [L0]),
-     string_codes(Line, L),
+     Request = [62|L], % first char is '>' (recording a line)
+     format(string(Line), "~s~n", [L]),
      with_output_to(codes(Codes, Diff), write(Line)),
      (
         session(S, In-Rest)
@@ -140,7 +132,7 @@ messages_(Msg) :-
 messages_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Nick),
   prefix_id(Prefix, Sender, _, _),
-  determine_recipient(messages, Msg, Recipient),
+  determine_recipient(sync_messages, Msg, Recipient),
   atom_string(S, Sender),
   \+session(S),
   session(S, In-[]),
