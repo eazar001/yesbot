@@ -31,9 +31,15 @@ help(Msg) :-
 
 
 ext_help(Query, Msg) :-
-  atom_string(Name, Query),
-  Help =.. [Name, Msg],
-  call(Help).
+  (
+     Query \== ""
+  ->
+     atom_string(Name, Query),
+     Help =.. [Name, Msg],
+     call(Help)
+  ;
+     help_msg(Msg)
+  ).
 
 
 google("?google <search term> will perform an ""I'm feeling lucky search""").
