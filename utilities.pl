@@ -159,7 +159,8 @@ insert_nl_at([], [], _, _).
 insert_nl_at([X|Xs], [X|Ys], N, N0) :-
   (
      X = 10
-  -> insert_nl_at(Xs, Ys, N, N)
+  ->
+     insert_nl_at(Xs, Ys, N, N), !
   ;
      N0 > 1, !,
      N1 is N0-1,

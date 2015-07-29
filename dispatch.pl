@@ -33,86 +33,27 @@ return_server(Server) :-
   ).
 
 
+%% cmd_params(+Type, -N) is semidet.
+%
+% True if N is the number of paramteres in Type's template.
+cmd_params(Type, N) :-
+  cmd(Type, Template),
+  split_string(Template, "~", "\r~n", [_|Params]),
+  length(Params, N).
+
+
 :- discontiguous dispatch:send_msg/3.
-
-%% send_msg(+Type:atom, +Param:string) is semidet.
-%
-% Send message of Type with attention to some parameter Param.
-send_msg(Type, Param) :-
-  cmd(Type, Msg),
-  (
-     Type = ping
-  ;
-     Type = pong,
-     dbg(pong, Debug),
-     format(Debug, [Param])
-  ;
-     Type = names
-  ;
-     Type = admin
-  ;
-     Type = away
-  ;
-     Type = lusers
-  ;
-     Type = who
-  ;
-     Type = time
-  ;
-     Type = whois
-  ;
-     Type = whowas
-  ;
-     Type = list
-  ;
-     Type = part
-  ;
-     Type = userhost
-  ;
-     Type = userip
-  ), !,
-  get_irc_stream(Stream),
-  format(Stream, Msg, [Param]),
-  flush_output(Stream),
-  thread_send_message(tq, true).
-
-
-%% send_msg(+Type:atom, +Str:text, +Target:string) is semidet.
-%
-% Send a Str of Type to a specified Target.
-send_msg(Type, Str, Target) :-
-  cmd(Type, Msg),
-  (  Type = priv_msg
-  ;  Type = notice
-  ;  Type = topic
-  ;  Type = mode
-  ;  Type = oper
-  ), !,
-  get_irc_stream(Stream),
-  format(Stream, Msg, [Target, Str]),
-  flush_output(Stream),
-  thread_send_message(tq, true).
-
-%% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
-%
-% Send a message of Type to Target in Chan.
-send_msg(Type, Chan, Target) :-
-  cmd(Type, Msg),
-  get_irc_stream(Stream),
-  (
-     Type = kick,
-     format(Stream, Msg, [Chan, Target])
-  ;
-     Type = invite,
-     format(Stream, Msg, [Target, Chan])
-  ), !,
-  flush_output(Stream),
-  thread_send_message(tq, true).
-
 
 %% send_msg(+Type:atom) is semidet.
 %
 % Send a message of Type.
+send_msg(Type) :-
+  cmd(Type, Msg),
+  get_irc_stream(Stream),
+  cmd_params(Type, 0),
+  write(Stream, Msg),
+  flush_output(Stream),
+  thread_send_message(tq, true).
 
 % This clause will deal with deal with message types that are possibly
 % timer-independent
@@ -139,38 +80,52 @@ send_msg(Type) :-
   ;  true
   ).
 
-send_msg(Type) :-
+
+%% send_msg(+Type:atom, +Param:string) is semidet.
+%
+% Send message of Type with attention to some parameter Param.
+send_msg(Type, Param) :-
+  cmd(Type, Msg),
+  cmd_params(Type, 1),
+  (
+     Type = pong
+  ->
+     dbg(pong, Debug),
+     format(Debug, [Param])
+  ;
+     true
+  ), !,
+  get_irc_stream(Stream),
+  format(Stream, Msg, [Param]),
+  flush_output(Stream),
+  thread_send_message(tq, true).
+
+
+%% send_msg(+Type:atom, +Str:text, +Target:string) is semidet.
+%
+% Send a Str of Type to a specified Target.
+send_msg(Type, Str, Target) :-
+  cmd(Type, Msg),
+  cmd_params(Type, 2),
+  \+member(Type, [kick, invite]), !,
+  get_irc_stream(Stream),
+  format(Stream, Msg, [Target, Str]),
+  flush_output(Stream),
+  thread_send_message(tq, true).
+
+%% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
+%
+% Send a message of Type to Target in Chan.
+send_msg(Type, Chan, Target) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
-  connection(_Nick, _Pass, _Chans, _HostName, _ServerName, _RealName),
   (
-     Type = quit
+     Type = kick,
+     format(Stream, Msg, [Chan, Target])
   ;
-     Type = die
-  ;
-     Type = version
-  ;
-     Type = help
-  ;
-     Type = info
-  ;
-     Type = links
-  ;
-     Type = rehash
-  ;
-     Type = restart
-  ;
-     Type = rules
-  ;
-     Type = servlist
-  ;
-     Type = stats
-  ;
-     Type = users
-  ;
-     Type = who_ops
-  ),
-  write(Stream, Msg),
+     Type = invite,
+     format(Stream, Msg, [Target, Chan])
+  ), !,
   flush_output(Stream),
   thread_send_message(tq, true).
 
