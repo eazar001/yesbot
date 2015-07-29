@@ -96,9 +96,9 @@ messages("?record message('somenickname', \"your message text goes here\") to \c
   send longer messages simple say ?record. Yesbot will then go into recording \c
   mode where you can record multiple lines that are prefixed with the '>' char \c
   (WITHOUT THE SINGLE QUOTES). (For example: >this is a line being recorded in \c
-  recording mode). When you are done you can say anything that is not prefixed
+  recording mode). When you are done you can say anything that is not prefixed \c
   with the '>' char. Now you can tell Yesbot who you intend to send the message to. \c
-  (In this mode, you do not have to specify your recipients nick in single quotes)").
+  (In this mode, you should NOT specify your recipient's nickname in single quotes)").
 
 website_status("?isup <domain> to check on the status of a website, e.g. \c
   ?isup www.google.com   (Do not identify protocol such as http, https, etc.)").

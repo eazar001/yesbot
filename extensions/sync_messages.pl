@@ -17,11 +17,6 @@
 target("##prolog", "yesbot").
 
 
-%--------------------------------------------------------------------------------%
-% Main Interface
-%--------------------------------------------------------------------------------%
-
-
 %% sync_messages(+Msg) is semidet.
 %
 % This is the main extension interface. messages/0 will listen for JOIN commands

@@ -157,9 +157,14 @@ insert_nl_at(Num, Codes, Formatted) :-
 
 insert_nl_at([], [], _, _).
 insert_nl_at([X|Xs], [X|Ys], N, N0) :-
-  N0 > 1, !,
-  N1 is N0-1,
-  insert_nl_at(Xs, Ys, N, N1).
+  (
+     X = 10
+  -> insert_nl_at(Xs, Ys, N, N)
+  ;
+     N0 > 1, !,
+     N1 is N0-1,
+     insert_nl_at(Xs, Ys, N, N1)
+  ).
 
 insert_nl_at([X|Xs], [X,10|Ys], N, 1) :-
   insert_nl_at(Xs, Ys, N, N).
