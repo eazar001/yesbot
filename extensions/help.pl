@@ -31,37 +31,9 @@ help(Msg) :-
 
 
 ext_help(Query, Msg) :-
-  (
-     Query = "google",
-     google(Msg)
-  ;
-     Query = "",
-     help_msg(Msg)
-  ;
-     Query = "wiki",
-     wiki(Msg)
-  ;
-     Query = "dict",
-     dict(Msg)
-  ;
-     Query = "emoticons",
-     emoticons(Msg)
-  ;
-     Query = "search",
-     search(Msg)
-  ;
-     Query = "yesbot",
-     yesbot(Msg)
-  ;
-     Query = "keywords",
-     keywords(Msg)
-  ;
-     Query = "messages",
-     messages(Msg)
-  ;
-     Query = "website-status",
-     website_status(Msg)
-  ).
+  atom_string(Name, Query),
+  Help =.. [Name, Msg],
+  call(Help).
 
 
 google("?google <search term> will perform an ""I'm feeling lucky search""").
