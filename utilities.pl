@@ -6,6 +6,7 @@
      [ run_det/1
       ,run_det/2
       ,run_det_sync/3
+      ,init_smq/1
       ,init_timer/1
       ,is_sync/1
       ,priv_msg/2
@@ -68,7 +69,7 @@ is_sync_ --> `sync_`.
 
 
 %--------------------------------------------------------------------------------%
-% Connectivity/Timing
+% Connectivity/Timing/Handling
 %--------------------------------------------------------------------------------%
 
 
@@ -97,6 +98,42 @@ check_pings(Id) :-
     ;  thread_signal(ct, throw(abort))
     ),
     fail.
+
+
+%% init_smq(-Id:integer) is semidet.
+%
+% Initialize a message queue with one worker thread that handle synchronized
+% processing of all extensions prefixed with 'sync_'.
+
+init_smq(Id) :-
+  message_queue_create(Id, [alias(smq)]),
+  thread_create(sync_message_handler(Id), _, [alias(sync_worker)]).
+
+
+%% sync_message_handler(+Id:integer) is failure.
+%
+% IRC server messages are sent here to be processed by sync extensions. Any
+% errors will be printed to the terminal.
+
+sync_message_handler(Id) :-
+  repeat,
+    thread_get_message(Id, Msg),
+    (  catch(process_msg_sync(Msg), E, print_message(error, E))
+    -> true
+    ;  print_message(error, goal_failed(process_msg_sync(Msg), worker(Id)))
+    ),
+    fail.
+
+
+%% process_msg_sync(+Msg:compound) is nondet.
+%
+% This is a blocking (synchronous) version of process_msg/1.
+process_msg_sync(Msg) :-
+  sync_extensions(Sync, N),
+  (  N > 0
+  -> concurrent(N, maplist(run_det_sync(Msg)) $ Sync, [])
+  ;  true
+  ).
 
 
 %--------------------------------------------------------------------------------%
