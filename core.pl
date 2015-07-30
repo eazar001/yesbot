@@ -210,8 +210,7 @@ process_msg_sync(Msg) :-
 %
 % Disconnect from the server, run cleanup routine, and attempt to reconnect.
 reconnect :-
-  disconnect,
-  connect.
+  thread_signal(ct, throw(abort)).
 
 
 %% disconnect is semidet.
