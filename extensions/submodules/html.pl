@@ -131,7 +131,9 @@ clean_sequence(Sequence, Cleaned) :-
   exclude(invalid_utf8, Sequence, Cleaned).
 
 invalid_utf8(Char) :-
-  between(0, 31, Char).
+  (  between(0, 9, Char), !
+  ;  between(11, 31, Char)
+  ), !.
 
 invalid_utf8(Char) :-
   Char > 0xffff.
