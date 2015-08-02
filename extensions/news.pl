@@ -216,7 +216,7 @@ print_swi_commit(Array, Day) :-
   assert_commit(Msg),
   target(Chan, _),
   format(string(MsgLine),"swipl-devel commit: ~s~n", [Msg]),
-  format(string(Url),"swipl-devel commit: ~s", [Dict.html_url]),
+  format(string(Url),"~s", [Dict.html_url]),
   priv_msg(MsgLine, Chan, [at_most(7)]),
   sleep(1),
   priv_msg(Url, Chan, [at_most(7)]),
