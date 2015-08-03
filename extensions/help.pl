@@ -61,7 +61,7 @@ help_msg("?help <option> where your options are keywords, search, google, \c
   wiki, dict, emoticons, yesbot, messages, website-status").
 
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c
-  pursue all this at: https://github.com/eazar001/yesbot/tree/prolog-irc").
+  pursue all this at: https://github.com/eazar001/yesbot").
 
 keywords("?<keyword> where currently available keywords are: faq, modules, \c
   tutorials, dcg, webapps, clpfd, swipl-devel, lpn, amzi, yesbot").
