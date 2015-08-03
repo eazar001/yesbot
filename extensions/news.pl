@@ -37,8 +37,8 @@
 :- persistent
      issue(state:string, number:integer).
 
-% TBD: Add SWI-pulls.
-% TBD: Seperate this into two modules.
+
+% TBD: Use the foundation of this module to prime the state infrastructure
 
 
 target("##prolog", "yesbot").
@@ -220,6 +220,8 @@ print_swi_commit(Array, Day) :-
   priv_msg(MsgLine, Chan, [at_most(7)]),
   sleep(1),
   priv_msg(Url, Chan, [at_most(7)]),
+  sleep(1),
+  priv_msg("***", Chan),
   sleep(5),
   fail.
 
@@ -274,12 +276,14 @@ handle_stored_issue(State, N, Title, Args) :-
      (  State \= Stored
      ->
 	% If the issue has been mentioned in channel, but the state has changed
-	% retract the issue, and assert is with the new state, while also
+	% retract the issue, and assert it with the new state, while also
 	% the issue again.
 	retract_issue(Stored, N),
 	assert_issue(State, N),
 	format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
 	priv_msg(Report, Chan, [at_most(7)]),
+	sleep(1),
+	priv_msg("***", Chan),
 	sleep(5)
      ;
 	% Do nothing if the issue has been mentioned and the state is identical
@@ -293,6 +297,8 @@ handle_stored_issue(State, N, Title, Args) :-
      format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
      assert_issue(State, N),
      priv_msg(Report, Chan, [at_most(7)]),
+     sleep(1),
+     priv_msg("***", Chan),
      sleep(5)
   ;
      % If the issue hasn't been mentioned and has a closed state, do nothing.
@@ -312,8 +318,8 @@ valid_post(Stream, Chan, Link) :-
     (  atom_string(H, Heading),
        \+heading(Heading),
        assert_heading(Heading),
-       format(string(Report), "News Update: ~s", [Heading]),
-       send_msg(priv_msg, Report, Chan),
+       format(string(Report), "News Update: ~s~n***", [Heading]),
+       priv_msg(Report, Chan),
        sleep(5)
     )
   ),
@@ -383,7 +389,8 @@ get_latest_version(Type) :-
      (  Type = stable
      -> send_msg(priv_msg, "http://www.swi-prolog.org/download/stable", Chan)
      ;  send_msg(priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
-     )
+     ),
+     priv_msg("***", Chan)
   ;
      true
   ).
