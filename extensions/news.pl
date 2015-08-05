@@ -20,6 +20,7 @@
 :- use_module(library(solution_sequences)).
 :- use_module(library(persistency)).
 
+:- dynamic current_date/1.
 :- dynamic current_day/1.
 
 :- persistent
@@ -103,9 +104,9 @@ news_check(T1, Limit) :-
   Delta is T2 - T1,
   (
      Delta >= Limit,
-     current_day(Day)
+     current_date(Date)
   ->
-     ignore(news_feed(Day)),
+     ignore(news_feed(Date)),
      get_time(T0),
      news_check(T0, Limit)
   ;
@@ -116,13 +117,13 @@ news_check(T1, Limit) :-
 %% news_feed is semidet.
 %
 % Attempt to scan swi-prolog.org news archive for updates and display to channel.
-news_feed(Day) :-
+news_feed(Date) :-
   target(Chan, _),
   news_link(Link),
   ignore(fetch_news(Link, Chan)),
   ignore(fetch_version),
   ignore(fetch_king_james),
-  ignore(fetch_swi_commit(Day)),
+  ignore(fetch_swi_commit(Date)),
   ignore(fetch_swi_issue).
 
 
@@ -188,29 +189,28 @@ fetch_kjv_quote(Content) :-
   ).
 
 
-%% fetch_swi_commit(+Day) is semidet.
+%% fetch_swi_commit(+Date) is semidet.
 %
 % Access swi commits on github using the JSON API. Then print commits.
-fetch_swi_commit(Day) :-
+fetch_swi_commit(Date) :-
   swi_commit_link(Link),
   setup_call_cleanup(
     http_open(Link, Stream, []),
     json_read_dict(Stream, Array),
     close(Stream)
   ),
-  print_swi_commit(Array, Day).
+  print_swi_commit(Array, Date).
 
 
-%% print_swi_commit(+Array, +Day) is failure.
+%% print_swi_commit(+Array, +Date) is failure.
 %
 % Print commits only for this day. Only prints commits that haven't been printed.
-print_swi_commit(Array, Day) :-
+print_swi_commit(Array, Date) :-
   member(Dict, Array),
   is_dict(Dict),
   parse_time(Dict.commit.committer.date, Stamp),
   stamp_date_time(Stamp, DateTime, local),
-  date_time_value(day, DateTime, Current),
-  Day = Current,
+  date_time_value(date, DateTime, Date),
   Msg = Dict.commit.message,
   \+commit(Msg),
   assert_commit(Msg),
@@ -359,9 +359,12 @@ compare_days :-
   get_time(Time),
   stamp_date_time(Time, DateTime, local),
   date_time_value(day, DateTime, Day),
+  date_time_value(date, DateTime, Date),
   (  Current = Day
   -> true
   ;  retractall(current_day(_)),
+     retractall(current_date(_)),
+     asserta(current_date(Date)),
      asserta(current_day(Day)),
      db_sync(gc),
      retractall_heading(_),
