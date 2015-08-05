@@ -14,7 +14,7 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "eazarbot").%target("##prolog", "yesbot").
 
 
 %% sync_messages(+Msg) is semidet.
@@ -95,12 +95,14 @@ messages_(Msg) :-
   prefix_id(Prefix, Sender, _, _),
   atom_string(S, Sender),
   determine_recipient(sync_messages, Msg, Recipient),
-  (  nonblanks(`?record`, Request, Rest),
+  (
+     nonblanks(`?record`, Request, Rest),
      phrase(blanks, Rest),
      new_session(S),
      priv_msg("Recording...", Recipient), ! % open new session if new sender
   ;
      % Open session
+     session(S),
      Request = [62|L], % first char is '>' (recording a line)
      format(string(Line), "~s~n", [L]),
      with_output_to(codes(Codes, Diff), write(Line)),
