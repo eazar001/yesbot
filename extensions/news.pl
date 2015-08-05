@@ -84,6 +84,7 @@ news_loop :-
   get_time(T1),
   stamp_date_time(T1, DateTime, local),
   date_time_value(day, DateTime, Day),
+  date_time_value(date, DateTime, Date),
   (
      current_day(_)
   ->
@@ -91,6 +92,13 @@ news_loop :-
      asserta(current_day(Day))
   ;
      asserta(current_day(Day))
+  ),
+  (  current_date(_)
+  ->
+     retractall(current_date(_)),
+     asserta(current_date(Date))
+  ;
+     asserta(current_date(Date))
   ),
   ignore(news_feed(Day)),
   news_check(T1, Limit).
@@ -114,7 +122,7 @@ news_check(T1, Limit) :-
   ).
 
 
-%% news_feed is semidet.
+%% news_feed(+Date) is det.
 %
 % Attempt to scan swi-prolog.org news archive for updates and display to channel.
 news_feed(Date) :-
@@ -249,8 +257,6 @@ print_swi_issue(Array) :-
   catch(P = Dict.pull_request, _E, P = null),
   handle_swi_issue(P, Dict).
 
-
-% TBD: Remember to display the links of each of these issues for people in-channel
 
 handle_swi_issue(null, Dict) :-
   Args = [Dict.html_url, Dict.title, Dict.body],
