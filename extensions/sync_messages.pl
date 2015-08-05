@@ -14,7 +14,7 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("#testeazarbot", "eazarbot").%target("##prolog", "yesbot").
+target("##prolog", "yesbot").
 
 
 %% sync_messages(+Msg) is semidet.
