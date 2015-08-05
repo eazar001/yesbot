@@ -100,7 +100,7 @@ news_loop :-
   ;
      asserta(current_date(Date))
   ),
-  ignore(news_feed(Day)),
+  ignore(news_feed(Date)),
   news_check(T1, Limit).
 
 
