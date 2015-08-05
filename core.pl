@@ -101,8 +101,7 @@ read_server_loop(Reply) :-
   init_smq(_SMQ),
   asserta(known(tq)),
   repeat,
-    read_server(Reply, Stream),
-    Reply = end_of_file, !.
+    read_server(Reply, Stream), !.
 
 
 %% read_server(-Reply, +Stream:codes) is nondet.
@@ -115,7 +114,8 @@ read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
   (  Reply = end_of_file
   -> true
-  ;  read_server_handle(Reply)
+  ;  read_server_handle(Reply),
+     fail
   ).
 
 
