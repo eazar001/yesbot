@@ -69,6 +69,10 @@ search(Nick, Rec, Stream) :-
     (  json_read_dict(Stream, Dict, []),
        format(string(Paragraph), "~s", [Dict.query.pages._.extract]),
        priv_msg_rest(Paragraph, Rec, Rest, [auto_nl(true), at_most(1)]),
+       (  Rest \= []
+       -> priv_msg("You can type ?more for the next line.", Rec)
+       ;  priv_msg("End of output.", Rec)
+       ),
        update_session(Nick, Rest)
     ),
     _Error,
@@ -78,6 +82,10 @@ search(Nick, Rec, Stream) :-
 display(Nick, Rec) :-
   session(Nick, [Line|Rest]),
   priv_msg(Line, Rec, [auto_nl(false)]),
+  (  Rest \= []
+  -> priv_msg("You can type ?more for the next line.", Rec)
+  ;  priv_msg("End of output.", Rec)
+  ),
   update_session(Nick, Rest).
 
 
