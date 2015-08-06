@@ -58,7 +58,7 @@ search("?search predicate/N OR f(function/N) to search for some predicate \c
   manual(section_name)").
 
 help_msg("?help <option> where your options are keywords, search, google, \c
-  wiki, dict, emoticons, yesbot, messages, website-status").
+  wiki, dict, emoticons, yesbot, messages, website_status").
 
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c
   pursue all this at: https://github.com/eazar001/yesbot").
