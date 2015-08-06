@@ -11,7 +11,10 @@
       ,is_sync/1
       ,priv_msg/2
       ,priv_msg/3
-      ,priv_msg_paragraph/3 ]).
+      ,priv_msg_rest/3
+      ,priv_msg_rest/4
+      ,priv_msg_paragraph/3
+      ,split_at/4 ]).
 
 :- use_module(config).
 :- use_module(info).
@@ -154,20 +157,27 @@ process_msg_sync(Msg) :-
 % messages (i.e. paragraph style handling).
 
 priv_msg(Text, Recipient) :-
-  priv_msg(Text, Recipient, [auto_nl(true)]).
+  priv_msg_rest(Text, Recipient, _, [auto_nl(true)]).
 
 
 priv_msg(Text, Recipient, Options) :-
+  priv_msg_rest(Text, Recipient, _, Options).
+
+
+priv_msg_rest(Text, Recipient, Rest) :-
+  priv_msg_rest(Text, Recipient, Rest, [auto_nl(true)]).
+
+
+priv_msg_rest(Text, Recipient, Rest, Options) :-
   Send_msg = (\Msg^send_msg(priv_msg, Msg, Recipient)),
   option(encoding(Encoding), Options, utf8),
   get_irc_write_stream(Stream),
   set_stream(Stream, encoding(Encoding)),
   priv_msg_paragraph(Text, Recipient, Paragraph),
-  (
-     option(auto_nl(true), Options, true)
+  (  option(auto_nl(true), Options, true)
   ->
      option(at_most(Limit), Options, length $ Paragraph),  % auto-nl
-     take(Paragraph, Limit, P),
+     split_at(Limit, Paragraph, P, Rest),
      maplist(Send_msg, P)
   ;
      maplist(Send_msg, Paragraph) % no auto-nl
@@ -207,4 +217,14 @@ insert_nl_at([X|Xs], [X|Ys], N, N0) :-
 insert_nl_at([X|Xs], [X,10|Ys], N, 1) :-
   insert_nl_at(Xs, Ys, N, N).
   
+
+split_at(0, Rest, [], Rest) :- !.
+split_at(N, [], [], []) :-
+  N > 0.
+
+split_at(N, [X|Xs], [X|Take], Rest) :-
+  N > 0,
+  succ(N0, N),
+  split_at(N0, Xs, Take, Rest).
+
 
