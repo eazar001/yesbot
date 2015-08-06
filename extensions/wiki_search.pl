@@ -12,7 +12,7 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("#testeazarbot", "eazarbot").
+target("##prolog", "yesbot").
 
 
 wiki_search(Msg) :-
@@ -65,10 +65,14 @@ wiki_search_(msg(Prefix, "PRIVMSG", _, _)) :-
 
 % The search after initiation of a session
 search(Nick, Rec, Stream) :-
-  json_read_dict(Stream, Dict, []),
-  format(string(Paragraph), "~s", [Dict.query.pages._.extract]),
-  priv_msg_rest(Paragraph, Rec, Rest, [auto_nl(true), at_most(1)]),
-  update_session(Nick, Rest).
+  catch(
+    (  json_read_dict(Stream, Dict, []),
+       format(string(Paragraph), "~s", [Dict.query.pages._.extract]),
+       priv_msg_rest(Paragraph, Rec, Rest, [auto_nl(true), at_most(1)]),
+       update_session(Nick, Rest)
+    ),
+    _Error,
+    priv_msg("Oooh damn. There's a little problem with your request, son.", Rec)).
 
 
 display(Nick, Rec) :-
