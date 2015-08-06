@@ -182,7 +182,7 @@ priv_msg_paragraph(Text, Recipient, Paragraph) :-
   min_msg_len(Min),
   string_length(Recipient, N0),
   N is N0 + Min,
-  Length is 512 - N,
+  Length is 508 - N,
   insert_nl_at(Length, string_codes $ Text, Formatted),
   Paragraph = exclude(\Str^(Str="", ! ; Str = "\r")) $
     split_string(Formatted, "\n") $ "".
