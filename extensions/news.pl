@@ -22,6 +22,7 @@
 
 :- dynamic current_date/1.
 :- dynamic current_day/1.
+:- dynamic line_status/1.
 
 :- persistent
      heading(headline:string).
@@ -62,6 +63,41 @@ news_trigger(Msg) :-
        ignore(news_(Msg))
     )
   ).
+
+
+%% update_line_status(+Status) is det.
+%
+% If swi-prolog line is down then retract it to signify that it is now up.
+% A message is displayed to the channel that the line is now up. If the line
+% status is already up, then assert it as down. A corresponding message is also
+% sent to the channel regarding this state.
+
+update_line_status(up) :-
+  line_status(Status),
+  (  Status = down
+  ->
+     retractall(line_status(_)),
+     asserta(line_status(up)),
+     priv_msg("www.swi-prolog.org main site has been restored!", "##prolog")
+  ;
+     Status = up
+  -> true
+  ;  asserta(line_status(up))
+  ).
+
+update_line_status(down) :-
+  line_status(Status),
+  (  Status = up
+  ->
+     retractall(line_status(_)),
+     asserta(line_status(down))
+  ;
+     Status = down
+  -> true
+  ;  asserta(line_status(down))
+  ),
+  priv_msg("www.swi-prolog.org currently appears to be down. Please \c
+    try us.swi-prolog.org until the matter is resolved.", "##prolog").
 
 
 %% news_(Msg:compound) is semidet.
@@ -130,12 +166,8 @@ news_feed(Date) :-
   news_link(Link),
   string_concat("http://www.", Link, Link1),
   string_concat("http://us.", Link, Link2),
-  catch(ignore(fetch_news(Link1, Chan)), _E,
-    ignore((priv_msg("www.swi-prolog.org currently appears to be down. Please \c
-	      try us.swi-prolog.org until the matter is resolved.", "##prolog"),
-	    fetch_news(Link2, Chan)
-	   )
-    )
+  catch(ignore((fetch_news(Link1, Chan),update_line_status(up))), _E,
+    ignore((update_line_status(down),fetch_news(Link2, Chan)))
   ),
   ignore(fetch_version),
   ignore(fetch_king_james),
