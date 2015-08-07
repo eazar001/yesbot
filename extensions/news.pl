@@ -53,7 +53,13 @@ news_time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  catch(once(thread_property(news, _)), _E, ignore(news_trigger(Msg))).
+  catch(once(thread_property(news, _)), _E,
+    ignore((priv_msg("www.swi-prolog.org currently appears to be down. Please \c
+	      try us.swi-prolog.org until the matter is resolved."),
+	    news_trigger(Msg)
+	   )
+    )
+  ).
 
 
 news_trigger(Msg) :-
