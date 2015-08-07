@@ -68,8 +68,8 @@ search(Nick, Rec, Stream) :-
   catch(
     (  json_read_dict(Stream, Dict, []),
        format(string(Paragraph), "~s", [Dict.query.pages._.extract]),
-       format(string(URL), "http://en.wikipedia.org/?curid=~a",
-         [Dict.query.pages._.pageid]),
+       format(string(URL), "~s~nhttp://en.wikipedia.org/?curid=~a",
+         [Dict.query.pages._.title, Dict.query.pages._.pageid]),
        priv_msg(URL, Rec),
        priv_msg_rest(Paragraph, Rec, Rest, [auto_nl(true), at_most(1)]),
        (  Rest \= []
