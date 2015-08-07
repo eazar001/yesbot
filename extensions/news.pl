@@ -53,13 +53,7 @@ news_time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  catch(once(thread_property(news, _)), _E,
-    ignore((priv_msg("www.swi-prolog.org currently appears to be down. Please \c
-	      try us.swi-prolog.org until the matter is resolved.", "##prolog"),
-	    news_trigger(Msg)
-	   )
-    )
-  ).
+  catch(once(thread_property(news, _)), _E, ignore(news_trigger(Msg))).
 
 
 news_trigger(Msg) :-
@@ -136,7 +130,12 @@ news_feed(Date) :-
   news_link(Link),
   string_concat("http://www.", Link, Link1),
   string_concat("http://us.", Link, Link2),
-  catch(ignore(fetch_news(Link1, Chan)), _E, ignore(fetch_news(Link2, Chan))),
+  catch(ignore(fetch_news(Link1, Chan)), _E,
+    (priv_msg("www.swi-prolog.org currently appears to be down. Please \c
+        try us.swi-prolog.org until the matter is resolved.", "##prolog"),
+     ignore(fetch_news(Link2, Chan))
+    ),
+  ),
   ignore(fetch_version),
   ignore(fetch_king_james),
   ignore(fetch_swi_commit(Date)),
