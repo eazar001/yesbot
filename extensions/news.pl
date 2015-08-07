@@ -72,6 +72,17 @@ news_trigger(Msg) :-
 % status is already up, then assert it as down. A corresponding message is also
 % sent to the channel regarding this state.
 
+update_line_status(Status) :-
+  \+line_status(_),
+  (  Status = up,
+     asserta(line_status(up))
+  ;
+     Status = down,
+     asserta(line_status(down)),
+     priv_msg("www.swi-prolog.org currently appears to be down. Please \c
+       try us.swi-prolog.org until the matter is resolved.", "##prolog")
+  ), !.
+
 update_line_status(up) :-
   line_status(Status),
   (  Status = down
@@ -84,7 +95,7 @@ update_line_status(up) :-
   -> true
   ;  asserta(line_status(up))
   ).
-
+  
 update_line_status(down) :-
   line_status(Status),
   (  Status = up
