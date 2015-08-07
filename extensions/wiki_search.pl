@@ -68,6 +68,9 @@ search(Nick, Rec, Stream) :-
   catch(
     (  json_read_dict(Stream, Dict, []),
        format(string(Paragraph), "~s", [Dict.query.pages._.extract]),
+       format(string(URL), "http://en.wikipedia.org/?curid=~a",
+         [Dict.query.pages._.pageid]),
+       priv_msg(URL, Rec),
        priv_msg_rest(Paragraph, Rec, Rest, [auto_nl(true), at_most(1)]),
        (  Rest \= []
        -> priv_msg("You can type ?more for the next line.", Rec)
@@ -76,7 +79,7 @@ search(Nick, Rec, Stream) :-
        update_session(Nick, Rest)
     ),
     _Error,
-    priv_msg("Oooh damn. There's a little problem with your request, son.", Rec)).
+    priv_msg("Oooh damn. There's a little problem with your request, Son.", Rec)).
 
 
 display(Nick, Rec) :-
