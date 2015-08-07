@@ -43,9 +43,9 @@
 
 
 target("##prolog", "yesbot").
-news_link("http://www.swi-prolog.org/news/archive").
-version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
-version_link(development, "http://www.swi-prolog.org/download/devel/src/").
+news_link("swi-prolog.org/news/archive").
+version_link(stable, "swi-prolog.org/download/stable/src/").
+version_link(development, "swi-prolog.org/download/devel/src/").
 kjv_link("http://kingjamesprogramming.tumblr.com/").
 swi_commit_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/commits").
 swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/issues?state=all").
@@ -53,7 +53,7 @@ news_time_limit(3600). % Time limit in seconds
 
 
 news(Msg) :-
-  catch(once(thread_property(news, _)), E, ignore(news_trigger(Msg))).
+  catch(once(thread_property(news, _)), _E, ignore(news_trigger(Msg))).
 
 
 news_trigger(Msg) :-
@@ -128,7 +128,9 @@ news_check(T1, Limit) :-
 news_feed(Date) :-
   target(Chan, _),
   news_link(Link),
-  ignore(fetch_news(Link, Chan)),
+  string_concat("http://www.", Link, Link1),
+  string_concat("http://us.", Link, Link2),
+  catch(ignore(fetch_news(Link1, Chan)), _E, ignore(fetch_news(Link2, Chan))),
   ignore(fetch_version),
   ignore(fetch_king_james),
   ignore(fetch_swi_commit(Date)),
@@ -386,7 +388,9 @@ compare_days :-
 get_latest_version(Type) :-
   target(Chan, _),
   version_link(Type, Link),
-  latest_version(Link, Version),
+  string_concat("http://www.", Link, Link1),
+  string_concat("http://us.", Link, Link2),
+  catch(latest_version(Link1, Version), _E, latest_version(Link2, Version)),
   format(string(Update),
     "New ~a build available for download: version ~s", [Type, Version]),
   (
