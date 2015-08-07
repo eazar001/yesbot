@@ -35,7 +35,6 @@
 
 target("##prolog", "yesbot").
 
-
 swi_object_search(Msg) :-
   ignore(swi_object_search_(Msg)).
 
@@ -115,10 +114,18 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
        "http://www.swi-prolog.org/pldoc/doc_for?object=~s", [Query])
   ),
   % Get the results from a search using the appropriate link from above
-  http_open(Link, Stream, [timeout(20), status_code(Status)]),
-  (
-     % Non-lib/man searches
-     \+member(Quiet, [lib, man]), !
+  http_open(Link, Stream1, [timeout(20), status_code(Status)]),
+  (  % Non-lib/man searches
+    (  \+member(Quiet, [lib, man])
+    -> (  Status < 500
+       -> Stream1 = Stream
+       ;  close(Stream1),
+	  string_concat("http://www.", Y, Link),
+	  string_concat("http://us.", Y, Link2),
+	  http_open(Link2, Stream2, [timeout(20), status_code(_Status)]),
+	  Stream2 = Stream
+       )
+    )
   ;
      % Lib/man searches with successful requests
      Status = 200, !
