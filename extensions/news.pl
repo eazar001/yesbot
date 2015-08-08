@@ -94,7 +94,7 @@ update_line_status(up) :-
      Status = up
   -> true
   ;  asserta(line_status(up))
-  ).
+  ), !.
   
 update_line_status(down) :-
   line_status(Status),
