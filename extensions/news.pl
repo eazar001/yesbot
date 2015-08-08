@@ -177,7 +177,7 @@ news_feed(Date) :-
   news_link(Link),
   string_concat("http://www.", Link, Link1),
   string_concat("http://us.", Link, Link2),
-  catch(ignore((fetch_news(Link1, Chan),update_line_status(up))), _E,
+  catch(ignore(fetch_news(Link1, Chan)), _E,
     ignore((update_line_status(down),fetch_news(Link2, Chan)))
   ),
   ignore(fetch_version),
@@ -369,6 +369,7 @@ handle_stored_issue(State, N, Title, Args) :-
 % determined to match the current day of the month for this year.
 
 valid_post(Stream, Chan, Link) :-
+  update_line_status(up),
   count_valid_posts(Stream, Count, Content),
   forall(
     limit(Count, xpath(Content, //h2(@class='post-title', normalize_space), H)),
