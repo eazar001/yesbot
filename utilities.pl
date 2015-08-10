@@ -218,13 +218,3 @@ insert_nl_at([X|Xs], [X,10|Ys], N, 1) :-
   insert_nl_at(Xs, Ys, N, N).
   
 
-split_at(0, Rest, [], Rest) :- !.
-split_at(N, [], [], []) :-
-  N > 0.
-
-split_at(N, [X|Xs], [X|Take], Rest) :-
-  N > 0,
-  succ(N0, N),
-  split_at(N0, Xs, Take, Rest).
-
-
