@@ -58,7 +58,7 @@ search("?search predicate/N OR f(function/N) to search for some predicate \c
   manual(section_name)").
 
 help_msg("?help <option> where your options are keywords, search, google, \c
-  wiki, dict, emoticons, yesbot, messages, website_status").
+  wiki, dict, emoticons, yesbot, messages, website_status, movies").
 
 yesbot("Do I have a bug? Want to request a feature? Want to hack me? You can \c
   pursue all this at: https://github.com/eazar001/yesbot").
@@ -80,5 +80,10 @@ messages("?record message('somenickname', \"your message text goes here\") to \c
 
 website_status("?isup <domain> to check on the status of a website, e.g. \c
   ?isup www.google.com   (Do not identify protocol such as http, https, etc.)").
+
+
+movies("?movie <MovieTitle> to search for a movie, its plot, and ratings. By default \c
+  yesbot will return the title with the newest year. You can search a paritcular year \c
+      if desired like such: ?movie casino royale [1967].").
 
 

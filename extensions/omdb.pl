@@ -87,7 +87,7 @@ decode(Dict, _, Recipient) :-
 decode(Dict, Nick, Recipient) :-
   Dict.'Response' = "True",
   format(string(R0), "~s [~s]~n", [Dict.'Title', Dict.'Year']),
-  format(string(R1), "RottenTomato Meter: ~s~nIMDB Rating: ~s",
+  format(string(R1), "Rotten Tomato Meter: ~s~nIMDB Rating: ~s",
     [Dict.tomatoMeter, Dict.imdbRating]),
   priv_msg(R0, Recipient),
   priv_msg(R1, Recipient),
