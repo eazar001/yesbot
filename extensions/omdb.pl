@@ -14,10 +14,13 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("#testeazarbot", "dead_weight_bot").
-
+target("##prolog", "yesbot").
 
 omdb(Msg) :-
+  ignore(omdb_(Msg)).
+
+
+omdb_(Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _Target, Text),
   prefix_id(Prefix, Nick, _, _),
   append(`?movie `, Q0, Text),
@@ -37,7 +40,28 @@ omdb(Msg) :-
     json_read_dict(Stream, Dict),
     close(Stream)
   ),
-  decode(Dict, Recipient).
+  decode(Dict, Nick, Recipient), !.
+
+
+% Handle ?more signal to page output
+omdb_(Msg) :-
+  Msg = msg(Prefix, "PRIVMSG", _, Codes),
+  prefix_id(Prefix, Nick, _, _),
+  determine_recipient(omdb, Msg, Rec),
+  string_codes(Text, Codes),
+  normalize_space(string("?more"), Text),
+  (  session(Nick)
+  -> display(Nick, Rec)
+  ;  true
+  ), !. % can only succeed once
+
+% Handle anything else that is not a valid request that pertains to dict
+omdb_(msg(Prefix, "PRIVMSG", _, _)) :-
+  prefix_id(Prefix, Nick, _, _),
+  (  session(Nick)
+  -> maplist(retractall, [session(Nick), session(Nick,_)])
+  ;  true
+  ).
 
 
 % TBD: refactor this
@@ -56,14 +80,39 @@ get_params(Req, [Title, ""]) :-
   uri_encoded(query_value, T, Title).
   
 
-decode(Dict, Recipient) :-
+decode(Dict, _, Recipient) :-
   Dict.'Response' = "False",
   priv_msg(Dict.'Error', Recipient).
 
-decode(Dict, Recipient) :-
+decode(Dict, Nick, Recipient) :-
   Dict.'Response' = "True",
-  priv_msg(Dict.'Title', Recipient),
-  priv_msg(Dict.'Year', Recipient),
-  priv_msg(Dict.'Plot', Recipient).
+  format(string(R0), "~s [~s]~n", [Dict.'Title', Dict.'Year']),
+  format(string(R1), "RottenTomato Meter: ~s~nIMDB Rating: ~s",
+    [Dict.tomatoMeter, Dict.imdbRating]),
+  priv_msg(R0, Recipient),
+  priv_msg(R1, Recipient),
+  sleep(1),
+  priv_msg_rest(Dict.'Plot', Recipient, Rest, [at_most(1)]),
+  Rest = [_|_],
+  priv_msg("You can type ?more for the next line.", Recipient),
+  asserta(session(Nick, Rest)).
 
-  
+
+display(Nick, Rec) :-
+  session(Nick, [Line|Rest]),
+  priv_msg(Line, Rec, [auto_nl(false)]),
+  (  Rest \= []
+  -> priv_msg("You can type ?more for the next line.", Rec)
+  ;  priv_msg("End of output.", Rec)
+  ),
+  update_session(Nick, Rest).
+
+
+update_session(Nick, []) :-
+  maplist(retractall, [session(Nick), session(Nick, _)]).
+
+update_session(Nick, Rest) :-
+  retractall(session(Nick, _)),
+  asserta(session(Nick, Rest)).
+
+
