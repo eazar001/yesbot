@@ -4,6 +4,7 @@
 
 :- module(docs, [sentence/3]).
 
+:- use_module(library(dcg/basics)).
 
 sentence(Diff) -->
   fragment(R),
@@ -20,10 +21,12 @@ sentence(Rest) -->
   newline(E),
   { append(R, E, Rest) }, !.
 
+sentence(Rest) --> ending(Rest).
+
 
 fragment(Rest) --> abbreviation(Rest).
-
 fragment(Rest) --> decimal(Rest).
+fragment(Rest) --> dot_sequence(Rest).
 
 fragment([C|Rest]) -->
   [C,A],
@@ -38,6 +41,9 @@ fragment([C|Rest]) -->
 
 fragment([C|_]) -->
   [C], { \+ending(_, [C], []) }.
+
+
+dot_sequence([40,39,46,39,41|_]) --> `('.')`.
 
 
 abbreviation([101,46,103,46|_]) --> `e.g.`.
@@ -55,7 +61,7 @@ decimal([D0,46,D1|_]) -->
      ;  fail
      )
   }.
-  
+
 
 ending([46]) --> `.`.
 ending(``) --> ``.

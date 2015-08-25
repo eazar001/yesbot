@@ -16,7 +16,9 @@
 % Convenience commands for specific message relays.
 
 % FIXME: Not all message types are implemented yet.
-% TBD: Validate these commands and link them to dispatch.pl
+% TBD: implement a cmd/3 so non-generic commands with more complex argument
+% patterns can directly inject the templates with their instantiated variables
+% into the dispatch.pl interface.
 
 %% cmd(+Type:atom, -Template:atom) is semidet.
 %

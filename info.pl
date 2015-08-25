@@ -61,7 +61,9 @@ info_cleanup :-
      ,connection(_,_,_,_,_,_)
      ,extensions(_,_)
      ,sync_extensions(_,_)
+     ,min_msg_len(_)
      ,get_irc_server(_)
+     ,get_irc_write_stream(_)
      ,known(_) ]).
 
 

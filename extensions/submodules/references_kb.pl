@@ -183,7 +183,7 @@ amzi &
 "Amzi! inc. Adventure in Prolog".
 
 yesbot &
-"https://github.com/eazar001/yesbot/tree/prolog-irc" &
+"https://github.com/eazar001/yesbot" &
 "Bug to report? Feature request? Want to hack me?".
 
 'c++' &
@@ -194,5 +194,13 @@ kages/pl2cpp.html%27" &
 fli &
 "http://www.swi-prolog.org/pldoc/man?section=foreign" &
 "Foreign Language Interface".
+
+style &
+"http://arxiv.org/pdf/0911.2899v3.pdf" &
+"Coding Guidelines for Prolog".
+
+'99' &
+"http://www.ic.unicamp.br/~meidanis/courses/mc336/2009s2/prolog/problemas/" &
+"P-99: Ninety-Nine Prolog Problems".
 
 

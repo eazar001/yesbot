@@ -6,14 +6,20 @@
      [ run_det/1
       ,run_det/2
       ,run_det_sync/3
+      ,init_smq/1
       ,init_timer/1
       ,is_sync/1
       ,priv_msg/2
-      ,priv_msg/3 ]).
+      ,priv_msg/3
+      ,priv_msg_rest/3
+      ,priv_msg_rest/4
+      ,priv_msg_paragraph/3
+      ,split_at/4 ]).
 
 :- use_module(config).
 :- use_module(info).
 :- use_module(library(func)).
+:- use_module(library(lambda)).
 :- use_module(library(dcg/basics)).
 :- use_module(library(predicate_options)).
 :- use_module(library(list_util)).
@@ -66,7 +72,7 @@ is_sync_ --> `sync_`.
 
 
 %--------------------------------------------------------------------------------%
-% Connectivity/Timing
+% Connectivity/Timing/Handling
 %--------------------------------------------------------------------------------%
 
 
@@ -97,6 +103,42 @@ check_pings(Id) :-
     fail.
 
 
+%% init_smq(-Id:integer) is semidet.
+%
+% Initialize a message queue with one worker thread that handle synchronized
+% processing of all extensions prefixed with 'sync_'.
+
+init_smq(Id) :-
+  message_queue_create(Id, [alias(smq)]),
+  thread_create(sync_message_handler(Id), _, [alias(sync_worker)]).
+
+
+%% sync_message_handler(+Id:integer) is failure.
+%
+% IRC server messages are sent here to be processed by sync extensions. Any
+% errors will be printed to the terminal.
+
+sync_message_handler(Id) :-
+  repeat,
+    thread_get_message(Id, Msg),
+    (  catch(process_msg_sync(Msg), E, print_message(error, E))
+    -> true
+    ;  print_message(error, goal_failed(process_msg_sync(Msg), worker(Id)))
+    ),
+    fail.
+
+
+%% process_msg_sync(+Msg:compound) is nondet.
+%
+% This is a blocking (synchronous) version of process_msg/1.
+process_msg_sync(Msg) :-
+  sync_extensions(Sync, N),
+  (  N > 0
+  -> concurrent(N, maplist(run_det_sync(Msg)) $ Sync, [])
+  ;  true
+  ).
+
+
 %--------------------------------------------------------------------------------%
 % Sending Messages
 %--------------------------------------------------------------------------------%
@@ -115,20 +157,27 @@ check_pings(Id) :-
 % messages (i.e. paragraph style handling).
 
 priv_msg(Text, Recipient) :-
-  priv_msg(Text, Recipient, [auto_nl(true)]).
+  priv_msg_rest(Text, Recipient, _, [auto_nl(true)]).
 
 
 priv_msg(Text, Recipient, Options) :-
+  priv_msg_rest(Text, Recipient, _, Options).
+
+
+priv_msg_rest(Text, Recipient, Rest) :-
+  priv_msg_rest(Text, Recipient, Rest, [auto_nl(true)]).
+
+
+priv_msg_rest(Text, Recipient, Rest, Options) :-
   Send_msg = (\Msg^send_msg(priv_msg, Msg, Recipient)),
   option(encoding(Encoding), Options, utf8),
   get_irc_write_stream(Stream),
   set_stream(Stream, encoding(Encoding)),
-  priv_msg_auto_nl(Text, Recipient, Paragraph),
-  (
-     option(auto_nl(true), Options, true)
+  priv_msg_paragraph(Text, Recipient, Paragraph),
+  (  option(auto_nl(true), Options, true)
   ->
      option(at_most(Limit), Options, length $ Paragraph),  % auto-nl
-     take(Paragraph, Limit, P),
+     split_at(Limit, Paragraph, P, Rest),
      maplist(Send_msg, P)
   ;
      maplist(Send_msg, Paragraph) % no auto-nl
@@ -139,13 +188,14 @@ priv_msg(Text, Recipient, Options) :-
   ).
 
 
-priv_msg_auto_nl(Text, Recipient, Paragraph) :-
+priv_msg_paragraph(Text, Recipient, Paragraph) :-
   min_msg_len(Min),
   string_length(Recipient, N0),
   N is N0 + Min,
-  Length is 512 - N,
+  Length is 508 - N,
   insert_nl_at(Length, string_codes $ Text, Formatted),
-  split_string(Formatted, "\n", "", Paragraph).
+  Paragraph = exclude(\Str^(Str="", ! ; Str = "\r")) $
+    split_string(Formatted, "\n") $ "".
 
 
 insert_nl_at(Num, Codes, Formatted) :-
@@ -154,9 +204,15 @@ insert_nl_at(Num, Codes, Formatted) :-
 
 insert_nl_at([], [], _, _).
 insert_nl_at([X|Xs], [X|Ys], N, N0) :-
-  N0 > 1, !,
-  N1 is N0-1,
-  insert_nl_at(Xs, Ys, N, N1).
+  (
+     X = 10
+  ->
+     insert_nl_at(Xs, Ys, N, N), !
+  ;
+     N0 > 1, !,
+     N1 is N0-1,
+     insert_nl_at(Xs, Ys, N, N1)
+  ).
 
 insert_nl_at([X|Xs], [X,10|Ys], N, 1) :-
   insert_nl_at(Xs, Ys, N, N).

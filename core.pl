@@ -98,10 +98,10 @@ init_structs :-
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
   init_timer(_TQ),
+  init_smq(_SMQ),
   asserta(known(tq)),
   repeat,
-    read_server(Reply, Stream),
-    Reply = end_of_file, !.
+    read_server(Reply, Stream), !.
 
 
 %% read_server(-Reply, +Stream:codes) is nondet.
@@ -114,7 +114,8 @@ read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
   (  Reply = end_of_file
   -> true
-  ;  read_server_handle(Reply)
+  ;  read_server_handle(Reply),
+     fail
   ).
 
 
@@ -126,7 +127,7 @@ read_server(Reply, Stream) :-
 read_server_handle(Reply) :-
   parse_line(Reply, Msg),
   thread_create(run_det(core:process_server(Msg)), _Id, [detached(true)]),
-  process_msg_sync(Msg),
+  thread_send_message(smq, Msg),
   format('~s~n', [Reply]).
 
 
@@ -190,17 +191,6 @@ process_msg(Msg) :-
   ).
 
 
-%% process_msg_sync(+Msg:compound) is nondet.
-%
-% This is a blocking (synchronous) version of process_msg/1.
-process_msg_sync(Msg) :-
-  sync_extensions(Sync, N),
-  (  N > 0
-  -> concurrent(N, maplist(run_det_sync(Msg)) $ Sync, [])
-  ;  true
-  ).
-
-
 %--------------------------------------------------------------------------------%
 % Cleanup/Termination
 %--------------------------------------------------------------------------------%
@@ -224,10 +214,12 @@ disconnect :-
   send_msg(quit),
   info_cleanup,
   message_queue_destroy(tq),
+  message_queue_destroy(smq),
   thread_join(ping_checker, _),
+  thread_join(sync_worker, _),
   get_tcp_socket(Socket),
   tcp_close_socket(Socket),
-  retractall(get_socket(_)),
+  retractall(get_tcp_socket(_)),
   close(Stream).
 
 
