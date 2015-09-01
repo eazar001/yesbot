@@ -21,7 +21,7 @@ name_pair(Name, Value-Title) :-
 
 %% alias_name(?Alias:atom, ?Name:atom)
 %
-% True if Alias is a valid alias for a name.
+% True if Alias is a valid alias for a Name.
 
 web@webapps.
 'web-apps'@webapps.
@@ -29,6 +29,7 @@ modules@module.
 tutorials@tutorial.
 webapp@webapps.
 hammers@hammer.
+false@hammer.
 result@results.
 loop@loops.
 looping@loops.
