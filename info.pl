@@ -19,6 +19,7 @@
 :- dynamic get_irc_server/1.
 :- dynamic get_irc_stream/1.
 :- dynamic get_irc_write_stream/1.
+:- dynamic get_tcp_socket/1.
 :- dynamic connection/6.
 :- dynamic extensions/2.
 :- dynamic sync_extensions/2.
@@ -56,8 +57,13 @@ init_extensions :-
 %
 % Retract all obsolete facts from info module.
 info_cleanup :-
+  (  get_tcp_socket(Socket)
+  -> ignore(catch(tcp_close_socket(Socket), _E, fail))
+  ;  true
+  ),
   maplist(retractall,
     [ get_irc_stream(_)
+     ,get_tcp_socket(_)
      ,connection(_,_,_,_,_,_)
      ,extensions(_,_)
      ,sync_extensions(_,_)

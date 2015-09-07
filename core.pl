@@ -22,8 +22,6 @@
 :- use_module(library(socket)).
 :- use_module(library(func)).
 
-:- dynamic get_tcp_socket/1.
-
 
 %--------------------------------------------------------------------------------%
 % Connection Details
@@ -48,7 +46,7 @@ connect :-
        stream_pair(Stream, _Read, Write),
        asserta(info:get_irc_write_stream(Write)),
        set_stream(Write, encoding(utf8)),
-       asserta(get_tcp_socket(Socket)),
+       asserta(info:get_tcp_socket(Socket)),
        asserta(info:get_irc_stream(Stream)),
        register_and_join
     ),
@@ -201,7 +199,13 @@ process_msg(Msg) :-
 % Disconnect from the server, run cleanup routine, and attempt to reconnect.
 reconnect :-
   disconnect,
-  connect.
+  repeat,
+  writeln("Connection lost, attempting to reconnect ..."),
+    (  catch(connect, _E, fail)
+    -> !
+    ;  sleep(30),
+       fail
+    ).
 
 
 %% disconnect is semidet.
@@ -217,9 +221,6 @@ disconnect :-
   message_queue_destroy(smq),
   thread_join(ping_checker, _),
   thread_join(sync_worker, _),
-  get_tcp_socket(Socket),
-  tcp_close_socket(Socket),
-  retractall(get_tcp_socket(_)),
   close(Stream).
 
 
