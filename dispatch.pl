@@ -50,7 +50,7 @@ cmd_params(Type, N) :-
 send_msg(Type) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
-  cmd_params(Type, 0),
+  cmd_params(Type, 0), !,
   write(Stream, Msg),
   flush_output(Stream),
   thread_send_message(tq, true).
