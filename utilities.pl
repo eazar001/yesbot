@@ -8,6 +8,7 @@
       ,run_det_sync/3
       ,init_smq/1
       ,init_timer/1
+      ,restart/0
       ,is_sync/1
       ,priv_msg/2
       ,priv_msg/3
@@ -137,6 +138,16 @@ process_msg_sync(Msg) :-
   -> concurrent(N, maplist(run_det_sync(Msg)) $ Sync, [])
   ;  true
   ).
+
+
+%% restart is semidet.
+%
+% Signals the main connection thread with an exception that will trigger the
+% the main connection predicate to disconnect, cleanup, and reconnect to the
+% server.
+
+restart :-
+  thread_signal(ct, throw(abort)).
 
 
 %--------------------------------------------------------------------------------%

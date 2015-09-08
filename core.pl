@@ -200,7 +200,7 @@ process_msg(Msg) :-
 reconnect :-
   disconnect,
   repeat,
-  writeln("Connection lost, attempting to reconnect ..."),
+    writeln("Connection lost, attempting to reconnect ..."),
     (  catch(connect, _E, fail)
     -> !
     ;  sleep(30),
