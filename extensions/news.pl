@@ -80,7 +80,7 @@ update_line_status(Status) :-
      Status = down,
      asserta(line_status(down)),
      priv_msg("www.swi-prolog.org currently appears to be down. Please \c
-       try us.swi-prolog.org until the matter is resolved.", "##prolog")
+       be patient until the matter is resolved.", "##prolog")
   ), !.
 
 update_line_status(up) :-
