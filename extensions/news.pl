@@ -44,9 +44,9 @@
 
 
 target("##prolog", "yesbot").
-news_link("swi-prolog.org/news/archive").
-version_link(stable, "swi-prolog.org/download/stable/src/").
-version_link(development, "swi-prolog.org/download/devel/src/").
+news_link("http://www.swi-prolog.org/news/archive").
+version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
+version_link(development, "http://www.swi-prolog.org/download/devel/src/").
 kjv_link("http://kingjamesprogramming.tumblr.com/").
 swi_commit_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/commits").
 swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/issues?state=all").
@@ -89,7 +89,7 @@ update_line_status(up) :-
   ->
      retractall(line_status(_)),
      asserta(line_status(up)),
-     priv_msg("www.swi-prolog.org main site has been restored!", "##prolog")
+     priv_msg("www.swi-prolog.org has been restored!", "##prolog")
   ;
      Status = up
   -> true
@@ -108,7 +108,7 @@ update_line_status(down) :-
   ;  asserta(line_status(down))
   ),
   priv_msg("www.swi-prolog.org currently appears to be down. Please \c
-    try us.swi-prolog.org until the matter is resolved.", "##prolog").
+    be patient until the matter is resolved.", "##prolog").
 
 
 %% news_(Msg:compound) is semidet.
@@ -175,11 +175,7 @@ news_check(T1, Limit) :-
 news_feed(Date) :-
   target(Chan, _),
   news_link(Link),
-  string_concat("http://www.", Link, Link1),
-  string_concat("http://us.", Link, Link2),
-  catch(ignore(fetch_news(Link1, Chan)), _E,
-    ignore((update_line_status(down),fetch_news(Link2, Chan)))
-  ),
+  catch(ignore(fetch_news(Link, Chan)), _E, ignore(update_line_status(down))),
   ignore(fetch_version),
   ignore(fetch_king_james),
   ignore(fetch_swi_commit(Date)),
@@ -438,9 +434,7 @@ compare_days :-
 get_latest_version(Type) :-
   target(Chan, _),
   version_link(Type, Link),
-  string_concat("http://www.", Link, Link1),
-  string_concat("http://us.", Link, Link2),
-  catch(latest_version(Link1, Version), _E, latest_version(Link2, Version)),
+  latest_version(Link, Version),
   format(string(Update),
     "New ~a build available for download: version ~s", [Type, Version]),
   (
