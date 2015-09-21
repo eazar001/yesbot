@@ -204,4 +204,8 @@ style &
 "http://www.ic.unicamp.br/~meidanis/courses/mc336/2009s2/prolog/problemas/" &
 "P-99: Ninety-Nine Prolog Problems".
 
+swish &
+"http://swish.swi-prolog.org/" &
+"SWISH -- SWI-Prolog for SHaring".
+
 
