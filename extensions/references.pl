@@ -24,15 +24,13 @@ references(Msg) :-
 
 references_(Msg) :-
   determine_recipient(references, Msg, Rec),
-  (
-     Msg = msg(_Prefix, "PRIVMSG", _, [63|Codes]),
+  (  Msg = msg(_Prefix, "PRIVMSG", _, [63|Codes]),
      atom_codes(R0, Codes),
      normalize_space(atom(R), R0),
      name_pair(R, Value-Title),
      send_msg(priv_msg, Title, Rec),
      send_msg(priv_msg, Value, Rec), !
-  ;
-     Msg = msg(_Prefix, "PRIVMSG", [Rec], V),
+  ;  Msg = msg(_Prefix, "PRIVMSG", [Rec], V),
      has_link(_, Link, V, _),
      string_codes(Value, Link),
      name_pair(R, Value-_),

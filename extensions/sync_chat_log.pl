@@ -59,25 +59,19 @@ write_chat_line(Date, Nick, Chan, Log) :-
   Stamp = Format_time $ '%T',
   date_time_value(day, Date, Current_Day),
   working_directory(_Working, 'extensions/chat-logs'),
-  (
-     \+known(_, _, _),
+  (  \+known(_, _, _),
      asserta(known(yes, Current_Day, Filename)), !
-  ;
-     known(yes, Stored_Day, _),
-     (
-        Current_Day = Stored_Day
-     ->
-        true
-     ;
-        retractall(known(_, _, _)),
+  ;  known(yes, Stored_Day, _),
+     (  Current_Day = Stored_Day
+     -> true
+     ;  retractall(known(_, _, _)),
         asserta(known(yes, Current_Day, Filename))
      )
   ),
   known(yes, _, Filename),
   setup_call_cleanup(
     open(Filename, append, Fstream, []),
-    (
-       (  get_action(Log, Action)
+    (  (  get_action(Log, Action)
        -> format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
        ;  format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
        ),

@@ -37,29 +37,20 @@ google_search(Msg) :-
        ,header('Content-Type', Type)
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
-    (
-       content_type_opts(Type, Opts)
-    ->
-       (
-	  URL \= Link
-       ->
-	  load_html(Stream, Structure, Opts),
-	  (
-	     xpath_chk(Structure, //title(normalize_space), T0),
+    (  content_type_opts(Type, Opts)
+    -> (  URL \= Link
+       -> load_html(Stream, Structure, Opts),
+	  (  xpath_chk(Structure, //title(normalize_space), T0),
 	     string_codes(T0, T1),
 	     unescape_title(T1, T2),
 	     clean_sequence(T2, Title)
-	  ->
-	     send_msg(priv_msg, Title, Rec)
-	  ;
-	     true
+	  -> send_msg(priv_msg, Title, Rec)
+	  ;  true
 	  ),
 	  send_msg(priv_msg, URL, Rec)
-       ;
-	  send_msg(priv_msg, "Result not valid", Rec)
+       ;  send_msg(priv_msg, "Result not valid", Rec)
        )
-    ;
-       send_msg(priv_msg, URL, Rec)
+    ;  send_msg(priv_msg, URL, Rec)
     ),
     close(Stream)
   ).

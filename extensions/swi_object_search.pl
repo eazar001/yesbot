@@ -69,26 +69,21 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   determine_recipient(swi_object_search, Msg, Rec),
   atom_codes(A0, Cs),
   normalize_space(codes(Tail), A0),
-  (
-     % ?search library(...)
+  (  % ?search library(...)
      Tail = [108,105,98,114,97,114,121,40|T],
      append(Rest, `)`, T),
      Quiet = lib, !
-  ;
-     % ?search manual(...)
+  ;  % ?search manual(...)
      Tail = [109, 97, 110, 117, 97, 108, 40|T],
      append(Rest, `)`, T),
      Quiet = man, !
-  ;
-     % search -q
+  ;  % search -q
      Tail = [45,113,32|Rest],
      Quiet = q, !
-  ;
-     % search -qq
+  ;  % search -qq
      Tail = [45,113,113,32|Rest],
      Quiet = qq, !
-  ;
-     % Anything else
+  ;  % Anything else
      Tail = Rest,
      Quiet = q0
   ),
@@ -97,33 +92,25 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   atom_string(Encoded, Str),
   normalize_space(string(Query), Str),
   % Determine appropriate search link
-  (
-     Quiet = lib
-  ->
-     % Will do a library specific search with no suggestions
+  (  Quiet = lib
+  -> % Will do a library specific search with no suggestions
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/doc/swi/library/~s.pl", [Query])
-  ;
-     Quiet = man
-  ->
-     % Will do a manual specific seaerch with no suggestions
+  ;  Quiet = man
+  -> % Will do a manual specific seaerch with no suggestions
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/man?section=~s", [Query])
-  ;
-     % Will do a regular search with suggestions
+  ;  % Will do a regular search with suggestions
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/doc_for?object=~s", [Query])
   ),
   % Get the results from a search using the appropriate link from above
   http_open(Link, Stream, [timeout(20), status_code(Status)]),
-  (
-     % Non-lib/man searches
+  (  % Non-lib/man searches
      \+member(Quiet, [lib, man]), !
-  ;
-     % Lib/man searches with successful requests
+  ;  % Lib/man searches with successful requests
      Status = 200, !
-  ;
-     % Lib/man searches that fail to generate a page
+  ;  % Lib/man searches that fail to generate a page
      Status = 404,
      priv_msg("No matching object found.", Rec),
      fail
@@ -150,12 +137,9 @@ parse_structure(Link, Query, Quiet, Rec, Stream) :-
 % attempt to find any search suggestion to help direct the user.
 
 found_object(Structure, Link, Query, Quiet, Rec) :-
-  (
-     found(Link, Rec, Quiet, Structure)
-  ->
-     true
-  ;
-     priv_msg("No matching object found. ", Rec),
+  (  found(Link, Rec, Quiet, Structure)
+  -> true
+  ;  priv_msg("No matching object found. ", Rec),
      % Try alternative suggestions only if search is not library or man-specific
      \+memberchk(Quiet, [lib, man]),
      try_again(Query, Rec)
@@ -179,17 +163,14 @@ found(Link, Rec, man, Structure) :-
 
 found(Link, Rec, Qlevel, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef, normalize_space), Table),
-  (
-     Qlevel = q0,
+  (  Qlevel = q0,
      priv_msg(Table, Rec),
      write_first_sentence(Structure, Rec),
      priv_msg(Link, Rec)
-  ;
-     Qlevel = q,
+  ;  Qlevel = q,
      priv_msg(Table, Rec),
      write_first_sentence(Structure, Rec)
-  ;
-     Qlevel = qq,
+  ;  Qlevel = qq,
      priv_msg(Table, Rec)
   ).
 
@@ -212,14 +193,12 @@ try_again(Query, Rec) :-
        load_html(Stream, Structure, []),
        % Find all solutions and write them on one line to avoid flooding
        findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
-       (
-	  % We have suggestions
+       (  % We have suggestions
 	  Ss = [_|_],
 	  findnsols(10, C, try_other_candidate(Structure, [39], C), Last),
 	  maplist(list_to_set, [Ss, Last], [S1, S2]),
 	  union(S1, S2, L), !
-       ;
-	  % No initial suggestions, so let's find some
+       ;  % No initial suggestions, so let's find some
           Ss = [],
 	  findnsols(10, C, try_other_candidate(Structure, [39,58], C), Cs),
 	  (  Cs = []

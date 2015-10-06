@@ -48,12 +48,9 @@ link_shortener(Msg) :-
   length(L, N),
   (
      % shorten link if 100 or more characters in length
-     (
-        N >= 100
-     ->
-        make_tiny(Link, Chan)
-     ;
-        get_time(T1),
+     (  N >= 100
+     -> make_tiny(Link, Chan)
+     ;  get_time(T1),
         url_get_title(Link, T),
         get_time(T2) ->
         (  T = []

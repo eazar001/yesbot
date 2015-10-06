@@ -103,24 +103,16 @@ fmt_line([Main], msg(Cmd, Params)) :-
 % 4) [Main]
 
 split_from_trailer(Line, Out) :-
-  (
-     split(First, Line, Trailer)
-  ->
-     (
-        First = [58|Main]
-     ->
-        Out = [has_prefix, Main, Trailer]
-     ;
-        Main = First,
+  (  split(First, Line, Trailer)
+  -> (  First = [58|Main]
+     -> Out = [has_prefix, Main, Trailer]
+     ;  Main = First,
         Out = [Main, Trailer]
      )
   ;
-     (
-        Line = [58|Main]
-     ->
-        Out = [has_prefix, Main]
-     ;
-        Main = Line,
+     (  Line = [58|Main]
+     -> Out = [has_prefix, Main]
+     ;  Main = Line,
         Out = [Main]
      )
   ).

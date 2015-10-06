@@ -32,10 +32,8 @@ fragment([C|Rest]) -->
   [C,A],
   {
      ending(_, [C], []),
-     (
-        punctuation(Rest, [A], [])
-     ;
-        ending(Rest, [A], [])
+     (  punctuation(Rest, [A], [])
+     ;  ending(Rest, [A], [])
      )
   }.
 

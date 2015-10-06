@@ -186,12 +186,10 @@ priv_msg_rest(Text, Recipient, Rest, Options) :-
   set_stream(Stream, encoding(Encoding)),
   priv_msg_paragraph(Text, Recipient, Paragraph),
   (  option(auto_nl(true), Options, true)
-  ->
-     option(at_most(Limit), Options, length $ Paragraph),  % auto-nl
+  -> option(at_most(Limit), Options, length $ Paragraph),  % auto-nl
      split_at(Limit, Paragraph, P, Rest),
      maplist(Send_msg, P)
-  ;
-     maplist(Send_msg, Paragraph) % no auto-nl
+  ;  maplist(Send_msg, Paragraph) % no auto-nl
   ),
   (  stream_property(Stream, encoding(utf8))
   -> true
@@ -215,12 +213,9 @@ insert_nl_at(Num, Codes, Formatted) :-
 
 insert_nl_at([], [], _, _).
 insert_nl_at([X|Xs], [X|Ys], N, N0) :-
-  (
-     X = 10
-  ->
-     insert_nl_at(Xs, Ys, N, N), !
-  ;
-     N0 > 1, !,
+  (  X = 10
+  -> insert_nl_at(Xs, Ys, N, N), !
+  ;  N0 > 1, !,
      N1 is N0-1,
      insert_nl_at(Xs, Ys, N, N1)
   ).

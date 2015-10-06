@@ -61,17 +61,13 @@ send_msg(Type) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
   connection(Nick, Pass, Chans, HostName, ServerName, RealName),
-  (
-     Type = pass,
+  (  Type = pass,
      format(Stream, Msg, [Pass])
-  ;
-     Type = user,
+  ;  Type = user,
      format(Stream, Msg, [Nick, HostName, ServerName, RealName])
-  ;
-     Type = nick,
+  ;  Type = nick,
      format(Stream, Msg, [Nick])
-  ;
-     Type = join,
+  ;  Type = join,
      maplist(format(Stream, Msg), Chans)
   ), !,
   flush_output(Stream),
@@ -87,13 +83,10 @@ send_msg(Type) :-
 send_msg(Type, Param) :-
   cmd(Type, Msg),
   cmd_params(Type, 1),
-  (
-     Type = pong
-  ->
-     dbg(pong, Debug),
+  (  Type = pong
+  -> dbg(pong, Debug),
      format(Debug, [Param])
-  ;
-     true
+  ;  true
   ), !,
   get_irc_stream(Stream),
   format(Stream, Msg, [Param]),
@@ -119,11 +112,9 @@ send_msg(Type, Str, Target) :-
 send_msg(Type, Chan, Target) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
-  (
-     Type = kick,
+  (  Type = kick,
      format(Stream, Msg, [Chan, Target])
-  ;
-     Type = invite,
+  ;  Type = invite,
      format(Stream, Msg, [Target, Chan])
   ), !,
   flush_output(Stream),

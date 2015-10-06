@@ -49,12 +49,9 @@ get_link(_, []) --> [].
 % formatted title is simply the same as the original.
 
 unescape_title(Title, T) :-
-  (
-     html_unescape(Title, T)
-  ->
-     true
-  ;
-     T = Title
+  (  html_unescape(Title, T)
+  -> true
+  ;  T = Title
   ).
 
 
@@ -108,12 +105,9 @@ escape_sequence([62|_]) --> `&gt;`.
 
 escape_sequence_num([Dec]) -->
   `&#`, escape_sequence_num(D),
-  {
-     number_codes(10, D)
-  ->
-     Dec = 32
-  ;
-     number_codes(Dec, D)
+  {  number_codes(10, D)
+  -> Dec = 32
+  ;  number_codes(Dec, D)
   }.
 
 

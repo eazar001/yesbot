@@ -48,20 +48,17 @@ messages_(Msg) :-
   determine_recipient(sync_messages, Msg, Recipient),
   atom_codes(R, Rest),
   normalize_space(atom('?play'), R),
-  (
-      message(S,N,T),
+  (   message(S,N,T),
       atom_string(T, Text),
       maplist(\Atom^Normalized^(atom_string(Atom, String),
         normalize_space(string(Normalized), String)), [N,S], [Nick, Sender])
-  *->
-      format(string(From), "~s says:", [Sender]),
+  *-> format(string(From), "~s says:", [Sender]),
       priv_msg(From, Recipient),
       priv_msg(Text, Recipient),
       priv_msg("You can type ?play again to play more messages \c
         in your queue", Recipient),
       retract_message(S,N,T), !
-  ;
-      priv_msg("You have no messages!", Recipient)
+  ;   priv_msg("You have no messages!", Recipient)
   ).
 
 % See if a user is trying to record a message for another user.
@@ -93,29 +90,23 @@ messages_(Msg) :-
   prefix_id(Prefix, Sender, _, _),
   atom_string(S, Sender),
   determine_recipient(sync_messages, Msg, Recipient),
-  (
-     nonblanks(`?record`, Request, Rest),
+  (  nonblanks(`?record`, Request, Rest),
      phrase(blanks, Rest),
      new_session(S),
      priv_msg("Recording...", Recipient), ! % open new session if new sender
-  ;
-     % Open session
+  ;  % Open session
      session(S),
      Request = [62|L], % first char is '>' (recording a line)
      format(string(Line), "~s~n", [L]),
      with_output_to(codes(Codes, Diff), write(Line)),
-     (
-        session(S, In-Rest)
-     ->
-        Rest = Codes,
+     (  session(S, In-Rest)
+     -> Rest = Codes,
 	retractall(session(S, _)),
 	asserta(session(S, In-Diff))
-     ;
-	asserta(session(S, Codes-Diff))
+     ;	asserta(session(S, Codes-Diff))
      ),
      priv_msg("Line recorded.", Recipient), !
-  ;
-     % Closing an open session and completing recording
+  ;  % Closing an open session and completing recording
      session(S),
      session(S, _-[]),
      retractall(session(S)),

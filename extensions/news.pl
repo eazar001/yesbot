@@ -76,8 +76,7 @@ update_line_status(Status) :-
   \+line_status(_),
   (  Status = up,
      asserta(line_status(up))
-  ;
-     Status = down,
+  ;  Status = down,
      asserta(line_status(down)),
      priv_msg("www.swi-prolog.org currently appears to be down. Please \c
        be patient until the matter is resolved.", "##prolog")
@@ -86,12 +85,10 @@ update_line_status(Status) :-
 update_line_status(up) :-
   line_status(Status),
   (  Status = down
-  ->
-     retractall(line_status(_)),
+  -> retractall(line_status(_)),
      asserta(line_status(up)),
      priv_msg("www.swi-prolog.org has been restored!", "##prolog")
-  ;
-     Status = up
+  ;  Status = up
   -> true
   ;  asserta(line_status(up))
   ), !.
@@ -99,11 +96,9 @@ update_line_status(up) :-
 update_line_status(down) :-
   line_status(Status),
   (  Status = up
-  ->
-     retractall(line_status(_)),
+  -> retractall(line_status(_)),
      asserta(line_status(down))
-  ;
-     Status = down
+  ;  Status = down
   -> true
   ;  asserta(line_status(down))
   ),
@@ -132,20 +127,15 @@ news_loop :-
   stamp_date_time(T1, DateTime, local),
   date_time_value(day, DateTime, Day),
   date_time_value(date, DateTime, Date),
-  (
-     current_day(_)
-  ->
-     retractall(current_day(_)),
+  (  current_day(_)
+  -> retractall(current_day(_)),
      asserta(current_day(Day))
-  ;
-     asserta(current_day(Day))
+  ;  asserta(current_day(Day))
   ),
   (  current_date(_)
-  ->
-     retractall(current_date(_)),
+  -> retractall(current_date(_)),
      asserta(current_date(Date))
-  ;
-     asserta(current_date(Date))
+  ;  asserta(current_date(Date))
   ),
   ignore(news_feed(Date)),
   news_check(T1, Limit).
@@ -157,15 +147,12 @@ news_check(T1, Limit) :-
   compare_days,
   get_time(T2),
   Delta is T2 - T1,
-  (
-     Delta >= Limit,
+  (  Delta >= Limit,
      current_date(Date)
-  ->
-     ignore(news_feed(Date)),
+  -> ignore(news_feed(Date)),
      get_time(T0),
      news_check(T0, Limit)
-  ;
-     news_check(T1, Limit)
+  ;  news_check(T1, Limit)
   ).
 
 
@@ -218,26 +205,20 @@ fetch_king_james :-
 fetch_kjv_quote(Content) :-
   target(Chan, _),
   atom_string(Content, Quote),
-  (
-     % Found a stored quote
+  (  % Found a stored quote
      kjv_quote(Q)
-  ->
-     (
-        Q \= Quote
-     ->
-	% Current quote is not equal to stored quote
+  -> (  Q \= Quote
+     ->	% Current quote is not equal to stored quote
 	% Therefore delete the old one and store the new one
 	% Display it to the channel
 	retract_kjv_quote(Q),
 	assert_kjv_quote(Quote),  
 	priv_msg(Quote, Chan)
-     ;
-	% Current quote is the same as the stored one
+     ;	% Current quote is the same as the stored one
 	% Therefore succeed and don't do anything
         true
      )
-  ;
-     % No stored quote found
+  ;  % No stored quote found
      % Therefore store the new quote and display to channel
      assert_kjv_quote(Quote),
      priv_msg(Quote, Chan)
@@ -323,12 +304,9 @@ handle_swi_issue(Paragraph, Dict) :-
 
 handle_stored_issue(State, N, Title, Args) :-
   target(Chan, _),
-  (
-     issue(Stored, N)
-  ->
-     (  State \= Stored
-     ->
-	% If the issue has been mentioned in channel, but the state has changed
+  (  issue(Stored, N)
+  -> (  State \= Stored
+     ->	% If the issue has been mentioned in channel, but the state has changed
 	% retract the issue, and assert it with the new state, while also
 	% the issue again.
 	retract_issue(Stored, N),
@@ -338,14 +316,11 @@ handle_stored_issue(State, N, Title, Args) :-
 	sleep(1),
 	priv_msg("***", Chan),
 	sleep(5)
-     ;
-	% Do nothing if the issue has been mentioned and the state is identical
+     ;	% Do nothing if the issue has been mentioned and the state is identical
 	true
      )
-  ;
-     State = "open"
-  ->
-     % If the issue hasn't been mentioned and the state is open 
+  ;  State = "open"
+  -> % If the issue hasn't been mentioned and the state is open 
      % assert the issue and mention it in the channel
      format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
      assert_issue(State, N),
@@ -353,8 +328,7 @@ handle_stored_issue(State, N, Title, Args) :-
      sleep(1),
      priv_msg("***", Chan),
      sleep(5)
-  ;
-     % If the issue hasn't been mentioned and has a closed state, do nothing.
+  ;  % If the issue hasn't been mentioned and has a closed state, do nothing.
      true
   ).
   
@@ -437,10 +411,8 @@ get_latest_version(Type) :-
   latest_version(Link, Version),
   format(string(Update),
     "New ~a build available for download: version ~s", [Type, Version]),
-  (
-     \+version(Type, Version)
-  ->
-     retractall_version(Type, _),
+  (  \+version(Type, Version)
+  -> retractall_version(Type, _),
      assert_version(Type, Version),
      send_msg(priv_msg, Update, Chan),
      (  Type = stable
@@ -448,8 +420,7 @@ get_latest_version(Type) :-
      ;  send_msg(priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
      ),
      priv_msg("***", Chan)
-  ;
-     true
+  ;  true
   ).
 
 

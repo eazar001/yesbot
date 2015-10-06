@@ -141,13 +141,11 @@ read_server_handle(Reply) :-
 
 process_server(Msg) :-
   thread_send_message(tq, true),
-  (
-     % Handle pings
+  (  % Handle pings
      Msg = msg("PING", [], O),
      string_codes(Origin, O),
      send_msg(pong, Origin)
-  ;
-     % Get irc server and assert info
+  ;  % Get irc server and assert info
      Msg = msg(Server, "001", _, _),
      retractall(get_irc_server(_)),
      asserta(get_irc_server(Server)),
@@ -155,8 +153,7 @@ process_server(Msg) :-
      % Request own user info
      nick(Nick),
      send_msg(who, atom_string $ Nick)
-  ;
-     % Get own host and nick info
+  ;  % Get own host and nick info
      Msg = msg(_Server, "352", Params, _),
      nick(N),
      atom_string(N, Nick),
@@ -164,8 +161,7 @@ process_server(Msg) :-
      % Calculate the minimum length for a private message and assert info
      format(string(Template), ':~s!~s@~s PRIVMSG :\r\n ', [Nick,H,Host]),
      asserta(info:min_msg_len(string_length $ Template))
-  ;
-     % Run extensions
+  ;  % Run extensions
      process_msg(Msg)
   ).
 

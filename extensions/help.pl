@@ -10,15 +10,13 @@ target("##prolog", "yesbot").
 
 help(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [_Target], Rest),
-  (
-     append(`?help `, Q0, Rest),
+  (  append(`?help `, Q0, Rest),
      string_codes(Q, Q0),
      normalize_space(string(Ext), Q),
      determine_recipient(help, Msg, Recipient),
      once(ext_help(Ext, Response)),
      priv_msg(Response, Recipient), !
-  ;
-     Rest = `?help`,
+  ;  Rest = `?help`,
      determine_recipient(help, Msg, Recipient),
      help_msg(Response),
      priv_msg(Response, Recipient)
@@ -31,14 +29,11 @@ help(Msg) :-
 
 
 ext_help(Query, Msg) :-
-  (
-     Query \== ""
-  ->
-     atom_string(Name, Query),
+  (  Query \== ""
+  -> atom_string(Name, Query),
      Help =.. [Name, Msg],
      call(Help)
-  ;
-     help_msg(Msg)
+  ;  help_msg(Msg)
   ).
 
 

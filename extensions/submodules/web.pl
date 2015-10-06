@@ -26,16 +26,13 @@ url_get_title(Link, Title) :-
       [ header('Content-Type', Type)
        ,cert_verify_hook(cert_verify)
        ,timeout(20) ]),
-    (
-       content_type_opts(Type, Opts)
-    ->
-       load_html(Stream, Structure, Opts),
+    (  content_type_opts(Type, Opts)
+    -> load_html(Stream, Structure, Opts),
        xpath_chk(Structure, //title, Tstruct),
        Tstruct = element(title, _, [T0]),
        string_codes(T0, T),
        clean_sequence(T, Title)
-    ;
-       Title = []
+    ;  Title = []
     ),
     close(Stream)
   ).
@@ -54,14 +51,11 @@ visit_url(Link, Reply) :-
     read_stream_to_codes(Stream, Reply),
     E = no_error,
     close(Stream)),
-  (
-     % no problems here, succeed here
+  ( % no problems here, succeed here
      E = no_error, !
-  ;
-     % could not connect, fail here
+  ;  % could not connect, fail here
      E = error(socket_error('Host not found'), _), !, fail
-  ;
-     % can connect, but insufficient reply, so succeed
+  ;  % can connect, but insufficient reply, so succeed
      Reply = none
   ).
 
@@ -73,11 +67,9 @@ visit_url(Link, Reply) :-
 % by exception.
 
 content_type_opts(Type, Opts) :-
-  (
-     atom_concat('text/html', _, Type),
+  (  atom_concat('text/html', _, Type),
      Opts = [max_errors(-1)]
-  ;
-     Type = '',
+  ;  Type = '',
      Opts = [max_errors(50)]
   ).
 

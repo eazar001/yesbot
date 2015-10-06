@@ -29,14 +29,11 @@ isup(Msg) :-
 
 decode(Msg, Status, Resp, Time) :-
   determine_recipient(isup, Msg, Rec),
-  (
-     Status = 1,
+  (  Status = 1,
      send_msg(priv_msg, "Website is alive.", Rec)
-  ;
-     Status = 2,
+  ;  Status = 2,
      send_msg(priv_msg, "Website appears down.", Rec)
-  ;
-     Status = 3,
+  ;  Status = 3,
      send_msg(priv_msg, "Domain was not valid.", Rec)
   ),
   Status < 3,
