@@ -308,7 +308,7 @@ handle_stored_issue(State, N, Title, Args) :-
   -> (  State \= Stored
      ->	% If the issue has been mentioned in channel, but the state has changed
 	% retract the issue, and assert it with the new state, while also
-	% the issue again.
+	% mentioning the issue again.
 	retract_issue(Stored, N),
 	assert_issue(State, N),
 	format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
@@ -396,7 +396,8 @@ compare_days :-
      asserta(current_day(Day)),
      db_sync(gc),
      retractall_heading(_),
-     retractall_commit(_)
+     retractall_commit(_),
+     retractall_issue("closed", _)
   ).
 
 
