@@ -189,8 +189,7 @@ try_again(Query, Rec) :-
     "http://www.swi-prolog.org/pldoc/search?for=~s", [Functor]),
   setup_call_cleanup(
     http_open(Retry, Stream, [timeout(20)]),
-    (
-       load_html(Stream, Structure, []),
+    (  load_html(Stream, Structure, []),
        % Find all solutions and write them on one line to avoid flooding
        findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
        (  % We have suggestions

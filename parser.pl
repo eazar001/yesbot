@@ -109,8 +109,7 @@ split_from_trailer(Line, Out) :-
      ;  Main = First,
         Out = [Main, Trailer]
      )
-  ;
-     (  Line = [58|Main]
+  ;  (  Line = [58|Main]
      -> Out = [has_prefix, Main]
      ;  Main = Line,
         Out = [Main]
