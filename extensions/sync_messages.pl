@@ -33,15 +33,13 @@ messages_(Msg) :-
   target(Chan, _),
   Msg = msg(Prefix, "JOIN", [Chan]),
   prefix_id(Prefix, Nick, _, _),
-  atom_string(N, Nick),
-  aggregate_all(count, message(_, N, _), Count),
-  Count > 0,
-  format(string(Greet),
-    "Hello ~s, you have ~d pending message(s).", [Nick, Count]),
-  send_msg(priv_msg, Greet, Chan),
-  send_msg(priv_msg,
-    "You can play a message by typing ?play \c
-    (you can also do this in private if you want)", Chan), !.
+  inform_of_message(Nick, Chan), !.
+
+messages_(Msg) :-
+  target(Chan, _),
+  Msg = msg(_Prefix, "NICK", [], NickCodes),
+  string_codes(Nick, NickCodes),
+  inform_of_message(Nick, Chan), !.
 
 % See if a user who has messages is requesting ?play
 messages_(Msg) :-
@@ -148,5 +146,16 @@ messages_(Msg) :-
 new_session(Sender) :-
   \+session(Sender),
   asserta(session(Sender)).
+
+
+inform_of_message(Nick, Chan) :-
+  atom_string(N, Nick),
+  aggregate_all(count, message(_, N, _), Count),
+  Count > 0,
+  format(string(Greet),
+    "Hello ~s, you have ~d pending message(s).", [Nick, Count]),
+  send_msg(priv_msg, Greet, Chan),
+  send_msg(priv_msg, "You can play a message by typing ?play \c
+    (you can also do this in private if you want)", Chan).
 
 
