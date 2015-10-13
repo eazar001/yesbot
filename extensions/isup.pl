@@ -20,7 +20,7 @@ isup(Msg) :-
   normalize_space(string(Query), Q1),
   format(string(Site), "http://isitup.org/~s.json", [Query]),
   setup_call_cleanup(
-    http_open(Site, Stream, [timeout(20)]),		     
+    http_open(Site, Stream, [cert_verify_hook(cert_verify), timeout(20)]),
     json_read_dict(Stream, Dict),
     close(Stream)    
   ),
@@ -38,6 +38,6 @@ decode(Msg, Status, Resp, Time) :-
   ),
   Status < 3,
   format(string(Report), 'Response code: ~a, Response time: ~a s', [Resp, Time]),
-  send_msg(priv_msg, Report, Rec).
+  priv_msg(Report, Rec).
 
 
