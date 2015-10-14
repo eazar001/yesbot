@@ -55,6 +55,18 @@ conditionals@if.
 arg@args.
 argument@args.
 arguments@args.
+packs@pack.
+addon@pack.
+addons@pack.
+add-on@pack.
+add-ons@pack.
+package@pack.
+packages@pack.
+experts@expert.
+expertsystem@expert.
+expertsystems@expert.
+expert-systems@expert.
+expert-systems@expert.
 
 
 %--------------------------------------------------------------------------------%
@@ -208,4 +220,15 @@ swish &
 "http://swish.swi-prolog.org/" &
 "SWISH -- SWI-Prolog for SHaring".
 
+packs &
+"http://www.swi-prolog.org/pack/list" &
+"SWI-Prolog packages".
+
+expert &
+"http://www.amzi.com/ExpertSystemsInProlog/" &
+"Amzi! inc. Expert Systems in Prolog".
+
+expert &
+"http://www.amzi.com/ExpertSystemsInProlog" &
+"Amzi! inc. Expert Systems in Prolog".
 
