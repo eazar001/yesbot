@@ -58,15 +58,15 @@ arguments@args.
 packs@pack.
 addon@pack.
 addons@pack.
-add-on@pack.
-add-ons@pack.
+'add-on'@pack.
+'add-ons'@pack.
 package@pack.
 packages@pack.
 experts@expert.
 expertsystem@expert.
 expertsystems@expert.
-expert-systems@expert.
-expert-systems@expert.
+'expert-systems'@expert.
+'expert-systems'@expert.
 
 
 %--------------------------------------------------------------------------------%
