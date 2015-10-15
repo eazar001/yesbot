@@ -66,7 +66,7 @@ experts@expert.
 expertsystem@expert.
 expertsystems@expert.
 'expert-systems'@expert.
-'expert-systems'@expert.
+'expert-system'@expert.
 
 
 %--------------------------------------------------------------------------------%
@@ -231,4 +231,13 @@ expert &
 expert &
 "http://www.amzi.com/ExpertSystemsInProlog" &
 "Amzi! inc. Expert Systems in Prolog".
+
+datalog &
+"http://www.learndatalogtoday.org/" &
+"Learn Datalog Today!".
+
+datalog &
+"http://www.learndatalogtoday.org" &
+"Learn Datalog Today!".
+
 
