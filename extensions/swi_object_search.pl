@@ -22,6 +22,8 @@
 :- use_module(submodules/utils).
 :- use_module(parser).
 
+:- dynamic doc_port/1.
+
 
 %--------------------------------------------------------------------------------%
 % Main Interface
@@ -37,6 +39,14 @@ target("##prolog", "yesbot").
 
 
 swi_object_search(Msg) :-
+  with_mutex(doc_lock,
+    (  doc_port(_)
+    -> true
+    ;  doc_server(Port),
+       retractall(doc_port(Port)),
+       asserta(doc_port(Port))
+    )
+  ),
   ignore(swi_object_search_(Msg)).
 
 
@@ -50,10 +60,6 @@ swi_object_search_(Msg) :-
 
 %--------------------------------------------------------------------------------%
 
-
-% TBD: Add mirror switch on search request timeout. (US mirror vs. NL mirror)
-% TBD: Add more intelligent/interactive/helpful version of manual and library
-% searchess
 
 %% do_search(+Msg, -Link, -Query, -Quiet, -Rec, -Stream) is semidet.
 %
@@ -91,21 +97,28 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   uri_encoded(query_value, A, Encoded),
   atom_string(Encoded, Str),
   normalize_space(string(Query), Str),
+  doc_port(Port),
   % Determine appropriate search link
   (  Quiet = lib
   -> % Will do a library specific search with no suggestions
+     format(string(Link0),
+       "http://localhost:~d/man?section=~s.pl", [Port,Query]),
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/doc/swi/library/~s.pl", [Query])
   ;  Quiet = man
-  -> % Will do a manual specific seaerch with no suggestions
+  -> % Will do a manual specific search with no suggestions
+     format(string(Link0),
+       "http://localhost:~d/man?section=~s", [Port,Query]),
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/man?section=~s", [Query])
   ;  % Will do a regular search with suggestions
+     format(string(Link0),
+       "http://localhost:~d/doc_for?object=~s", [Port,Query]),
      format(string(Link),
        "http://www.swi-prolog.org/pldoc/doc_for?object=~s", [Query])
   ),
   % Get the results from a search using the appropriate link from above
-  http_open(Link, Stream, [timeout(20), status_code(Status)]),
+  http_open(Link0, Stream, [timeout(20), status_code(Status)]),
   (  % Non-lib/man searches
      \+member(Quiet, [lib, man]), !
   ;  % Lib/man searches with successful requests
@@ -185,8 +198,9 @@ try_again(Query, Rec) :-
   get_functor(string_codes $ Query, Fcodes),
   % Get the pure functor from the query
   string_codes(Functor, Fcodes),
+  doc_port(Port),
   format(string(Retry),
-    "http://www.swi-prolog.org/pldoc/search?for=~s", [Functor]),
+    "http://localhost:~d/search?for=~s&in=all&match=name", [Port, Functor]),
   setup_call_cleanup(
     http_open(Retry, Stream, [timeout(20)]),
     (  load_html(Stream, Structure, []),
@@ -221,7 +235,7 @@ try_again(Query, Rec) :-
 find_candidate(Structure, Fcodes, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
   xpath(Row, //a(@href=Path, normalize_space), _),
-  append(`/pldoc/doc_for?object=`, Functor_Arity, atom_codes $ Path),
+  append(`/doc_for?object=`, Functor_Arity, atom_codes $ Path),
   % Functor must match candidate functors
   get_functor(Functor_Arity, Fcodes),
   atom_codes(Atom, Functor_Arity),
@@ -239,7 +253,7 @@ find_candidate(Structure, Fcodes, Sugg) :-
 try_other_candidate(Structure, Invalids, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
   xpath(Row, //a(@href=Path, normalize_space), _),
-  append(`/pldoc/doc_for?object=`, Functor_Arity, atom_codes $ Path),
+  append(`/doc_for?object=`, Functor_Arity, atom_codes $ Path),
   intersection(Invalids, Functor_Arity, []),
   atom_codes(Atom, Functor_Arity),
   uri_encoded(query_value, A, Atom),
