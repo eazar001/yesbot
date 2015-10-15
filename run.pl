@@ -10,7 +10,6 @@
 :- use_module(operator).
 :- use_module(library(lambda)).
 :- use_module(library(func)).
-:- use_module(library(mavis)).
 
 
 %% run is det.

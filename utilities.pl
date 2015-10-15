@@ -24,6 +24,7 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(predicate_options)).
 :- use_module(library(list_util)).
+:- use_module(library(mavis)).
 
 
 %--------------------------------------------------------------------------------%
@@ -77,7 +78,7 @@ is_sync_ --> `sync_`.
 %--------------------------------------------------------------------------------%
 
 
-%% init_timer(-Id:integer) is semidet.
+%% init_timer(-Id:atom) is semidet.
 %
 % Initialize a message queue that stores one thread which acts as a timer that
 % checks connectivity of the bot when established interval has passed.
@@ -87,7 +88,7 @@ init_timer(Id) :-
   thread_create(check_pings(Id), _, [alias(ping_checker)]).
 
 
-%% check_pings(+Id:integer) is failure.
+%% check_pings(+Id:atom) is failure.
 % If Limit seconds has passed, then signal the connection threat to abort. If a
 % ping has been detected and the corresponding message is sent before the time
 % limit expires, then the goal will succeed and so will the rest of the predicate.
@@ -104,7 +105,7 @@ check_pings(Id) :-
     fail.
 
 
-%% init_smq(-Id:integer) is semidet.
+%% init_smq(-Id:atom) is semidet.
 %
 % Initialize a message queue with one worker thread that handle synchronized
 % processing of all extensions prefixed with 'sync_'.
@@ -114,7 +115,7 @@ init_smq(Id) :-
   thread_create(sync_message_handler(Id), _, [alias(sync_worker)]).
 
 
-%% sync_message_handler(+Id:integer) is failure.
+%% sync_message_handler(+Id:atom) is failure.
 %
 % IRC server messages are sent here to be processed by sync extensions. Any
 % errors will be printed to the terminal.

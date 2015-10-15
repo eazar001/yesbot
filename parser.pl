@@ -7,7 +7,7 @@
       ,prefix_id/2
       ,prefix_id/4 ]).
 
-
+:- use_module(library(mavis)).
 
 /*
 Source : http://www.networksorcery.com/enp/protocol/irc.htm
@@ -62,7 +62,7 @@ prefix_id(Prefix, Nick, User, Host) :-
 %--------------------------------------------------------------------------------%
 
 
-%% fmt_line(+Line:codes, -Msg:compound) is semidet.
+%% fmt_line(+Line:list, -Msg:compound) is semidet.
 %
 % Split a server message into (potentially) 3 parts. The message can be split
 % into a prefix, command, and some command parameters. However, the prefix

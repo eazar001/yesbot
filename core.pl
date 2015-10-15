@@ -21,6 +21,7 @@
 :- use_module(info).
 :- use_module(library(socket)).
 :- use_module(library(func)).
+:- use_module(library(mavis)).
 
 
 %--------------------------------------------------------------------------------%
@@ -102,7 +103,7 @@ read_server_loop(Reply) :-
     read_server(Reply, Stream), !.
 
 
-%% read_server(-Reply, +Stream:codes) is nondet.
+%% read_server(-Reply:codes, +Stream) is nondet.
 %
 % Translate server line to codes. If the codes are equivalent to EOF then succeed
 % and go back to the main loop for termination. If not then then display the
