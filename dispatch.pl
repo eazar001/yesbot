@@ -11,6 +11,7 @@
        send_msg/2,
        send_msg/3 ]).
 
+:- use_module(library(mavis)).
 :- use_module(operator).
 :- use_module(info).
 
@@ -42,15 +43,13 @@ cmd_params(Type, N) :-
   length(Params, N).
 
 
-:- discontiguous dispatch:send_msg/3.
-
 %% send_msg(+Type:atom) is semidet.
 %
 % Send a message of Type.
 send_msg(Type) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
-  cmd_params(Type, 0), !,
+  cmd_params(Type, 0), !, % green, no further matches
   write(Stream, Msg),
   flush_output(Stream),
   thread_send_message(tq, true).
@@ -69,7 +68,7 @@ send_msg(Type) :-
      format(Stream, Msg, [Nick])
   ;  Type = join,
      maplist(format(Stream, Msg), Chans)
-  ), !,
+  ),
   flush_output(Stream),
   (  known(tq)
   -> thread_send_message(tq, true)
@@ -87,7 +86,7 @@ send_msg(Type, Param) :-
   -> dbg(pong, Debug),
      format(Debug, [Param])
   ;  true
-  ), !,
+  ), !, % green, no further matches
   get_irc_stream(Stream),
   format(Stream, Msg, [Param]),
   flush_output(Stream),
@@ -100,15 +99,13 @@ send_msg(Type, Param) :-
 send_msg(Type, Str, Target) :-
   cmd(Type, Msg),
   cmd_params(Type, 2),
-  \+member(Type, [kick, invite]), !,
+  \+member(Type, [kick, invite]), !, % green, no further matches
   get_irc_stream(Stream),
   format(Stream, Msg, [Target, Str]),
   flush_output(Stream),
   thread_send_message(tq, true).
 
-%% send_msg(+Type:atom, +Chan:text, +Target:string) is semidet.
-%
-% Send a message of Type to Target in Chan.
+% Send a message of Type with respect to Chan, to the Target.
 send_msg(Type, Chan, Target) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
