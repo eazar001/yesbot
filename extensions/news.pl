@@ -14,6 +14,7 @@
 :- use_module(submodules/utils).
 :- use_module(library(sgml)).
 :- use_module(library(http/http_open)).
+:- use_module(library(http/http_client)).
 :- use_module(library(http/json)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
