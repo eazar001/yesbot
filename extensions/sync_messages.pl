@@ -19,9 +19,9 @@ target("##prolog", "yesbot").
 
 %% sync_messages(+Msg) is semidet.
 %
-% This is the main extension interface. messages/0 will listen for JOIN commands
-% and prompt that user if his nick is mapped to a recorded message. messages/0
-% format :?record message(<nick>, "<msg>")
+%  This is the main extension interface. messages/0 will listen for JOIN commands
+%  and prompt that user if his nick is mapped to a recorded message. messages/0
+%  format :?record message(<nick>, "<msg>")
 
 sync_messages(Msg) :-
   db_attach('extensions/messages.db', []),
@@ -133,7 +133,7 @@ messages_(Msg) :-
 
 %% new_session(+Sender:atom) is semidet.
 %
-% Open a new session with the sender if one doesn't already exist.
+%  Open a new session with the sender if one doesn't already exist.
 new_session(Sender) :-
   \+session(Sender),
   asserta(session(Sender)).

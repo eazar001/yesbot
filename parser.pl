@@ -2,10 +2,9 @@
 %% Parsing module
 
 
-:- module(parser,
-     [ parse_line/2
-      ,prefix_id/2
-      ,prefix_id/4 ]).
+:- module(parser, [ parse_line/2
+		   ,prefix_id/2
+		   ,prefix_id/4 ]).
 
 :- use_module(library(mavis)).
 
@@ -33,9 +32,9 @@ crlf =	%x0D %x0A	; Carriage return/linefeed.
 
 %% parse_line(+Line:codes, -Msg:compound) is semidet.
 %
-% After splitting the line from any potential trailing parameters, format
-% the line in a message compound term for proper reading outside of this
-% module.
+%  After splitting the line from any potential trailing parameters, format
+%  the line in a message compound term for proper reading outside of this
+%  module.
 
 parse_line(Line, Msg) :-
   split_from_trailer(Line, Out),
@@ -44,7 +43,7 @@ parse_line(Line, Msg) :-
 
 %% prefix_id(+Prefix:string, -Servername:string) is semidet.
 %
-% Extract a servername from a msg prefix.
+%  Extract a servername from a msg prefix.
 
 prefix_id(Prefix, Servername) :-
   split_string(Prefix, " ", "", [Servername|_]).
@@ -52,7 +51,7 @@ prefix_id(Prefix, Servername) :-
 
 %% prefix_id(+Prefix:string, -Nick:string, -User:string, -Host:string) is semidet.
 %
-% Extract the Nick, User, and Host portions of a prefix from a msg.
+%  Extract the Nick, User, and Host portions of a prefix from a msg.
 
 prefix_id(Prefix, Nick, User, Host) :-
   split_string(Prefix, "!", "", [Nick|[Rest]]),
@@ -64,9 +63,9 @@ prefix_id(Prefix, Nick, User, Host) :-
 
 %% fmt_line(+Line:list, -Msg:compound) is semidet.
 %
-% Split a server message into (potentially) 3 parts. The message can be split
-% into a prefix, command, and some command parameters. However, the prefix
-% is optional and the parameter list can potentially be empty.
+%  Split a server message into (potentially) 3 parts. The message can be split
+%  into a prefix, command, and some command parameters. However, the prefix
+%  is optional and the parameter list can potentially be empty.
 %
 % Msg output is of the format:
 %
@@ -93,14 +92,14 @@ fmt_line([Main], msg(Cmd, Params)) :-
 
 %% split_from_trailer(+Line:codes, -Out:list) is det.
 %
-% Split the main portion of the message from the trailer portion of the message
-% if a trailer does exist. These are the possibilities when operating
-% under the current IRC protocol:
+%  Split the main portion of the message from the trailer portion of the message
+%  if a trailer does exist. These are the possibilities when operating
+%  under the current IRC protocol:
 %
-% 1) [has_prefix, Main, Trailer]
-% 2) [has_prefix, Main]
-% 3) [Main, Trailer]
-% 4) [Main]
+%  1) [has_prefix, Main, Trailer]
+%  2) [has_prefix, Main]
+%  3) [Main, Trailer]
+%  4) [Main]
 
 split_from_trailer(Line, Out) :-
   (  split(First, Line, Trailer)

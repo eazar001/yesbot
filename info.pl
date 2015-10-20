@@ -1,17 +1,16 @@
 
 %% The info module handle bookeeping for dynamic top level information access
 
-:- module(info,
-     [ info_cleanup/0
-      ,init_extensions/0
-      ,known/1
-      ,get_irc_server/1
-      ,get_irc_stream/1
-      ,get_irc_write_stream/1
-      ,connection/6
-      ,extensions/2
-      ,sync_extensions/2
-      ,min_msg_len/1 ]).
+:- module(info, [ info_cleanup/0
+		 ,init_extensions/0
+		 ,known/1
+		 ,get_irc_server/1
+		 ,get_irc_stream/1
+		 ,get_irc_write_stream/1
+		 ,connection/6
+		 ,extensions/2
+		 ,sync_extensions/2
+		 ,min_msg_len/1 ]).
 
 :- use_module(library(lambda)).
 
@@ -33,9 +32,9 @@
 
 %% init_extensions is semidet.
 %
-% Assert the extensions along with its length at the top level for access.
-% Import all the modules afterwards. By default extensions will be considered
-% asynchronous unless demarcated as the contrary.
+%  Assert the extensions along with its length at the top level for access.
+%  Import all the modules afterwards. By default extensions will be considered
+%  asynchronous unless demarcated as the contrary.
 
 init_extensions :-
   Import_extension_module = (\Extension^use_module(extensions/Extension)),
@@ -55,7 +54,7 @@ init_extensions :-
 
 %% info_cleanup is det.
 %
-% Retract all obsolete facts from info module.
+%  Retract all obsolete facts from info module.
 info_cleanup :-
   (  get_tcp_socket(Socket)
   -> ignore(catch(tcp_close_socket(Socket), _E, fail))

@@ -30,14 +30,14 @@
 
 %% link_shortener(+Msg) is semidet.
 %
-% This link shortener extension will first parse a message to determine whether
-% or not this message contains a link. If a link exists, it will determine to
-% whether it is http or https. It will accordingly attempt to open the URL and
-% extract a title from the from the link. If the link is 100 or more characters
-% in length, then the link will be sent to tinyurl for shortening. The shortened
-% URL will be sent to the channel publicly for general consumption.
+%  This link shortener extension will first parse a message to determine whether
+%  or not this message contains a link. If a link exists, it will determine to
+%  whether it is http or https. It will accordingly attempt to open the URL and
+%  extract a title from the from the link. If the link is 100 or more characters
+%  in length, then the link will be sent to tinyurl for shortening. The shortened
+%  URL will be sent to the channel publicly for general consumption.
 %
-% This predicate will only succeed if Recip is identical to Chan
+%  This predicate will only succeed if Recip is identical to Chan
 
 link_shortener(Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
@@ -76,8 +76,8 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 
 %% make_tiny(+Link, +Chan) is semidet.
 %
-% Attempt to extract the title of the link. If a title is extracted, then send the
-% link to tinyurl to shorten the link if the link is determined to be valid.
+%  Attempt to extract the title of the link. If a title is extracted, then send the
+%  link to tinyurl to shorten the link if the link is determined to be valid.
 
 make_tiny(Link, Chan) :-
   thread_create(make_tiny_(Link, Chan), Id, []),

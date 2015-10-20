@@ -1,21 +1,20 @@
 
-:- module(config,
-     [ host/1
-      ,port/1
-      ,nick/1
-      ,pass/1
-      ,chans/1
-      ,bot_hostname/1
-      ,bot_servername/1
-      ,bot_realname/1
-      ,desired_extensions/1
-      ,set_extensions/1
-      ,time_limit/1
-      ,add_new_extensions/1
-      ,load_new_extensions/1
-      ,is_script/1
-      ,valid_extensions/1
-      ,check_valid_extensions/1 ]).
+:- module(config, [ host/1
+		   ,port/1
+		   ,nick/1
+		   ,pass/1
+		   ,chans/1
+		   ,bot_hostname/1
+		   ,bot_servername/1
+		   ,bot_realname/1
+		   ,desired_extensions/1
+		   ,set_extensions/1
+		   ,time_limit/1
+		   ,add_new_extensions/1
+		   ,load_new_extensions/1
+		   ,is_script/1
+		   ,valid_extensions/1
+		   ,check_valid_extensions/1 ]).
 
 
 :- use_module(library(settings)).
@@ -122,7 +121,7 @@ time_limit(Limit) :-
 
 %% set_extensions(:Extensions:list(atom)) is det.
 %
-% Set the extensions to be loaded on startup. (Sanity checked)
+%  Set the extensions to be loaded on startup. (Sanity checked)
 set_extensions(Extensions) :-
   check_valid_extensions(Extensions),
   set_setting(config:extensions, Extensions).
@@ -130,9 +129,9 @@ set_extensions(Extensions) :-
 
 %% add_new_extensions(+New:list(atom)) is semidet.
 %
-% Adds new extensions on top of whatever extensions are currently loaded in the
-% the bot at the moment. These settings will not persist on restart; persisting
-% these settings must be done by preceding a save_settings/0 call with this call.
+%  Adds new extensions on top of whatever extensions are currently loaded in the
+%  the bot at the moment. These settings will not persist on restart; persisting
+%  these settings must be done by preceding a save_settings/0 call with this call.
 
 add_new_extensions(New) :-
   setting(config:extensions, Es),
@@ -142,9 +141,9 @@ add_new_extensions(New) :-
 
 %% load_new_extensions(+Es:list(atom)) is semidet.
 %
-% Load a new set of extensions and initalize them into the current bot session.
-% This will not save these settings on restart. To make them persistent, this
-% predicate call must precede a call to save_settings/0.
+%  Load a new set of extensions and initalize them into the current bot session.
+%  This will not save these settings on restart. To make them persistent, this
+%  predicate call must precede a call to save_settings/0.
 
 load_new_extensions(Es) :-
   check_valid_extensions(Es),
@@ -161,7 +160,7 @@ load_new_extensions(Es) :-
 
 %% script_extension(+File:atom, Without:atom) is semidet.
 %
-% True if File ends in `.pl` and Without is an atom devoid of this ending.
+%  True if File ends in `.pl` and Without is an atom devoid of this ending.
 script_extension(File, Without) :-
   string_without(`.`, WO, atom_codes $ File, `.pl`),
   atom_codes(Without, WO).
@@ -169,15 +168,15 @@ script_extension(File, Without) :-
 
 %% is_script(+File:atom) is semidet.
 %
-% True if File is a prolog script file (ending in `.pl`).
+%  True if File is a prolog script file (ending in `.pl`).
 is_script(File) :-
   script_extension(File, _).
 
 
 %% check_valid_extensions(Es) is det.
 %
-% True iff Es is a valid subset of extensions. An existence error will be thrown
-% otherwise.
+%  True iff Es is a valid subset of extensions. An existence error will be thrown
+%  otherwise.
 
 check_valid_extensions(Es) :-
   (  valid_extensions(Es)
@@ -188,7 +187,7 @@ check_valid_extensions(Es) :-
 
 %% valid_extensions(+Extensions:list(atom)) is semidet.
 %
-% True if Extensions is a subset of extensions available to yesbot.
+%  True if Extensions is a subset of extensions available to yesbot.
 valid_extensions(Extensions) :-
   % Get all files from extensions directory
   directory_files(extensions, Files),

@@ -63,11 +63,11 @@ swi_object_search_(Msg) :-
 
 %% do_search(+Msg, -Link, -Query, -Quiet, -Rec, -Stream) is semidet.
 %
-% do_search/6 listens for the appropriate search patterns and arguments.
-% Certain patterns will correspond with implicit or explicit quietness options.
-% These patterns will also generate specific links for handling different types of
-% situations a user might throw at yesbot. The link and quietness information will
-% be unified so that this information can be passed to parse_structure/4.
+%  do_search/6 listens for the appropriate search patterns and arguments.
+%  Certain patterns will correspond with implicit or explicit quietness options.
+%  These patterns will also generate specific links for handling different types of
+%  situations a user might throw at yesbot. The link and quietness information will
+%  be unified so that this information can be passed to parse_structure/4.
 
 do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
   % Message should begin with the prefix ?search
@@ -132,10 +132,10 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
 
 %% parse_structure(+Link, +Query, +Quiet, +Rec, +Stream) is semidet.
 %
-% Load incoming search information as an HTML structure. Scrape information from
-% the HTML and determine whether or not there is a match for the user's request.
-% found_object/5 will perform the necessary side-effects depending on the
-% resolution.
+%  Load incoming search information as an HTML structure. Scrape information from
+%  the HTML and determine whether or not there is a match for the user's request.
+%  found_object/5 will perform the necessary side-effects depending on the
+%  resolution.
 
 parse_structure(Link, Query, Quiet, Rec, Stream) :-
   load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
@@ -144,10 +144,10 @@ parse_structure(Link, Query, Quiet, Rec, Stream) :-
 
 %% found_object(+Structure, +Link, +Query, +Quiet, +Rec) is det.
 %
-% If a matching object was found for the user's requests then the necessary
-% side-effects would have been performed by found/4. If not, then the user is
-% apprised, and a new search is performed by try_again/1. The new search will
-% attempt to find any search suggestion to help direct the user.
+%  If a matching object was found for the user's requests then the necessary
+%  side-effects would have been performed by found/4. If not, then the user is
+%  apprised, and a new search is performed by try_again/1. The new search will
+%  attempt to find any search suggestion to help direct the user.
 
 found_object(Structure, Link, Query, Quiet, Rec) :-
   (  found(Link, Rec, Quiet, Structure)
@@ -161,8 +161,8 @@ found_object(Structure, Link, Query, Quiet, Rec) :-
 
 %% found(+Link, +Rec, +Quiet, +Structure) is semidet.
 %
-% Determine if relevant information is found with respect to the user's query.
-% Display formats vary according to quietness options.
+%  Determine if relevant information is found with respect to the user's query.
+%  Display formats vary according to quietness options.
 
 found(Link, Rec, lib, Structure) :-
   xpath_chk(Structure, //title(normalize_space), Title),
@@ -190,9 +190,9 @@ found(Link, Rec, Qlevel, Structure) :-
 
 %% try_again(+Query, +Rec) is semidet.
 %
-% Attempts to search for possible matches if a user has entered a query that
-% does not lead to a direct match. Possible results are displayed to the user
-% in channel.
+%  Attempts to search for possible matches if a user has entered a query that
+%  does not lead to a direct match. Possible results are displayed to the user
+%  in channel.
 
 try_again(Query, Rec) :-
   get_functor(string_codes $ Query, Fcodes),
@@ -230,7 +230,7 @@ try_again(Query, Rec) :-
 
 %% find_candidate(+Structure, +Fcodes, -Sugg) is nondet.
 %
-% Scrape candidates that match the base functors. Return a possible Suggestion.
+%  Scrape candidates that match the base functors. Return a possible Suggestion.
 
 find_candidate(Structure, Fcodes, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
@@ -245,10 +245,10 @@ find_candidate(Structure, Fcodes, Sugg) :-
 
 %% try_other_candidate(+Structure, +Invalids, -Sugg) is nondet.
 %
-% This should be the end of the line. These are suggestions that are tried when
-% the base functor doesn't have a match. We now rely on the first 10 results of
-% of the search page. Invalids are invalid markings that should count against
-% candidate selection.
+%  This should be the end of the line. These are suggestions that are tried when
+%  the base functor doesn't have a match. We now rely on the first 10 results of
+%  of the search page. Invalids are invalid markings that should count against
+%  candidate selection.
 
 try_other_candidate(Structure, Invalids, Sugg) :-
   xpath(Structure, //tr(@class=public), Row),
@@ -262,9 +262,9 @@ try_other_candidate(Structure, Invalids, Sugg) :-
 
 %% write_first_sentence(+Structure, +Rec) is semidet.
 %
-% Search for a dd tag that's classified as "defbody" (definition body), attempt
-% to extract the first sentence and display it to the channel. If the first
-% sentence isn't successfully parsed, then return as much as possible.
+%  Search for a dd tag that's classified as "defbody" (definition body), attempt
+%  to extract the first sentence and display it to the channel. If the first
+%  sentence isn't successfully parsed, then return as much as possible.
 
 write_first_sentence(Structure, Rec) :-
   xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
@@ -277,9 +277,9 @@ write_first_sentence(Structure, Rec) :-
 
 %% get_functor(+Original, -Functor) is det.
 %
-% This predicate will attempt to extract a base functor from some predicate/N
-% pattern. If the normal pattern is not successfully parsed, then the original
-% input will be assumed a functor. Search will proceed in this manner.
+%  This predicate will attempt to extract a base functor from some predicate/N
+%  pattern. If the normal pattern is not successfully parsed, then the original
+%  input will be assumed a functor. Search will proceed in this manner.
 
 get_functor(Original, Functor) :-
   (  get_functor_(Functor, Original, _)

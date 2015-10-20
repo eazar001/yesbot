@@ -10,9 +10,8 @@
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(core,
-     [ connect/0
-      ,disconnect/0 ]).
+:- module(core, [ connect/0
+		 ,disconnect/0 ]).
 
 :- use_module(config).
 :- use_module(parser).
@@ -31,9 +30,9 @@
 
 %% connect is nondet.
 %
-% Open socket on host, port, nick, user, hostname, and servername that will all
-% be specified in the bot_config module. The socket stream that is established
-% will be asserted at the top level for access from anywhere in the program.
+%  Open socket on host, port, nick, user, hostname, and servername that will all
+%  be specified in the bot_config module. The socket stream that is established
+%  will be asserted at the top level for access from anywhere in the program.
 
 connect :-
   host(Host),
@@ -58,16 +57,16 @@ connect :-
 
 %% register_and_join is semidet.
 %
-% Present credentials and register user on the irc server.
+%  Present credentials and register user on the irc server.
 register_and_join :-
   maplist(send_msg, [pass, user, nick, join]).
 
 
 %% init_structs is det.
 %
-% Assert the 'connection' structure at the top level so that access to important
-% user information is available at the top level throughout the program. All of
-% this information should be specified in the bot_config module.
+%  Assert the 'connection' structure at the top level so that access to important
+%  user information is available at the top level throughout the program. All of
+%  this information should be specified in the bot_config module.
 
 init_structs :-
   nick(N_),
@@ -90,9 +89,9 @@ init_structs :-
 
 %% read_server_loop(-Reply:codes) is nondet.
 %
-% Read the server output one line at a time. Each line will be sent directly
-% to a predicate that is responsible for handling the output that it receives.
-% The program will terminate successfully if EOF is reached.
+%  Read the server output one line at a time. Each line will be sent directly
+%  to a predicate that is responsible for handling the output that it receives.
+%  The program will terminate successfully if EOF is reached.
 
 read_server_loop(Reply) :-
   get_irc_stream(Stream),
@@ -105,9 +104,9 @@ read_server_loop(Reply) :-
 
 %% read_server(-Reply:codes, +Stream) is nondet.
 %
-% Translate server line to codes. If the codes are equivalent to EOF then succeed
-% and go back to the main loop for termination. If not then then display the
-% contents of the server message and process the reply.
+%  Translate server line to codes. If the codes are equivalent to EOF then succeed
+%  and go back to the main loop for termination. If not then then display the
+%  contents of the server message and process the reply.
 
 read_server(Reply, Stream) :-
   read_line_to_codes(Stream, Reply),
@@ -120,8 +119,8 @@ read_server(Reply, Stream) :-
 
 %% read_server_handle(+Reply:codes) is det.
 %
-% Concurrently process server lines via loaded extensions and output the server
-% line to stdout for debugging.
+%  Concurrently process server lines via loaded extensions and output the server
+%  line to stdout for debugging.
 
 read_server_handle(Reply) :-
   parse_line(Reply, Msg),
@@ -132,13 +131,13 @@ read_server_handle(Reply) :-
 
 %% process_server(+Msg:compound) is nondet.
 %
-% All processing of server message will be handled here. Pings will be handled by
-% responding with a pong to keep the connection alive. If the message is "001"
-% or a server "welcome", then a successful connection to a server will be
-% assumed. In this case, all instances of get_irc_server/1 will be retracted,
-% and the new server will be asserted for use. It is important that this is
-% serialized with respect to process_msg/1 so as to avoid race conditions.
-% Anything else will be processed as an incoming message.
+%  All processing of server message will be handled here. Pings will be handled by
+%  responding with a pong to keep the connection alive. If the message is "001"
+%  or a server "welcome", then a successful connection to a server will be
+%  assumed. In this case, all instances of get_irc_server/1 will be retracted,
+%  and the new server will be asserted for use. It is important that this is
+%  serialized with respect to process_msg/1 so as to avoid race conditions.
+%  Anything else will be processed as an incoming message.
 
 process_server(Msg) :-
   thread_send_message(tq, true),
@@ -174,9 +173,9 @@ process_server(Msg) :-
 
 %% process_msg(+Msg:compound) is nondet.
 %
-% All extensions that deal specifically with handling messages should be
-% implemented dynamically in this section. The extensions will be plugged into
-% an execution list that follows a successful parse of a private message.
+%  All extensions that deal specifically with handling messages should be
+%  implemented dynamically in this section. The extensions will be plugged into
+%  an execution list that follows a successful parse of a private message.
 
 process_msg(Msg) :-
   extensions(Async, N),
@@ -193,7 +192,7 @@ process_msg(Msg) :-
 
 %% reconnect is semidet.
 %
-% Disconnect from the server, run cleanup routine, and attempt to reconnect.
+%  Disconnect from the server, run cleanup routine, and attempt to reconnect.
 reconnect :-
   disconnect,
   repeat,
@@ -207,8 +206,8 @@ reconnect :-
 
 %% disconnect is semidet.
 %
-% Clean up top level information access structures, issue a disconnect command
-% to the irc server, close the socket stream pair, and attempt to reconnect.
+%  Clean up top level information access structures, issue a disconnect command
+%  to the irc server, close the socket stream pair, and attempt to reconnect.
 
 disconnect :-
   get_irc_stream(Stream),

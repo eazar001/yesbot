@@ -3,9 +3,8 @@
 %% atoms which connote particular irc operations.
 
 
-:- module(operator,
-     [ cmd/2
-      ,dbg/2 ]).
+:- module(operator, [ cmd/2
+		     ,dbg/2 ]).
 
 
 %--------------------------------------------------------------------------------%
@@ -22,8 +21,8 @@
 
 %% cmd(+Type:atom, -Template:atom) is semidet.
 %
-% Attempt to unify with a type and a corresponding string template. The string
-% template will be fed to dispatch in order to send a message.
+%  Attempt to unify with a type and a corresponding string template. The string
+%  template will be fed to dispatch in order to send a message.
 
 % ADMIN [Target]
 cmd(admin, 'ADMIN ~s\r~n').
@@ -170,7 +169,7 @@ cmd(quit, 'QUIT :disconnect\r\n').
 
 %% dbg(+Type:atom, -Template:atom) is semidet.
 %
-% This is used to debug pings, to ensure the client that pongs are being sent.
+%  This is used to debug pings, to ensure the client that pongs are being sent.
 
 % PONG [Origin]
 dbg(pong, 'PONG ~s~n').

@@ -31,9 +31,9 @@ greeting("Howdy partner! It appears that noone has spoken to you in \c
 
 %% greet(+Msg) is det.
 %
-% Evaluate the entire goal with a lock on the database. This is probably an
-% pessimistic lock, but it's easy and guaranteed. Hence, I'll keep it this way
-% unless a change is necessary.
+%  Evaluate the entire goal with a lock on the database. This is probably an
+%  pessimistic lock, but it's easy and guaranteed. Hence, I'll keep it this way
+%  unless a change is necessary.
 
 greet(Msg) :-
   with_mutex(greet_db, receive(Msg)).
@@ -46,7 +46,7 @@ greet(Msg) :-
 
 %% receive(+Msg:compound) is nondet.
 %
-% Receives message from IRC server and handles them accordingly.
+%  Receives message from IRC server and handles them accordingly.
 
 
 % Here and unconditional attempt to store names of all currently in the channel
@@ -98,7 +98,7 @@ receive(Msg) :-
 
 %% initialize(+Msg:compound) is semidet.
 %
-% Initialize the waiting process.
+%  Initialize the waiting process.
 initialize(msg(Prefix, _, _, _)) :-
   prefix_id(Prefix, Nick, _, _),
   thread_create(wait(Nick), _Id, [alias(wait), detached(true)]),
@@ -106,7 +106,7 @@ initialize(msg(Prefix, _, _, _)) :-
 
 %% transmit(+Command:atom) is det.
 %
-% Kill the waiting process.
+%  Kill the waiting process.
 transmit(die) :-
   thread_signal(wait, throw(abort)).
 
@@ -118,8 +118,8 @@ transmit(die) :-
 
 %% valid_join(+Chan:string, +Msg:compound) is semidet.
 %
-% Considered a valid "join" if a new unrecognized user joins the channel and
-% speaks publicly. User will be asserted as "in-channel"
+%  Considered a valid "join" if a new unrecognized user joins the channel and
+%  speaks publicly. User will be asserted as "in-channel"
 
 valid_join(Chan, msg(Prefix, "PRIVMSG", [Chan], _)) :-
   prefix_id(Prefix, Nick, _, _),
@@ -131,9 +131,9 @@ valid_join(Chan, msg(Prefix, "PRIVMSG", [Chan], _)) :-
 
 %% valid_speech(+Chan:string, +Msg:compound) is semidet.
 %
-% Considered valid "speech" if a newcomer is already marked as "in-channel" and
-% the speaker is a recognized user, that of course would imply that the speaker
-% is not the newcomer.
+%  Considered valid "speech" if a newcomer is already marked as "in-channel" and
+%  the speaker is a recognized user, that of course would imply that the speaker
+%  is not the newcomer.
 
 valid_speech(Chan, msg(Prefix, "PRIVMSG", [Chan], _)) :-
   in_channel(Nick),
@@ -147,7 +147,7 @@ valid_speech(Chan, msg(Prefix, "PRIVMSG", [Chan], _)) :-
 
 %% valid_part(+Chan:string, +Msg:compound) is semidet.
 %
-% True if a newcomer marked as "in-channel" has just left the channel.
+%  True if a newcomer marked as "in-channel" has just left the channel.
 valid_part(Chan, msg(Prefix, "PART", [Chan], _)) :-
   prefix_id(Prefix, Nick, _, _),
   atom_string(N, Nick),
@@ -161,10 +161,10 @@ valid_part(Chan, msg(Prefix, "PART", [Chan], _)) :-
 
 %% wait(+Nick:string)
 %
-% Initiate an idle waiting process that will fire a greeting after a time limit,
-% and then abort the actual process as well. If the proccess receives a message
-% to kill the process prior to executing the greeting procedure, then the process
-% will die prematurely.
+%  Initiate an idle waiting process that will fire a greeting after a time limit,
+%  and then abort the actual process as well. If the proccess receives a message
+%  to kill the process prior to executing the greeting procedure, then the process
+%  will die prematurely.
 
 wait(Nick) :-
   greet_limit(Limit),
@@ -174,7 +174,7 @@ wait(Nick) :-
 
 %% greet_and_kill(+Nick:string)
 %
-% Greet nick and abort process.
+%  Greet nick and abort process.
 greet_and_kill(Nick) :-
   atom_string(N, Nick),
   \+current_name(N),
@@ -190,7 +190,7 @@ greet_and_kill(Nick) :-
 
 %% store_names(Msg) is semidet.
 %
-% Log current users in channel if 353 message is delivered to client via server.
+%  Log current users in channel if 353 message is delivered to client via server.
 store_names(Msg) :-
   db_attach('extensions/greets.db', []),
   % 353 is code for users present on the channel
@@ -201,7 +201,7 @@ store_names(Msg) :-
 
 %% add_name(+Codes) is det.
 %
-% Add a nick/name as a user in the database if not already present. Always true.
+%  Add a nick/name as a user in the database if not already present. Always true.
 add_name(Codes) :-
   atom_codes(Atom, Codes),
   (  \+current_name(Atom)

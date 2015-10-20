@@ -39,7 +39,7 @@
 
 %% chatty (+Msg) is det.
 %
-% This chatscript extension looks for messages of the form
+%  This chatscript extension looks for messages of the form
 %  ?chatty
 %  which starts a conversation with the person who posted it, and
 %  ?chatty <nick>

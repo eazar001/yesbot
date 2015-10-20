@@ -6,10 +6,9 @@
 % unified with the type, the process is consummated by dispatching the
 % message through the stream.
 
-:- module(dispatch,
-     [ send_msg/1,
-       send_msg/2,
-       send_msg/3 ]).
+:- module(dispatch, [ send_msg/1
+		     ,send_msg/2
+		     ,send_msg/3 ]).
 
 :- use_module(library(mavis)).
 :- use_module(operator).
@@ -24,8 +23,8 @@
 
 %% return_server(-Server:string) is det.
 %
-% If the server is known get the value from the core. If not, then the server is
-% 'unknown'.
+%  If the server is known get the value from the core. If not, then the server is
+%  'unknown'.
 
 return_server(Server) :-
   (  known(irc_server)
@@ -36,7 +35,7 @@ return_server(Server) :-
 
 %% cmd_params(+Type, -N) is semidet.
 %
-% True if N is the number of paramteres in Type's template.
+%  True if N is the number of paramteres in Type's template.
 cmd_params(Type, N) :-
   cmd(Type, Template),
   split_string(Template, "~", "\r~n", [_|Params]),
@@ -45,7 +44,7 @@ cmd_params(Type, N) :-
 
 %% send_msg(+Type:atom) is semidet.
 %
-% Send a message of Type.
+%  Send a message of Type.
 send_msg(Type) :-
   cmd(Type, Msg),
   get_irc_stream(Stream),
@@ -78,7 +77,7 @@ send_msg(Type) :-
 
 %% send_msg(+Type:atom, +Param:string) is semidet.
 %
-% Send message of Type with attention to some parameter Param.
+%  Send message of Type with attention to some parameter Param.
 send_msg(Type, Param) :-
   cmd(Type, Msg),
   cmd_params(Type, 1),
@@ -95,7 +94,7 @@ send_msg(Type, Param) :-
 
 %% send_msg(+Type:atom, +Str:text, +Target:string) is semidet.
 %
-% Send a Str of Type to a specified Target.
+%  Send a Str of Type to a specified Target.
 send_msg(Type, Str, Target) :-
   cmd(Type, Msg),
   cmd_params(Type, 2),
