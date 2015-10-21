@@ -2,7 +2,9 @@
 
 %% Run yesbot here
 
-:- initialization go.
+:- use_module(pack_checker).
+
+:- install_deps.
 
 :- use_module(core).
 :- use_module(config).
@@ -11,6 +13,8 @@
 :- use_module(operator).
 :- use_module(library(lambda)).
 :- use_module(library(func)).
+
+:- initialization go.
 
 
 go :-

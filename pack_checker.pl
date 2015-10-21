@@ -1,13 +1,18 @@
 
+:- module(pack_checker, [install_deps/0]).
+
 :- use_module(library(prolog_pack)).
 
-:- initialization(main).
+
+pack_deps(
+  [ mavis
+   ,func
+   ,lambda
+   ,list_util
+   ,typedef ]).
 
 
-pack_deps([mavis, func, lambda]).
-
-
-main :-
+install_deps :-
   search(Installs),
   install_packs(Installs).
 
@@ -23,7 +28,7 @@ search(Installs) :-
 
   
 install_packs([]) :-
-  writeln('Congratulations, all dependencies are met.').
+  writeln('All dependencies are met.').
 
 install_packs([P|_]) :-
   pack_install(P),
