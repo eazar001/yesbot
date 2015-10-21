@@ -42,10 +42,10 @@ Please bot responsibly.
 
 Running the bot
 ===============
-Execute the bot like such:
+After chmod 755 run.pl, execute the bot like such:
 ```prolog
 
-swipl -q -O run.pl
+./run.pl
 ```
 
 Extending the bot
