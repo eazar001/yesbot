@@ -2,19 +2,19 @@
 %% Utilities module for anything that might be generally useful for Yesbot
 
 
-:- module(utilities, [ run_det/1
-		      ,run_det/2
-		      ,run_det_sync/3
-		      ,init_smq/1
-		      ,init_timer/1
-		      ,restart/0
-		      ,is_sync/1
-		      ,priv_msg/2
-		      ,priv_msg/3
-		      ,priv_msg_rest/3
-		      ,priv_msg_rest/4
-		      ,priv_msg_paragraph/3
-		      ,split_at/4 ]).
+:- module(utilities,
+     [ run_det/1
+      ,run_det/2
+      ,run_det_sync/3
+      ,init_smq/1
+      ,init_timer/1
+      ,restart/0
+      ,is_sync/1
+      ,priv_msg/2
+      ,priv_msg/3
+      ,priv_msg_rest/3
+      ,priv_msg_rest/4
+      ,priv_msg_paragraph/3 ]).
 
 :- use_module(config).
 :- use_module(info).
