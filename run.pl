@@ -1,7 +1,8 @@
+#!/usr/bin/swipl
 
 %% Run yesbot here
 
-:- initialization(run).
+:- initialization go.
 
 :- use_module(core).
 :- use_module(config).
@@ -10,6 +11,12 @@
 :- use_module(operator).
 :- use_module(library(lambda)).
 :- use_module(library(func)).
+
+
+go :-
+  set_prolog_flag(verbose, silent),
+  set_prolog_flag(optimise, true),
+  run.
 
 
 %% run is det.
