@@ -38,8 +38,7 @@ connect :-
   host(Host),
   port(Port),
   setup_call_cleanup(
-    (
-       init_extensions,
+    (  init_extensions,
        init_structs,
        tcp_socket(Socket),
        tcp_connect(Socket, Host:Port, Stream),
@@ -124,7 +123,7 @@ read_server(Reply, Stream) :-
 
 read_server_handle(Reply) :-
   parse_line(Reply, Msg),
-  thread_create(run_det(core:process_server(Msg)), _Id, [detached(true)]),
+  thread_create(run_det(process_server(Msg)), _Id, [detached(true)]),
   thread_send_message(smq, Msg),
   format('~s~n', [Reply]).
 

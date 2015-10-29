@@ -44,7 +44,7 @@ run_det(Msg, Extension) :-
   thread_create(E, _Id, [detached(true)]).
 
 
-%% run_set_sync(+Msg:compound, :Extension, :E) is det.
+%% run_set_sync(+Msg:compound, :Extension, -E) is det.
 %
 %  Convert an extensionized goal into a ready form for usage with concurrent/3.
 %  This predicate is intended to only be used with synchronous extensions.
@@ -59,6 +59,7 @@ run_det_sync(Msg, Extension, E) :-
 %  result as an unevaluated deterministic result. Used here for deterministically
 %  evaluating a possibly nondet or semidet prediciate concurrently.
 
+:- meta_predicate run_det(0).
 run_det(Goal) :-
   ignore((Goal, fail)).
 
