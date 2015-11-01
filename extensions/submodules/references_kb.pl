@@ -67,6 +67,7 @@ expertsystem@expert.
 expertsystems@expert.
 'expert-systems'@expert.
 'expert-system'@expert.
+swipl@swi.
 
 
 %--------------------------------------------------------------------------------%
@@ -240,4 +241,11 @@ datalog &
 "http://www.learndatalogtoday.org" &
 "Learn Datalog Today!".
 
+swi &
+"http://www.swi-prolog.org" &
+"SWI Prolog".
+
+swi &
+"http://www.swi-prolog.org/" &
+"SWI Prolog".
 
