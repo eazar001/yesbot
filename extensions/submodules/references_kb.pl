@@ -249,3 +249,8 @@ swi &
 "http://www.swi-prolog.org/" &
 "SWI Prolog".
 
+lamp &
+"http://www.swi-prolog.org/FAQ/PrologLAMP.txt" &
+"Can I replace a LAMP stack with SWI-Prolog?".
+
+
