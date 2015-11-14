@@ -1,7 +1,7 @@
 
 :- module(google_search, [google_search/1]).
 
-:- use_module(dispatch).
+:- use_module(library(irc_client)).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
 :- use_module(submodules/utils).
@@ -9,17 +9,21 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
+:- use_module(library(func)).
 
 
 % TBD: Add support for other google search features such as google conversion,
 % currency, wiki, translate, calculator, etc.
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
 google_start(`http://www.google.com/search?q=`).
 google_end(`&btnI=I\'m+Feeling+Lucky`).
 
 
 google_search(Msg) :-
+  thread_create(ignore(google_search_(Msg)), _, [detached(true)]).
+
+google_search_(Me-Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, Text),
   append(`?google `, Q0, Text),
   determine_recipient(google_search, Msg, Rec),
@@ -44,13 +48,13 @@ google_search(Msg) :-
 	     string_codes(T0, T1),
 	     unescape_title(T1, T2),
 	     clean_sequence(T2, Title)
-	  -> send_msg(priv_msg, Title, Rec)
+	  -> send_msg(Me, priv_msg, Title, Rec)
 	  ;  true
 	  ),
-	  send_msg(priv_msg, URL, Rec)
-       ;  send_msg(priv_msg, "Result not valid", Rec)
+	  send_msg(Me, priv_msg, URL, Rec)
+       ;  send_msg(Me, priv_msg, "Result not valid", Rec)
        )
-    ;  send_msg(priv_msg, URL, Rec)
+    ;  send_msg(Me, priv_msg, URL, Rec)
     ),
     close(Stream)
   ).

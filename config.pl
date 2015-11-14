@@ -20,8 +20,6 @@
 :- use_module(library(settings)).
 :- use_module(library(dcg/basics)).
 :- use_module(library(func)).
-:- use_module(info).
-:- use_module(utilities).
 
 
 %--------------------------------------------------------------------------------%

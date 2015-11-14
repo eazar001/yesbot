@@ -1,8 +1,6 @@
 
 :- module(utils, [determine_recipient/3]).
 
-:- use_module(parser).
-
 
 %% determine_recipient(+Module:atom, +Msg:compound, -Recipient:string) is semidet.
 %
