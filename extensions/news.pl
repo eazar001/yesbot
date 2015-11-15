@@ -6,9 +6,9 @@
      [ news/1
       ,news_abort/0 ]).
 
-:- use_module(dispatch).
-:- use_module(info).
-:- use_module(config).
+:- use_module(library(irc_client)).
+:- use_module(library(lambda)).
+:- use_module(library(func)).
 :- use_module(submodules/html).
 :- use_module(submodules/web).
 :- use_module(submodules/utils).
@@ -44,7 +44,7 @@
 % TBD: Use the foundation of this module to prime the state infrastructure
 
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
@@ -112,9 +112,9 @@ update_line_status(down) :-
 %   True if the message is a ping message to the bot, then run a persistent
 %   thread in the background that checks for news and download updates.
 
-news_(Msg) :-
+news_(Me-Msg) :-
   Msg = msg("PING", _, _),
-  thread_create(news_loop, _, [alias(news), detached(true)]).
+  thread_create(news_loop(Me), _, [alias(news), detached(true)]).
 
 
 %% news_loop is det.
@@ -122,7 +122,7 @@ news_(Msg) :-
 %   Check the news feed on startup and evalute for side effects. Check the news feed
 %   every hour for updates. This predicate is always true.
 
-news_loop :-
+news_loop(Me) :-
   news_time_limit(Limit),
   get_time(T1),
   stamp_date_time(T1, DateTime, local),
@@ -138,63 +138,63 @@ news_loop :-
      asserta(current_date(Date))
   ;  asserta(current_date(Date))
   ),
-  ignore(news_feed(Date)),
-  news_check(T1, Limit).
+  ignore(news_feed(Me, Date)),
+  news_check(Me, T1, Limit).
 
 
 %% news_check(+T1:float, +Limit:integer) is det.
-news_check(T1, Limit) :-
+news_check(Me, T1, Limit) :-
   sleep(0.05),
   compare_days,
   get_time(T2),
   Delta is T2 - T1,
   (  Delta >= Limit,
      current_date(Date)
-  -> ignore(news_feed(Date)),
+  -> ignore(news_feed(Me, Date)),
      get_time(T0),
-     news_check(T0, Limit)
-  ;  news_check(T1, Limit)
+     news_check(Me, T0, Limit)
+  ;  news_check(Me, T1, Limit)
   ).
 
 
 %% news_feed(+Date) is det.
 %
 %   Attempt to scan swi-prolog.org news archive for updates and display to channel.
-news_feed(Date) :-
+news_feed(Me, Date) :-
   target(Chan, _),
   news_link(Link),
-  catch(ignore(fetch_news(Link, Chan)), _E, ignore(update_line_status(down))),
-  ignore(fetch_version),
-  ignore(fetch_king_james),
-  ignore(fetch_swi_commit(Date)),
-  ignore(fetch_swi_issue).
+  catch(ignore(fetch_news(Me, Link, Chan)), _E, ignore(update_line_status(down))),
+  ignore(fetch_version(Me)),
+  ignore(fetch_king_james(Me)),
+  ignore(fetch_swi_commit(Me,Date)),
+  ignore(fetch_swi_issue(Me)).
 
 
 %% fetch_news(+Link:string, +Chan:string) is semidet.
-fetch_news(Link, Chan) :-
+fetch_news(Me, Link, Chan) :-
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20)]),
-    valid_post(Stream, Chan, Link),
+    valid_post(Me, Stream, Chan, Link),
     close(Stream)
   ).
 
 
 %% fetch_version is det.
-fetch_version :-
-  ignore(get_latest_version(stable)),
-  ignore(get_latest_version(development)).
+fetch_version(Me) :-
+  ignore(get_latest_version(Me, stable)),
+  ignore(get_latest_version(Me, development)).
 
 
 %% fetch_king_james is semidet.
 %
 %   Get the latest quote from the KJV site and pass the Quote to fetch_kv_quote/1.
-fetch_king_james :-
+fetch_king_james(Me) :-
   kjv_link(Link),
   setup_call_cleanup(
     http_open(Link, Stream, []),
     (  load_html(Stream, Structure, []),
        xpath_chk(Structure, //blockquote(normalize_space), Content),
-       fetch_kjv_quote(Content)
+       fetch_kjv_quote(Me, Content)
     ),
     close(Stream)
   ).
@@ -203,7 +203,7 @@ fetch_king_james :-
 %% fetch_kjv_quote(+Content:atom) is det.
 %
 %   Analyzes quotes, and only displays quotes that have not yet been displayed.
-fetch_kjv_quote(Content) :-
+fetch_kjv_quote(Me, Content) :-
   target(Chan, _),
   atom_string(Content, Quote),
   (  % Found a stored quote
@@ -214,7 +214,7 @@ fetch_kjv_quote(Content) :-
 	% Display it to the channel
 	retract_kjv_quote(Q),
 	assert_kjv_quote(Quote),  
-	priv_msg(Quote, Chan)
+	priv_msg(Me, Quote, Chan)
      ;	% Current quote is the same as the stored one
 	% Therefore succeed and don't do anything
         true
@@ -222,27 +222,27 @@ fetch_kjv_quote(Content) :-
   ;  % No stored quote found
      % Therefore store the new quote and display to channel
      assert_kjv_quote(Quote),
-     priv_msg(Quote, Chan)
+     priv_msg(Me, Quote, Chan)
   ).
 
 
 %% fetch_swi_commit(+Date) is semidet.
 %
 %   Access swi commits on github using the JSON API. Then print commits.
-fetch_swi_commit(Date) :-
+fetch_swi_commit(Me, Date) :-
   swi_commit_link(Link),
   setup_call_cleanup(
     http_open(Link, Stream, []),
     json_read_dict(Stream, Array),
     close(Stream)
   ),
-  print_swi_commit(Array, Date).
+  print_swi_commit(Me, Array, Date).
 
 
 %% print_swi_commit(+Array, +Date) is failure.
 %
 %   Print commits only for this day. Only prints commits that haven't been printed.
-print_swi_commit(Array, Date) :-
+print_swi_commit(Me, Array, Date) :-
   member(Dict, Array),
   is_dict(Dict),
   parse_time(Dict.commit.committer.date, Stamp),
@@ -252,14 +252,14 @@ print_swi_commit(Array, Date) :-
   \+commit(Msg),
   assert_commit(Msg),
   target(Chan, _),
-  format(string(MsgLine),"swipl-devel commit: ~s~n", [Msg]),
+  format(string(MsgLine), "swipl-devel commit: ~s~n", [Msg]),
   format(string(Url),"~s", [Dict.html_url]),
   git_io(Url, Shortened),
-  priv_msg(MsgLine, Chan, [at_most(7)]),
+  priv_msg(Me, MsgLine, Chan, [at_most(7)]),
   sleep(1),
-  priv_msg(Shortened, Chan, [at_most(7)]),
+  priv_msg(Me, Shortened, Chan, [at_most(7)]),
   sleep(1),
-  priv_msg("***", Chan),
+  priv_msg(Me, "***", Chan),
   sleep(5),
   fail.
 
@@ -267,44 +267,44 @@ print_swi_commit(Array, Date) :-
 %% fetch_swi_issue is semidet.
 %
 %   Access swi issues on github using the JSON API. Then print issues.
-fetch_swi_issue :-
+fetch_swi_issue(Me) :-
   swi_issue_link(Link),
   setup_call_cleanup(
     http_open(Link, Stream, []),
     json_read_dict(Stream, Array),
     close(Stream)
   ),
-  print_swi_issue(Array).
+  print_swi_issue(Me, Array).
 
 
 %% print_swi_issue(+Array) is failure.
 %
 %   Print issue opens and closes. Only issue events that haven't been printed.
-print_swi_issue(Array) :-
+print_swi_issue(Me, Array) :-
   member(Dict, Array),
   is_dict(Dict),
   % If pull_request is not a key then P is null (normal issue)
   catch(P = Dict.pull_request, _E, P = null),
-  handle_swi_issue(P, Dict).
+  handle_swi_issue(Me, P, Dict).
 
 
-handle_swi_issue(null, Dict) :-
+handle_swi_issue(Me, null, Dict) :-
   Args = [Dict.html_url, Dict.title, Dict.body],
   S = Dict.state,
   N = Dict.number,
-  handle_stored_issue(S, N, "swipl-devel issue ", Args),
+  handle_stored_issue(Me, S, N, "swipl-devel issue ", Args),
   fail.
 
-handle_swi_issue(Paragraph, Dict) :-
+handle_swi_issue(Me, Paragraph, Dict) :-
   Paragraph \= null,
   Args = [Dict.html_url, Dict.title, Dict.body],
   S = Dict.state,
   N = Dict.number,
-  handle_stored_issue(S, N, "swipl-devel pull-request ", Args),
+  handle_stored_issue(Me, S, N, "swipl-devel pull-request ", Args),
   fail.
 
 
-handle_stored_issue(State, N, Title, Args) :-
+handle_stored_issue(Me, State, N, Title, Args) :-
   target(Chan, _),
   (  issue(Stored, N)
   -> (  State \= Stored
@@ -314,9 +314,9 @@ handle_stored_issue(State, N, Title, Args) :-
 	retract_issue(Stored, N),
 	assert_issue(State, N),
 	format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
-	priv_msg(Report, Chan, [at_most(7)]),
+	priv_msg(Me, Report, Chan, [at_most(7)]),
 	sleep(1),
-	priv_msg("***", Chan),
+	priv_msg(Me, "***", Chan),
 	sleep(5)
      ;	% Do nothing if the issue has been mentioned and the state is identical
 	true
@@ -326,9 +326,9 @@ handle_stored_issue(State, N, Title, Args) :-
      % assert the issue and mention it in the channel
      format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
      assert_issue(State, N),
-     priv_msg(Report, Chan, [at_most(7)]),
+     priv_msg(Me, Report, Chan, [at_most(7)]),
      sleep(1),
-     priv_msg("***", Chan),
+     priv_msg(Me, "***", Chan),
      sleep(5)
   ;  % If the issue hasn't been mentioned and has a closed state, do nothing.
      true
@@ -340,7 +340,7 @@ handle_stored_issue(State, N, Title, Args) :-
 %   Run IO side effects for all valid posts. Valid posts are posts that are
 %   determined to match the current day of the month for this year.
 
-valid_post(Stream, Chan, Link) :-
+valid_post(Me, Stream, Chan, Link) :-
   update_line_status(up),
   count_valid_posts(Stream, Count, Content),
   forall(
@@ -349,12 +349,12 @@ valid_post(Stream, Chan, Link) :-
        \+heading(Heading),
        assert_heading(Heading),
        format(string(Report), "News Update: ~s~n***", [Heading]),
-       priv_msg(Report, Chan),
+       priv_msg(Me, Report, Chan),
        sleep(5)
     )
   ),
   Count > 0,
-  send_msg(priv_msg, Link, Chan).
+  send_msg(Me, priv_msg, Link, Chan).
 
 
 %% count_valid_posts(+Stream, -Count:integer, -Content) is det.
@@ -408,7 +408,7 @@ compare_days :-
 %   Attempt to retrieve latest software version of Type (either stable or devel)
 %   and display the result via IO side effects.
 
-get_latest_version(Type) :-
+get_latest_version(Me, Type) :-
   target(Chan, _),
   version_link(Type, Link),
   latest_version(Link, Version),
@@ -417,12 +417,12 @@ get_latest_version(Type) :-
   (  \+version(Type, Version)
   -> retractall_version(Type, _),
      assert_version(Type, Version),
-     send_msg(priv_msg, Update, Chan),
+     send_msg(Me, priv_msg, Update, Chan),
      (  Type = stable
-     -> send_msg(priv_msg, "http://www.swi-prolog.org/download/stable", Chan)
-     ;  send_msg(priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
+     -> send_msg(Me, priv_msg, "http://www.swi-prolog.org/download/stable", Chan)
+     ;  send_msg(Me, priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
      ),
-     priv_msg("***", Chan)
+     priv_msg(Me, "***", Chan)
   ;  true
   ).
 

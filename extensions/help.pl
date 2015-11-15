@@ -1,25 +1,29 @@
 
 :- module(help, [help/1]).
 
-:- use_module(dispatch).
-:- use_module(parser).
+:- use_module(library(irc_client)).
 :- use_module(submodules/utils).
 
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
+
 
 help(Msg) :-
+  thread_create(ignore(help_(Msg)), _, [detached(true)]).
+
+
+help_(Me-Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", [_Target], Rest),
   (  append(`?help `, Q0, Rest),
      string_codes(Q, Q0),
      normalize_space(string(Ext), Q),
      determine_recipient(help, Msg, Recipient),
      once(ext_help(Ext, Response)),
-     priv_msg(Response, Recipient), !
+     priv_msg(Me, Response, Recipient), !
   ;  Rest = `?help`,
      determine_recipient(help, Msg, Recipient),
      help_msg(Response),
-     priv_msg(Response, Recipient)
+     priv_msg(Me, Response, Recipient)
   ).
 
 

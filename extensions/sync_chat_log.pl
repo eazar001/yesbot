@@ -19,6 +19,10 @@
 :- dynamic known/3.
 
 
+sync_chat_log(Msg) :-
+  ignore(sync_chat_log_(Msg)).
+
+
 %% sync_chat_log(+Msg) is semidet.
 %
 %  Attempt to parse a reply from the server and determine whether or not the
@@ -30,7 +34,7 @@
 %
 %  This will succeed only if Recip and Chan are identical.
 
-sync_chat_log(_-Msg) :-
+sync_chat_log_(_-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
   connection(_Me, _Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,

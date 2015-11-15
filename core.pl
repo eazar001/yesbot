@@ -42,7 +42,7 @@ join_prolog :-
 
 assert_handlers :-
   init_extensions.
-  
+
 
 init_extensions :-
   Import_extension_module = (\Extension^use_module(extensions/Extension)),
