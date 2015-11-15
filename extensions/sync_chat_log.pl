@@ -12,8 +12,10 @@
 
 :- module(sync_chat_log, [sync_chat_log/1]).
 
-:- use_module(parser).
-:- use_module(info).
+:- use_module(library(irc_client)).
+:- use_module(library(lambda)).
+:- use_module(library(func)).
+
 :- dynamic known/3.
 
 
@@ -28,9 +30,9 @@
 %
 %  This will succeed only if Recip and Chan are identical.
 
-sync_chat_log(Msg) :-
+sync_chat_log(_-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", [Chan], Log),
-  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+  connection(_Me, _Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans), !,
   prefix_id(Prefix, Nick, _, _),
   (  exists_directory('extensions/chat-logs')

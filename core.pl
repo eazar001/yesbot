@@ -10,7 +10,9 @@
 %                                                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(core, [ connect/0 ]).
+:- module(core,
+     [ connect/0
+      ,goals_to_concurrent/2 ]).
 
 :- use_module(library(irc_client)).
 :- use_module(library(socket)).
@@ -44,6 +46,7 @@ assert_handlers :-
 
 init_extensions :-
   Import_extension_module = (\Extension^use_module(extensions/Extension)),
+  Qualify = (\X^X^Q^(Q = X:X)),
   desired_extensions(Extensions),
   partition(is_sync, Extensions, Sync, Async),
   length(Sync, N0),
@@ -51,11 +54,12 @@ init_extensions :-
   asserta(sync_extensions(Sync, N0)),
   asserta(extensions(Async, N1)),
   maplist(Import_extension_module, Extensions),
-  maplist(qualify, Async, Async, AsyncHandlers),
-  assert_handlers(irc, AsyncHandlers).
+  maplist(Qualify, Sync, Sync, SyncHandlers),
+  maplist(Qualify, Async, Async, AsyncHandlers),
+  append(AsyncHandlers, [goals_to_concurrent(SyncHandlers)], Handlers),
+  assert_handlers(irc, Handlers).
 
 
-qualify(X, X, X:X).
 
 %% is_sync(+Name:atom) is semidet.
 %
@@ -66,28 +70,22 @@ is_sync(Name) :-
 is_sync_ --> `sync_`.
 
 
-
-
-
-
-%--------------------------------------------------------------------------------%
-% Handle Incoming Server Messages
-%--------------------------------------------------------------------------------%
-
-
-%% process_msg(+Msg:compound) is nondet.
-%
-%  All extensions that deal specifically with handling messages should be
-%  implemented dynamically in this section. The extensions will be plugged into
-%  an execution list that follows a successful parse of a private message.
-
-/*
-process_msg(Msg) :-
-  extensions(Async, N),
+goals_to_concurrent(Goals, Msg) :-
+  sync_extensions(_, N),
   (  N > 0
-  -> maplist(run_det(Msg), Async)
+  -> goals_to_calls(Goals, Calls),
+     maplist(call_with_msg(Msg), Calls, RunCalls),
+     concurrent(N, RunCalls, [])
   ;  true
   ).
-*/
+
+
+call_with_msg(Msg, Call, call(Call, Msg)).
+
+goals_to_calls(Goals, Calls) :-
+  maplist(goal_to_call, Goals, Calls).
+
+goal_to_call(Goal, Call) :-
+  Call = (\Msg^call(Goal,Msg)).
 
 
