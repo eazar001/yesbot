@@ -1,6 +1,6 @@
 :- module(ringer, [ringer/1]).
 
-:- use_module(dispatch).
+:- use_module(library(irc_client)).
 :- use_module(submodules/emoticon_lib).
 :- use_module(submodules/utils).
 :- use_module(library(settings)).

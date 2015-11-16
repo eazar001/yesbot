@@ -1,6 +1,7 @@
 
 :- module(utils, [determine_recipient/3]).
 
+:- use_module(library(irc_client)).
 
 %% determine_recipient(+Module:atom, +Msg:compound, -Recipient:string) is semidet.
 %

@@ -1,10 +1,10 @@
 
 :- module(sarcasm, [sarcasm/1]).
 
-:- use_module(dispatch).
+:- use_module(library(irc_client)).
 
 
-target("##prolog").
+target("#testeazarbot").
 
 whatsup([ "A preposition denoting a position or direction of superior altitude."
 	 ,"Your blood pressure."
@@ -20,29 +20,29 @@ public_action([ "reads a book." ]).
 action([1,65,67,84,73,79,78,32|_]).
 
 sarcasm(Msg) :-
-  ignore(once(sarcasm_(Msg))).
+  thread_create(ignore(once(sarcasm_(Msg))), _, [detached(true)]).
 
 
-sarcasm_(Msg) :-
+sarcasm_(Me-Msg) :-
   target(Chan),
   Msg = msg(_Prefix, "PRIVMSG", [Chan], Rest),
   string_codes(Str, Rest),
   normalize_space(string(Norm), Str),
   Norm = "?whatsup",
   (  random_member(0, [0,1])
-  -> public_action, fail
+  -> display_public_action(Me), fail
   ;  true
   ),
   whatsup(Rs),
   random_member(R, Rs),
-  send_msg(priv_msg, R, Chan).
+  send_msg(Me, priv_msg, R, Chan).
 
 
-public_action :-
+display_public_action(Me) :-
   target(Chan),
   public_action(As),
   random_member(R0, As),
   format(string(Response), `~cACTION ~s~c`, [1,R0,1]),
-  send_msg(priv_msg, Response, Chan).
+  send_msg(Me, priv_msg, Response, Chan).
 
 

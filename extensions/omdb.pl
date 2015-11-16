@@ -1,8 +1,7 @@
 
 :- module(omdb, [omdb/1]).
 
-:- use_module(dispatch).
-:- use_module(parser).
+:- use_module(library(irc_client)).
 :- use_module(library(http/json)).
 :- use_module(library(uri)).
 :- use_module(library(http/http_open)).
@@ -14,13 +13,13 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
 
 omdb(Msg) :-
-  ignore(omdb_(Msg)).
+  thread_create(ignore(omdb_(Msg)), _, [detached(true)]).
 
 
-omdb_(Msg) :-
+omdb_(Me-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _Target, Text),
   prefix_id(Prefix, Nick, _, _),
   append(`?movie `, Q0, Text),
@@ -40,23 +39,23 @@ omdb_(Msg) :-
     json_read_dict(Stream, Dict),
     close(Stream)
   ),
-  decode(Dict, Nick, Recipient), !.
+  decode(Me, Dict, Nick, Recipient), !.
 
 
 % Handle ?more signal to page output
-omdb_(Msg) :-
+omdb_(Me-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Codes),
   prefix_id(Prefix, Nick, _, _),
   determine_recipient(omdb, Msg, Rec),
   string_codes(Text, Codes),
   normalize_space(string("?more"), Text),
   (  session(Nick)
-  -> display(Nick, Rec)
+  -> display(Me, Nick, Rec)
   ;  true
   ), !. % can only succeed once
 
 % Handle anything else that is not a valid request that pertains to dict
-omdb_(msg(Prefix, "PRIVMSG", _, _)) :-
+omdb_(_-msg(Prefix, "PRIVMSG", _, _)) :-
   prefix_id(Prefix, Nick, _, _),
   (  session(Nick)
   -> maplist(retractall, [session(Nick), session(Nick,_)])
@@ -80,30 +79,30 @@ get_params(Req, [Title, ""]) :-
   uri_encoded(query_value, T, Title).
   
 
-decode(Dict, _, Recipient) :-
+decode(Me, Dict, _, Recipient) :-
   Dict.'Response' = "False",
-  priv_msg(Dict.'Error', Recipient).
+  priv_msg(Me, Dict.'Error', Recipient).
 
-decode(Dict, Nick, Recipient) :-
+decode(Me, Dict, Nick, Recipient) :-
   Dict.'Response' = "True",
   format(string(R0), "~s [~s]~n", [Dict.'Title', Dict.'Year']),
   format(string(R1), "Rotten Tomato Meter: ~s~nIMDB Rating: ~s",
     [Dict.tomatoMeter, Dict.imdbRating]),
-  priv_msg(R0, Recipient),
-  priv_msg(R1, Recipient),
+  priv_msg(Me, R0, Recipient),
+  priv_msg(Me, R1, Recipient),
   sleep(1),
-  priv_msg_rest(Dict.'Plot', Recipient, Rest, [at_most(1)]),
+  priv_msg_rest(Me, Dict.'Plot', Recipient, Rest, [at_most(1)]),
   Rest = [_|_],
-  priv_msg("You can type ?more for the next line.", Recipient),
+  priv_msg(Me, "You can type ?more for the next line.", Recipient),
   asserta(session(Nick, Rest)).
 
 
-display(Nick, Rec) :-
+display(Me, Nick, Rec) :-
   session(Nick, [Line|Rest]),
-  priv_msg(Line, Rec, [auto_nl(false)]),
+  priv_msg(Me, Line, Rec, [auto_nl(false)]),
   (  Rest \= []
-  -> priv_msg("You can type ?more for the next line.", Rec)
-  ;  priv_msg("End of output.", Rec)
+  -> priv_msg(Me, "You can type ?more for the next line.", Rec)
+  ;  priv_msg(Me, "End of output.", Rec)
   ),
   update_session(Nick, Rest).
 

@@ -1,8 +1,7 @@
 
 :- module(sync_messages, [sync_messages/1]).
 
-:- use_module(dispatch).
-:- use_module(parser).
+:- use_module(library(irc_client)).
 :- use_module(library(lambda)).
 :- use_module(library(dcg/basics)).
 :- use_module(library(persistency)).
@@ -14,7 +13,11 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
+
+
+sync_messages(Msg) :-
+  thread_create(ignore(sync_messages_(Msg)), _, [detached(true)]).
 
 
 %% sync_messages(+Msg) is semidet.
@@ -23,26 +26,26 @@ target("##prolog", "yesbot").
 %  and prompt that user if his nick is mapped to a recorded message. messages/0
 %  format :?record message(<nick>, "<msg>")
 
-sync_messages(Msg) :-
+sync_messages_(Msg) :-
   db_attach('extensions/messages.db', []),
   messages_(Msg).
 
 
 % See if a joining user has any messages in the database.
-messages_(Msg) :-
+messages_(Me-Msg) :-
   target(Chan, _),
   Msg = msg(Prefix, "JOIN", [Chan]),
   prefix_id(Prefix, Nick, _, _),
-  inform_of_message(Nick, Chan), !.
+  inform_of_message(Me, Nick, Chan), !.
 
-messages_(Msg) :-
+messages_(Me-Msg) :-
   target(Chan, _),
   Msg = msg(_Prefix, "NICK", [], NickCodes),
   string_codes(Nick, NickCodes),
-  inform_of_message(Nick, Chan), !.
+  inform_of_message(Me, Nick, Chan), !.
 
 % See if a user who has messages is requesting ?play
-messages_(Msg) :-
+messages_(Me-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _Target, Rest),
   prefix_id(Prefix, Nick, _, _),
   determine_recipient(sync_messages, Msg, Recipient),
@@ -53,18 +56,18 @@ messages_(Msg) :-
       maplist(\Atom^Normalized^(atom_string(Atom, String),
         normalize_space(string(Normalized), String)), [N,S], [Nick, Sender])
   *-> format(string(From), "~s says:", [Sender]),
-      priv_msg(From, Recipient),
-      priv_msg(Text, Recipient),
-      priv_msg("You can type ?play again to play more messages \c
+      priv_msg(Me, From, Recipient),
+      priv_msg(Me, Text, Recipient),
+      priv_msg(Me, "You can type ?play again to play more messages \c
         in your queue", Recipient),
       retract_message(S,N,T), !
-  ;   priv_msg("You have no messages!", Recipient)
+  ;   priv_msg(Me, "You have no messages!", Recipient)
   ).
 
 % See if a user is trying to record a message for another user.
 % This is for recording quick messages with the format:
 % ?record message('recipient', "message")
-messages_(Msg) :-
+messages_(Me-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Rest),
   prefix_id(Prefix, Sender, _, _),
   determine_recipient(sync_messages, Msg, Recipient),
@@ -76,7 +79,7 @@ messages_(Msg) :-
   normalize_space(atom(N), N0),
   N \= yesbot,  % No messages will be accepted for yesbot
   assert_message(S,N,T),
-  priv_msg("Done.", Recipient),
+  priv_msg(Me, "Done.", Recipient),
   db_sync(gc), !.
 
 % See if a user is trying to record a message for another user.
@@ -85,7 +88,7 @@ messages_(Msg) :-
 % >first line
 % >second line
 % done (say anything without the input char to stop recording)
-messages_(Msg) :-
+messages_(Me-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Request),
   prefix_id(Prefix, Sender, _, _),
   atom_string(S, Sender),
@@ -93,7 +96,7 @@ messages_(Msg) :-
   (  nonblanks(`?record`, Request, Rest),
      phrase(blanks, Rest),
      new_session(S),
-     priv_msg("Recording...", Recipient), ! % open new session if new sender
+     priv_msg(Me, "Recording...", Recipient), ! % open new session if new sender
   ;  % Open session
      session(S),
      Request = [62|L], % first char is '>' (recording a line)
@@ -105,17 +108,17 @@ messages_(Msg) :-
 	asserta(session(S, In-Diff))
      ;	asserta(session(S, Codes-Diff))
      ),
-     priv_msg("Line recorded.", Recipient), !
+     priv_msg(Me, "Line recorded.", Recipient), !
   ;  % Closing an open session and completing recording
      session(S),
      session(S, _-[]),
      retractall(session(S)),
-     priv_msg("Who is this message for?", Recipient)
+     priv_msg(Me, "Who is this message for?", Recipient)
   ), !.
 
 % After providing the nickname to yesbot, we can close the session
 % and finish recording
-messages_(Msg) :-
+messages_(Me-Msg) :-
   Msg = msg(Prefix, "PRIVMSG", _, Nick),
   prefix_id(Prefix, Sender, _, _),
   determine_recipient(sync_messages, Msg, Recipient),
@@ -128,7 +131,7 @@ messages_(Msg) :-
   string_codes(T, In),
   assert_message(S,N,T),
   retractall(session(S,_)),
-  priv_msg("Done.", Recipient).
+  priv_msg(Me, "Done.", Recipient).
 
 
 %% new_session(+Sender:atom) is semidet.
@@ -139,14 +142,14 @@ new_session(Sender) :-
   asserta(session(Sender)).
 
 
-inform_of_message(Nick, Chan) :-
+inform_of_message(Me, Nick, Chan) :-
   atom_string(N, Nick),
   aggregate_all(count, message(_, N, _), Count),
   Count > 0,
   format(string(Greet),
     "Hello ~s, you have ~d pending message(s).", [Nick, Count]),
-  send_msg(priv_msg, Greet, Chan),
-  send_msg(priv_msg, "You can play a message by typing ?play \c
+  send_msg(Me, priv_msg, Greet, Chan),
+  send_msg(Me, priv_msg, "You can play a message by typing ?play \c
     (you can also do this in private if you want)", Chan).
 
 

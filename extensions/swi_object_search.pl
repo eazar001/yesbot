@@ -13,14 +13,15 @@
 
 :- module(swi_object_search, [swi_object_search/1]).
 
-:- use_module(dispatch).
+:- use_module(library(irc_client)).
 :- use_module(library(http/http_open)).
 :- use_module(library(sgml)).
 :- use_module(library(xpath)).
 :- use_module(library(uri)).
+:- use_module(library(func)).
 :- use_module(submodules/docs).
 :- use_module(submodules/utils).
-:- use_module(parser).
+
 
 :- dynamic doc_port/1.
 
@@ -35,7 +36,7 @@
 % search_form_lib is used to search for libraries. (without suggestions)
 % search_sugg is the url used for deriving suggestions.
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
 
 
 swi_object_search(Msg) :-
@@ -50,10 +51,10 @@ swi_object_search(Msg) :-
   ignore(swi_object_search_(Msg)).
 
 
-swi_object_search_(Msg) :-
+swi_object_search_(Me-Msg) :-
   setup_call_cleanup(
-    do_search(Msg, Link, Query, Quiet, Rec, Stream),
-    parse_structure(Link, Query, Quiet, Rec, Stream),
+    do_search(Me, Msg, Link, Query, Quiet, Rec, Stream),
+    parse_structure(Me, Link, Query, Quiet, Rec, Stream),
     close(Stream)
   ).
 
@@ -69,7 +70,7 @@ swi_object_search_(Msg) :-
 %  situations a user might throw at yesbot. The link and quietness information will
 %  be unified so that this information can be passed to parse_structure/4.
 
-do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
+do_search(Me, Msg, Link, Query, Quiet, Rec, Stream) :-
   % Message should begin with the prefix ?search
   Msg = msg(_Prefix, "PRIVMSG", _, [63,115,101,97,114,99,104,32|Cs]),
   determine_recipient(swi_object_search, Msg, Rec),
@@ -125,7 +126,7 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
      Status = 200, !
   ;  % Lib/man searches that fail to generate a page
      Status = 404,
-     priv_msg("No matching object found.", Rec),
+     priv_msg(Me, "No matching object found.", Rec),
      fail
   ).
 
@@ -137,9 +138,9 @@ do_search(Msg, Link, Query, Quiet, Rec, Stream) :-
 %  found_object/5 will perform the necessary side-effects depending on the
 %  resolution.
 
-parse_structure(Link, Query, Quiet, Rec, Stream) :-
+parse_structure(Me, Link, Query, Quiet, Rec, Stream) :-
   load_html(Stream, Structure, [dialect(html5), max_errors(-1)]),
-  found_object(Structure, Link, Query, Quiet, Rec).
+  found_object(Me, Structure, Link, Query, Quiet, Rec).
 
 
 %% found_object(+Structure, +Link, +Query, +Quiet, +Rec) is det.
@@ -149,13 +150,13 @@ parse_structure(Link, Query, Quiet, Rec, Stream) :-
 %  apprised, and a new search is performed by try_again/1. The new search will
 %  attempt to find any search suggestion to help direct the user.
 
-found_object(Structure, Link, Query, Quiet, Rec) :-
-  (  found(Link, Rec, Quiet, Structure)
+found_object(Me, Structure, Link, Query, Quiet, Rec) :-
+  (  found(Me, Link, Rec, Quiet, Structure)
   -> true
-  ;  priv_msg("No matching object found. ", Rec),
+  ;  priv_msg(Me, "No matching object found. ", Rec),
      % Try alternative suggestions only if search is not library or man-specific
      \+memberchk(Quiet, [lib, man]),
-     try_again(Query, Rec)
+     try_again(Me, Query, Rec)
   ).
 
 
@@ -164,27 +165,27 @@ found_object(Structure, Link, Query, Quiet, Rec) :-
 %  Determine if relevant information is found with respect to the user's query.
 %  Display formats vary according to quietness options.
 
-found(Link, Rec, lib, Structure) :-
+found(Me, Link, Rec, lib, Structure) :-
   xpath_chk(Structure, //title(normalize_space), Title),
-  priv_msg(Title, Rec),
-  priv_msg(Link, Rec).
+  priv_msg(Me, Title, Rec),
+  priv_msg(Me, Link, Rec).
 
-found(Link, Rec, man, Structure) :-
+found(Me, Link, Rec, man, Structure) :-
   xpath_chk(Structure, //span(@class='sec-title', normalize_space), Title),
-  priv_msg(Title, Rec),
-  priv_msg(Link, Rec).
+  priv_msg(Me, Title, Rec),
+  priv_msg(Me, Link, Rec).
 
-found(Link, Rec, Qlevel, Structure) :-
+found(Me, Link, Rec, Qlevel, Structure) :-
   xpath_chk(Structure, //dt(@class=pubdef, normalize_space), Table),
   (  Qlevel = q0,
-     priv_msg(Table, Rec),
-     write_first_sentence(Structure, Rec),
-     priv_msg(Link, Rec)
+     priv_msg(Me, Table, Rec),
+     write_first_sentence(Me, Structure, Rec),
+     priv_msg(Me, Link, Rec)
   ;  Qlevel = q,
-     priv_msg(Table, Rec),
-     write_first_sentence(Structure, Rec)
+     priv_msg(Me, Table, Rec),
+     write_first_sentence(Me, Structure, Rec)
   ;  Qlevel = qq,
-     priv_msg(Table, Rec)
+     priv_msg(Me, Table, Rec)
   ).
 
 
@@ -194,7 +195,7 @@ found(Link, Rec, Qlevel, Structure) :-
 %  does not lead to a direct match. Possible results are displayed to the user
 %  in channel.
 
-try_again(Query, Rec) :-
+try_again(Me, Query, Rec) :-
   get_functor(string_codes $ Query, Fcodes),
   % Get the pure functor from the query
   string_codes(Functor, Fcodes),
@@ -222,7 +223,7 @@ try_again(Query, Rec) :-
        L = [_|_],
        atomic_list_concat(L, ', ', AtomList),
        format(string(Feedback), "Perhaps you meant one of these: ~a", [AtomList]),
-       priv_msg(Feedback, Rec)
+       priv_msg(Me, Feedback, Rec)
     ),
     close(Stream)
   ).
@@ -266,12 +267,12 @@ try_other_candidate(Structure, Invalids, Sugg) :-
 %  to extract the first sentence and display it to the channel. If the first
 %  sentence isn't successfully parsed, then return as much as possible.
 
-write_first_sentence(Structure, Rec) :-
+write_first_sentence(Me, Structure, Rec) :-
   xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
   atom_codes(D, Codes),
   (  sentence(Sentence, Codes, _)
-  -> priv_msg(Sentence, Rec)
-  ;  priv_msg(Codes, Rec)
+  -> priv_msg(Me, Sentence, Rec)
+  ;  priv_msg(Me, Codes, Rec)
   ).
 
 
