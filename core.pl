@@ -1,17 +1,8 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                %
-%                                                                                %
-% Author: Ebrahim Azarisooreh                                                    %
-% E-mail: ebrahim.azarisooreh@gmail.com                                          %
-% IRC Nick: eazar001                                                             %
-% Title: Yes-Bot                                                                 %
-% Description: IRC Bot                                                           %
-%                                                                                %
-%                                                                                %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(core,
      [ connect/0
+      ,main/0
+      ,assert_handlers/0
       ,goals_to_concurrent/2 ]).
 
 :- use_module(library(irc_client)).
@@ -20,11 +11,21 @@
 :- use_module(library(lambda)).
 :- use_module(config).
 
+
 :- initialization assert_handlers.
 
 
+main :-
+  thread_create(connect, _, [detached(true)]).
+
+
 connect :-
-  thread_create(join_prolog, _, [detached(true), alias(irc)]).
+  setup_call_cleanup(
+    thread_create(join_prolog, _, [alias(irc)]),
+    thread_join(irc, _),
+    disconnect(irc)
+  ),
+  connect.
 
 
 join_prolog :-
@@ -51,6 +52,7 @@ init_extensions :-
   partition(is_sync, Extensions, Sync, Async),
   length(Sync, N0),
   length(Async, N1),
+  maplist(retractall, [sync_extensions(_,_),extensions(_,_)]),
   asserta(sync_extensions(Sync, N0)),
   asserta(extensions(Async, N1)),
   maplist(Import_extension_module, Extensions),

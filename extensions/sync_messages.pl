@@ -17,7 +17,7 @@ target("#testeazarbot", "dead_weight_bot").
 
 
 sync_messages(Msg) :-
-  thread_create(ignore(sync_messages_(Msg)), _, [detached(true)]).
+  ignore(sync_messages_(Msg)).
 
 
 %% sync_messages(+Msg) is semidet.
