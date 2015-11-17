@@ -48,7 +48,7 @@ swi_object_search(Msg) :-
        asserta(doc_port(Port))
     )
   ),
-  ignore(swi_object_search_(Msg)).
+  thread_create(ignore(swi_object_search_(Msg)), _, [detached(true)]).
 
 
 swi_object_search_(Me-Msg) :-

@@ -1,25 +1,29 @@
 
-:- module(config, [ host/1
-		   ,port/1
-		   ,nick/1
-		   ,pass/1
-		   ,chans/1
-		   ,bot_hostname/1
-		   ,bot_servername/1
-		   ,bot_realname/1
-		   ,desired_extensions/1
-		   ,set_extensions/1
-		   ,time_limit/1
-		   ,add_new_extensions/1
-		   ,load_new_extensions/1
-		   ,is_script/1
-		   ,valid_extensions/1
-		   ,check_valid_extensions/1 ]).
+:- module(config,
+     [ host/1
+      ,port/1
+      ,nick/1
+      ,pass/1
+      ,chans/1
+      ,bot_hostname/1
+      ,bot_servername/1
+      ,bot_realname/1
+      ,desired_extensions/1
+      ,set_extensions/1
+      ,time_limit/1
+      ,init_extensions/0
+      ,goals_to_concurrent/2
+      ,add_new_extensions/1
+      ,load_new_extensions/1
+      ,is_script/1
+      ,valid_extensions/1
+      ,check_valid_extensions/1 ]).
 
-
+:- use_module(library(irc_client)).
 :- use_module(library(settings)).
 :- use_module(library(dcg/basics)).
 :- use_module(library(func)).
+:- use_module(library(lambda)).
 
 
 %--------------------------------------------------------------------------------%
@@ -117,6 +121,42 @@ time_limit(Limit) :-
 %--------------------------------------------------------------------------------%
 
 
+init_extensions :-
+  Import_extension_module = (\Extension^use_module(extensions/Extension)),
+  Qualify = (\X^X^Q^(Q = X:X)),
+  desired_extensions(Extensions),
+  partition(is_sync, Extensions, Sync, Async),
+  length(Sync, N0),
+  length(Async, N1),
+  maplist(retractall, [sync_extensions(_,_),extensions(_,_)]),
+  asserta(sync_extensions(Sync, N0)),
+  asserta(extensions(Async, N1)),
+  maplist(Import_extension_module, Extensions),
+  maplist(Qualify, Sync, Sync, SyncHandlers),
+  maplist(Qualify, Async, Async, AsyncHandlers),
+  append(AsyncHandlers, [goals_to_concurrent(SyncHandlers)], Handlers),
+  assert_handlers(irc, Handlers).
+
+
+goals_to_concurrent(Goals, Msg) :-
+  sync_extensions(_, N),
+  (  N > 0
+  -> goals_to_calls(Goals, Calls),
+     maplist(call_with_msg(Msg), Calls, RunCalls),
+     concurrent(N, RunCalls, [])
+  ;  true
+  ).
+
+
+call_with_msg(Msg, Call, call(Call, Msg)).
+
+goals_to_calls(Goals, Calls) :-
+  maplist(goal_to_call, Goals, Calls).
+
+goal_to_call(Goal, Call) :-
+  Call = (\Msg^call(Goal,Msg)).
+
+
 %% set_extensions(:Extensions:list(atom)) is det.
 %
 %  Set the extensions to be loaded on startup. (Sanity checked)
@@ -154,6 +194,15 @@ load_new_extensions(Es) :-
 %%%%%%%%%%%%%%%%%
 % Sanity Checks %
 %%%%%%%%%%%%%%%%%
+
+
+%% is_sync(+Name:atom) is semidet.
+%
+%  True if the extension name is prefixed with 'sync_'. (synchronous)
+is_sync(Name) :-
+  is_sync_(atom_codes $ Name, _Rest).
+
+is_sync_ --> `sync_`.
 
 
 %% script_extension(+File:atom, Without:atom) is semidet.

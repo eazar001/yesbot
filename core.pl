@@ -2,8 +2,7 @@
 :- module(core,
      [ connect/0
       ,main/0
-      ,assert_handlers/0
-      ,goals_to_concurrent/2 ]).
+      ,assert_handlers/0 ]).
 
 :- use_module(library(irc_client)).
 :- use_module(library(socket)).
@@ -11,20 +10,29 @@
 :- use_module(library(lambda)).
 :- use_module(config).
 
+:- reexport(config, [goals_to_concurrent/2]).
 
-:- initialization assert_handlers.
 
+% FIXME: On reconnect, there are a bunch of httpd workers that are left
+% to be garbage collected. They seem to be related to the doc server,
+% after the corresponding message queue has been destroyed. Find a way
+% to deal with the existence errors that are causing problems here.
 
 main :-
-  thread_create(connect, _, [detached(true)]).
+  thread_create(connect, _, [detached(true),alias(conn)]),
+  thread_signal(conn, attach_console).
 
 
 connect :-
   setup_call_cleanup(
-    thread_create(join_prolog, _, [alias(irc)]),
+    (  assert_handlers,
+       thread_create(join_prolog, _, [alias(irc)])
+    ),
     thread_join(irc, _),
     disconnect(irc)
   ),
+  join_threads,
+  message_queue_create(_),
   connect.
 
 
@@ -43,51 +51,5 @@ join_prolog :-
 
 assert_handlers :-
   init_extensions.
-
-
-init_extensions :-
-  Import_extension_module = (\Extension^use_module(extensions/Extension)),
-  Qualify = (\X^X^Q^(Q = X:X)),
-  desired_extensions(Extensions),
-  partition(is_sync, Extensions, Sync, Async),
-  length(Sync, N0),
-  length(Async, N1),
-  maplist(retractall, [sync_extensions(_,_),extensions(_,_)]),
-  asserta(sync_extensions(Sync, N0)),
-  asserta(extensions(Async, N1)),
-  maplist(Import_extension_module, Extensions),
-  maplist(Qualify, Sync, Sync, SyncHandlers),
-  maplist(Qualify, Async, Async, AsyncHandlers),
-  append(AsyncHandlers, [goals_to_concurrent(SyncHandlers)], Handlers),
-  assert_handlers(irc, Handlers).
-
-
-
-%% is_sync(+Name:atom) is semidet.
-%
-%  True if the extension name is prefixed with 'sync_'. (synchronous)
-is_sync(Name) :-
-  is_sync_(atom_codes $ Name, _Rest).
-
-is_sync_ --> `sync_`.
-
-
-goals_to_concurrent(Goals, Msg) :-
-  sync_extensions(_, N),
-  (  N > 0
-  -> goals_to_calls(Goals, Calls),
-     maplist(call_with_msg(Msg), Calls, RunCalls),
-     concurrent(N, RunCalls, [])
-  ;  true
-  ).
-
-
-call_with_msg(Msg, Call, call(Call, Msg)).
-
-goals_to_calls(Goals, Calls) :-
-  maplist(goal_to_call, Goals, Calls).
-
-goal_to_call(Goal, Call) :-
-  Call = (\Msg^call(Goal,Msg)).
 
 
