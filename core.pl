@@ -25,6 +25,8 @@ connect :-
     thread_join(irc, _),
     disconnect(irc)
   ),
+  writeln("Connection lost, attempting to reconnect ..."),
+  sleep(120),
   connect.
 
 
