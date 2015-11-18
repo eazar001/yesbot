@@ -73,28 +73,28 @@ news_trigger(Msg) :-
 %   status is already up, then assert it as down. A corresponding message is also
 %   sent to the channel regarding this state.
 
-update_line_status(Status) :-
+update_line_status(Me, Status) :-
   \+line_status(_),
   (  Status = up,
      asserta(line_status(up))
   ;  Status = down,
      asserta(line_status(down)),
-     priv_msg("www.swi-prolog.org currently appears to be down. Please \c
+     priv_msg(Me, "www.swi-prolog.org currently appears to be down. Please \c
        be patient until the matter is resolved.", "##prolog")
   ), !.
 
-update_line_status(up) :-
+update_line_status(Me, up) :-
   line_status(Status),
   (  Status = down
   -> retractall(line_status(_)),
      asserta(line_status(up)),
-     priv_msg("www.swi-prolog.org has been restored!", "##prolog")
+     priv_msg(Me, "www.swi-prolog.org has been restored!", "##prolog")
   ;  Status = up
   -> true
   ;  asserta(line_status(up))
   ), !.
   
-update_line_status(down) :-
+update_line_status(Me, down) :-
   line_status(Status),
   (  Status = up
   -> retractall(line_status(_)),
@@ -103,7 +103,7 @@ update_line_status(down) :-
   -> true
   ;  asserta(line_status(down))
   ),
-  priv_msg("www.swi-prolog.org currently appears to be down. Please \c
+  priv_msg(Me, "www.swi-prolog.org currently appears to be down. Please \c
     be patient until the matter is resolved.", "##prolog").
 
 
@@ -163,7 +163,7 @@ news_check(Me, T1, Limit) :-
 news_feed(Me, Date) :-
   target(Chan, _),
   news_link(Link),
-  catch(ignore(fetch_news(Me, Link, Chan)), _E, ignore(update_line_status(down))),
+  catch(ignore(fetch_news(Me, Link, Chan)), _E, ignore(update_line_status(Me, down))),
   ignore(fetch_version(Me)),
   ignore(fetch_king_james(Me)),
   ignore(fetch_swi_commit(Me,Date)),
@@ -341,7 +341,7 @@ handle_stored_issue(Me, State, N, Title, Args) :-
 %   determined to match the current day of the month for this year.
 
 valid_post(Me, Stream, Chan, Link) :-
-  update_line_status(up),
+  update_line_status(Me, up),
   count_valid_posts(Stream, Count, Content),
   forall(
     limit(Count, xpath(Content, //h2(@class='post-title', normalize_space), H)),
