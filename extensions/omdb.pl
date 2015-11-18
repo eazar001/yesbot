@@ -13,7 +13,7 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 
 omdb(Msg) :-
   thread_create(ignore(omdb_(Msg)), _, [detached(true)]).

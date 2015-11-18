@@ -17,7 +17,7 @@
 :- use_module(submodules/references_kb).
 :- use_module(submodules/utils).
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 
 references(Msg) :-
   thread_create(ignore(references_(Msg)), _, [detached(true)]).

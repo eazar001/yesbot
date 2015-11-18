@@ -5,7 +5,7 @@
 :- use_module(submodules/utils).
 
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 
 
 help(Msg) :-

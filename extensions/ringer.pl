@@ -14,6 +14,9 @@ target(_, _).
 :- setting(ringer:shell, atom, 'rem', 'script that will be shelled').
 
 ringer(Msg) :-
+  thread_create(ringer_(Msg), _, [detached(true)]).
+
+ringer_(Me-Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, [63,114,105,110,103,32|Rest]),
   determine_recipient(ringer, Msg, Rec),
   setting(ringer:handle, Handle),

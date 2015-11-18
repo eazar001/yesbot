@@ -4,7 +4,7 @@
 :- use_module(library(irc_client)).
 
 
-target("#testeazarbot").
+target("##prolog").
 
 whatsup([ "A preposition denoting a position or direction of superior altitude."
 	 ,"Your blood pressure."

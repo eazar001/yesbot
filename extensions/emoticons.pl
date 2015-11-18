@@ -5,7 +5,7 @@
 :- use_module(submodules/utils).
 
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 
 emoticons(Msg) :-
   thread_create(ignore(emoticons_(Msg)), _, [detached(true)]).

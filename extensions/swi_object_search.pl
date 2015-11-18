@@ -36,7 +36,7 @@
 % search_form_lib is used to search for libraries. (without suggestions)
 % search_sugg is the url used for deriving suggestions.
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 
 
 swi_object_search(Msg) :-

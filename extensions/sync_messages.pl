@@ -13,7 +13,7 @@
 :- dynamic session/1.
 :- dynamic session/2.
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 
 
 sync_messages(Msg) :-
