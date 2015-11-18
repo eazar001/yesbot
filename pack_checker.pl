@@ -5,7 +5,7 @@
 
 
 pack_deps(
-  [ mavis
+  [ irc_client
    ,func
    ,lambda
    ,list_util

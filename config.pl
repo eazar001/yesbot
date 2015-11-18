@@ -121,6 +121,9 @@ time_limit(Limit) :-
 %--------------------------------------------------------------------------------%
 
 
+%% init_extensions is semidet.
+%
+%  Initialized user chosen extensions and assert handlers at top level.
 init_extensions :-
   Import_extension_module = (\Extension^use_module(extensions/Extension)),
   Qualify = (\X^X^Q^(Q = X:X)),
@@ -138,6 +141,12 @@ init_extensions :-
   assert_handlers(irc, Handlers).
 
 
+%% goals_to_concurrent(+Goals, +Msg) is det.
+%
+%  Concurrently calls a list of Goals with Msg, the current server message.
+%  Until the last goal has been completed, this predicate will block. This is
+%  used for extensions that _must_ process messages in order.
+
 goals_to_concurrent(Goals, Msg) :-
   sync_extensions(_, N),
   (  N > 0
@@ -146,7 +155,6 @@ goals_to_concurrent(Goals, Msg) :-
      concurrent(N, RunCalls, [])
   ;  true
   ).
-
 
 call_with_msg(Msg, Call, call(Call, Msg)).
 

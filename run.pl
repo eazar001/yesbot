@@ -11,7 +11,7 @@
 :- initialization run.
 
 
-:- use_module(core).
+:- use_module(yesbot).
 :- use_module(library(lambda)).
 :- use_module(library(func)).
 
