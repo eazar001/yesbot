@@ -8,6 +8,19 @@ output(Msg) :-
 
 
 output_(Id-Msg) :-
-  Msg = msg(Server, Code, Params, Text),
-  format("~s: ~s ~s ~w ~s~n", [Id, Server, Code, Params, Text]).
+  Msg = msg(Prefix, Cmd, Params, Trailer),
+  format("~s: ~s ~s ~w ~s~n", [Id, Prefix, Cmd, Params, Trailer]).
+
+output_(Id-Msg) :-
+  Msg = msg(Prefix, Cmd, Params),
+  \+ is_list(Cmd), !,
+  format("~s: ~s ~s ~w ~n", [Id, Prefix, Cmd, Params]).
+
+output_(Id-Msg) :-
+  Msg = msg(Cmd, Params, Trailer),
+  format("~s: ~s ~w ~s~n", [Id, Cmd, Params, Trailer]).
+
+output_(Id-Msg) :-
+  Msg = msg(Cmd, Params),
+  format("~s: ~s ~w ~n", [Id, Cmd, Params]).
 
