@@ -44,7 +44,7 @@
 % TBD: Use the foundation of this module to prime the state infrastructure
 
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "dead_weight_bot").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
@@ -68,10 +68,10 @@ news_trigger(Msg) :-
 
 %% update_line_status(+Status) is det.
 %
-%   If swi-prolog line is down then retract it to signify that it is now up.
-%   A message is displayed to the channel that the line is now up. If the line
-%   status is already up, then assert it as down. A corresponding message is also
-%   sent to the channel regarding this state.
+%  If swi-prolog line is down then retract it to signify that it is now up.
+%  A message is displayed to the channel that the line is now up. If the line
+%  status is already up, then assert it as down. A corresponding message is also
+%  sent to the channel regarding this state.
 
 update_line_status(Me, Status) :-
   \+line_status(_),
@@ -109,8 +109,8 @@ update_line_status(Me, down) :-
 
 %% news_(Msg:compound) is semidet.
 %
-%   True if the message is a ping message to the bot, then run a persistent
-%   thread in the background that checks for news and download updates.
+%  True if the message is a ping message to the bot, then run a persistent
+%  thread in the background that checks for news and download updates.
 
 news_(Me-Msg) :-
   Msg = msg("PING", _, _),
@@ -119,8 +119,8 @@ news_(Me-Msg) :-
 
 %% news_loop is det.
 %
-%   Check the news feed on startup and evalute for side effects. Check the news feed
-%   every hour for updates. This predicate is always true.
+%  Check the news feed on startup and evalute for side effects. Check the news feed
+%  every hour for updates. This predicate is always true.
 
 news_loop(Me) :-
   news_time_limit(Limit),
@@ -159,7 +159,7 @@ news_check(Me, T1, Limit) :-
 
 %% news_feed(+Date) is det.
 %
-%   Attempt to scan swi-prolog.org news archive for updates and display to channel.
+%  Attempt to scan swi-prolog.org news archive for updates and display to channel.
 news_feed(Me, Date) :-
   target(Chan, _),
   news_link(Link),
@@ -187,7 +187,7 @@ fetch_version(Me) :-
 
 %% fetch_king_james is semidet.
 %
-%   Get the latest quote from the KJV site and pass the Quote to fetch_kv_quote/1.
+%  Get the latest quote from the KJV site and pass the Quote to fetch_kv_quote/1.
 fetch_king_james(Me) :-
   kjv_link(Link),
   setup_call_cleanup(
@@ -202,7 +202,7 @@ fetch_king_james(Me) :-
 
 %% fetch_kjv_quote(+Content:atom) is det.
 %
-%   Analyzes quotes, and only displays quotes that have not yet been displayed.
+%  Analyzes quotes, and only displays quotes that have not yet been displayed.
 fetch_kjv_quote(Me, Content) :-
   target(Chan, _),
   atom_string(Content, Quote),
@@ -228,7 +228,7 @@ fetch_kjv_quote(Me, Content) :-
 
 %% fetch_swi_commit(+Date) is semidet.
 %
-%   Access swi commits on github using the JSON API. Then print commits.
+%  Access swi commits on github using the JSON API. Then print commits.
 fetch_swi_commit(Me, Date) :-
   swi_commit_link(Link),
   setup_call_cleanup(
@@ -241,7 +241,7 @@ fetch_swi_commit(Me, Date) :-
 
 %% print_swi_commit(+Array, +Date) is failure.
 %
-%   Print commits only for this day. Only prints commits that haven't been printed.
+%  Print commits only for this day. Only prints commits that haven't been printed.
 print_swi_commit(Me, Array, Date) :-
   member(Dict, Array),
   is_dict(Dict),
@@ -266,7 +266,7 @@ print_swi_commit(Me, Array, Date) :-
 
 %% fetch_swi_issue is semidet.
 %
-%   Access swi issues on github using the JSON API. Then print issues.
+%  Access swi issues on github using the JSON API. Then print issues.
 fetch_swi_issue(Me) :-
   swi_issue_link(Link),
   setup_call_cleanup(
@@ -279,7 +279,7 @@ fetch_swi_issue(Me) :-
 
 %% print_swi_issue(+Array) is failure.
 %
-%   Print issue opens and closes. Only issue events that haven't been printed.
+%  Print issue opens and closes. Only issue events that haven't been printed.
 print_swi_issue(Me, Array) :-
   member(Dict, Array),
   is_dict(Dict),
@@ -337,8 +337,8 @@ handle_stored_issue(Me, State, N, Title, Args) :-
 
 %% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
 %
-%   Run IO side effects for all valid posts. Valid posts are posts that are
-%   determined to match the current day of the month for this year.
+%  Run IO side effects for all valid posts. Valid posts are posts that are
+%  determined to match the current day of the month for this year.
 
 valid_post(Me, Stream, Chan, Link) :-
   update_line_status(Me, up),
@@ -359,8 +359,8 @@ valid_post(Me, Stream, Chan, Link) :-
 
 %% count_valid_posts(+Stream, -Count:integer, -Content) is det.
 %
-%   Count the total amount of valid posts (match today's date) and unify content
-%   with the parsed html.
+%  Count the total amount of valid posts (match today's date) and unify content
+%  with the parsed html.
 
 count_valid_posts(Stream, Count, Content) :-
   load_html(Stream, Content, []),
@@ -376,13 +376,13 @@ count_valid_posts(Stream, Count, Content) :-
 
 %% compare_days is semidet.
 %
-%   Get current day stored in the database and compare it to the system's realtime
-%   representation of the current day. If they are unequal then assert the systems
-%   representation; nothing should be done otherwise. NOTE: this predicate should
-%   be deterministic, but is not because current_day/1 is dynamic. Therefore an
-%   error should be thrown if there is failure. So for now, unti this is resolved,
-%   this predicate should be marked as semidet. This predicate also retracts all
-%   headings from the persistent database daily, for cleanup/maintenence purposes.
+%  Get current day stored in the database and compare it to the system's realtime
+%  representation of the current day. If they are unequal then assert the systems
+%  representation; nothing should be done otherwise. NOTE: this predicate should
+%  be deterministic, but is not because current_day/1 is dynamic. Therefore an
+%  error should be thrown if there is failure. So for now, unti this is resolved,
+%  this predicate should be marked as semidet. This predicate also retracts all
+%  headings from the persistent database daily, for cleanup/maintenence purposes.
 
 compare_days :-
   current_day(Current),
@@ -405,8 +405,8 @@ compare_days :-
 
 %% get_latest_version(+Type:atom) is semidet.
 %
-%   Attempt to retrieve latest software version of Type (either stable or devel)
-%   and display the result via IO side effects.
+%  Attempt to retrieve latest software version of Type (either stable or devel)
+%  and display the result via IO side effects.
 
 get_latest_version(Me, Type) :-
   target(Chan, _),
@@ -429,8 +429,8 @@ get_latest_version(Me, Type) :-
 
 %% latest_version(+Link:string, -Version:string) is semidet.
 %
-%   Parse a link and attempt to extract the last (latest version) file that is
-%   available for download in the appropriate formatted table in the swi site.
+%  Parse a link and attempt to extract the last (latest version) file that is
+%  available for download in the appropriate formatted table in the swi site.
 
 latest_version(Link, Version) :-
   setup_call_cleanup(
@@ -446,16 +446,21 @@ latest_version(Link, Version) :-
     Files
   ),
   String_is_num = (\Str^number_string(_, Str)),
-  split_string(last $ Files, "-.", "", Latest),
-  include(String_is_num, Latest, Nums),
-  atomic_list_concat(Nums, ., Atom),
+  Split_file = (\F^S^split_string(F, "-.", "", S)),
+  String_num = (\Str^Num^number_string(Num, Str)),
+  maplist(Split_file, Files, Split),
+  maplist(include(String_is_num), Split, NumStrings),
+  maplist(maplist(String_num), NumStrings, Nums),
+  msort(Nums, Sorted),
+  last(Sorted, Latest),
+  atomic_list_concat(Latest, ., Atom),
   atom_string(Atom, Version).
 
 
 %% git_io(+Link:string, -Shortened:string) is det.
 %
-%   Shorten a git link. If the shortening service fails, then Link will be unified
-%   with Shortened.
+%  Shorten a git link. If the shortening service fails, then Link will be unified
+%  with Shortened.
 
 git_io(Link, Shortened) :-
   catch(git_io_(Link, Shortened), _Error, Shortened=Link).
