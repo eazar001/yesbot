@@ -44,7 +44,7 @@
 % TBD: Use the foundation of this module to prime the state infrastructure
 
 
-target("#testeazarbot", "dead_weight_bot").
+target("##prolog", "yesbot").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").

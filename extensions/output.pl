@@ -14,7 +14,7 @@ output_(Id-Msg) :-
 output_(Id-Msg) :-
   Msg = msg(Prefix, Cmd, Params),
   \+ is_list(Cmd), !,
-  format("~s: ~s ~s ~w ~n", [Id, Prefix, Cmd, Params]).
+  format("~s: ~s ~s ~w~n", [Id, Prefix, Cmd, Params]).
 
 output_(Id-Msg) :-
   Msg = msg(Cmd, Params, Trailer),
@@ -22,5 +22,5 @@ output_(Id-Msg) :-
 
 output_(Id-Msg) :-
   Msg = msg(Cmd, Params),
-  format("~s: ~s ~w ~n", [Id, Cmd, Params]).
+  format("~s: ~s ~w~n", [Id, Cmd, Params]).
 
