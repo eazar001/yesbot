@@ -78,17 +78,14 @@ update_line_status(Me, Status) :-
   (  Status = up,
      asserta(line_status(up))
   ;  Status = down,
-     asserta(line_status(down)),
-     priv_msg(Me, "www.swi-prolog.org currently appears to be down. Please \c
-       be patient until the matter is resolved.", "##prolog")
+     asserta(line_status(down))
   ), !.
 
 update_line_status(Me, up) :-
   line_status(Status),
   (  Status = down
   -> retractall(line_status(_)),
-     asserta(line_status(up)),
-     priv_msg(Me, "www.swi-prolog.org has been restored!", "##prolog")
+     asserta(line_status(up))
   ;  Status = up
   -> true
   ;  asserta(line_status(up))
@@ -102,9 +99,7 @@ update_line_status(Me, down) :-
   ;  Status = down
   -> true
   ;  asserta(line_status(down))
-  ),
-  priv_msg(Me, "www.swi-prolog.org currently appears to be down. Please \c
-    be patient until the matter is resolved.", "##prolog").
+  ).
 
 
 %% news_(Msg:compound) is semidet.
@@ -163,8 +158,9 @@ news_check(Me, T1, Limit) :-
 news_feed(Me, Date) :-
   target(Chan, _),
   news_link(Link),
-  catch(ignore(fetch_news(Me, Link, Chan)), _E, ignore(update_line_status(Me, down))),
-  (  line_status(up)
+  catch(ignore(fetch_news(Me, Link, Chan)),
+    _E, ignore(update_line_status(Me, down))),
+  (  \+ line_status(down)
   -> ignore(fetch_version(Me))
   ;  true
   ),
