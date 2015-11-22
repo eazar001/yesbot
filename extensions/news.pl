@@ -164,7 +164,10 @@ news_feed(Me, Date) :-
   target(Chan, _),
   news_link(Link),
   catch(ignore(fetch_news(Me, Link, Chan)), _E, ignore(update_line_status(Me, down))),
-  ignore(fetch_version(Me)),
+  (  line_status(up)
+  -> ignore(fetch_version(Me))
+  ;  true
+  ),
   ignore(fetch_king_james(Me)),
   ignore(fetch_swi_commit(Me,Date)),
   ignore(fetch_swi_issue(Me)).
