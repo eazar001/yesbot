@@ -14,7 +14,7 @@ target(_, _).
 :- setting(ringer:shell, atom, 'rem', 'script that will be shelled').
 
 ringer(Msg) :-
-  thread_create(ringer_(Msg), _, [detached(true)]).
+  thread_create(ignore(ringer_(Msg)), _, [detached(true)]).
 
 ringer_(Me-Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, [63,114,105,110,103,32|Rest]),
@@ -24,7 +24,7 @@ ringer_(Me-Msg) :-
   phrase(contains(CHandle), Rest),
   setting(ringer:shell, Shell),
   once(shell(Shell)),
-  send_msg(priv_msg, `party has been rung`, Rec).
+  send_msg(Me, priv_msg, `party has been rung`, Rec).
 
 contains(Str) -->
 	string(_),
