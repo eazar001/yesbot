@@ -9,7 +9,7 @@ pack_deps(
    ,func
    ,lambda
    ,list_util
-   ,typedef ]).
+   ,plchatscript ]).
 
 
 install_deps :-
