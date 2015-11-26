@@ -1,4 +1,3 @@
-
 :- module(output, [output/1]).
 
 :- use_module(library(irc_client)).
@@ -23,4 +22,3 @@ output_(Id-Msg) :-
 output_(Id-Msg) :-
   Msg = msg(Cmd, Params),
   format("~s: ~s ~w~n", [Id, Cmd, Params]).
-

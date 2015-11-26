@@ -1,4 +1,3 @@
-
 :- module(sarcasm, [sarcasm/1]).
 
 :- use_module(library(irc_client)).
@@ -44,5 +43,3 @@ display_public_action(Me) :-
   random_member(R0, As),
   format(string(Response), `~cACTION ~s~c`, [1,R0,1]),
   send_msg(Me, priv_msg, Response, Chan).
-
-

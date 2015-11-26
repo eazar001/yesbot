@@ -1,4 +1,3 @@
-
 :- module(references_kb, [name_pair/2]).
 
 :- op(1200, xfx, @).
@@ -252,5 +251,3 @@ swi &
 lamp &
 "http://www.swi-prolog.org/FAQ/PrologLAMP.txt" &
 "Can I replace a LAMP stack with SWI-Prolog?".
-
-

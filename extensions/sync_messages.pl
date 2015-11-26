@@ -1,4 +1,3 @@
-
 :- module(sync_messages, [sync_messages/1]).
 
 :- use_module(library(irc_client)).
@@ -151,5 +150,3 @@ inform_of_message(Me, Nick, Chan) :-
   send_msg(Me, priv_msg, Greet, Chan),
   send_msg(Me, priv_msg, "You can play a message by typing ?play \c
     (you can also do this in private if you want)", Chan).
-
-

@@ -39,5 +39,3 @@ references_(Me-Msg) :-
        use the "?~s" keyword. Pardon my interruption.', [R]),
      send_msg(Me, priv_msg, S, Rec)
   ).
-
-

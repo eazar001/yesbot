@@ -103,5 +103,3 @@ make_tiny_(Me, Link, Chan) :-
      normalize_space(string(T0), Title),  
      send_msg(Me, priv_msg, T0, Chan)
   ).
-
-

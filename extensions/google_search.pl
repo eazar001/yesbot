@@ -1,4 +1,3 @@
-
 :- module(google_search, [google_search/1]).
 
 :- use_module(library(irc_client)).
@@ -58,5 +57,3 @@ google_search_(Me-Msg) :-
     ),
     close(Stream)
   ).
-
-

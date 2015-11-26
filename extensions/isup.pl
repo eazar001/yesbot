@@ -1,4 +1,3 @@
-
 :- module(isup, [isup/1]).
 
 :- use_module(library(irc_client)).
@@ -40,5 +39,3 @@ decode(Me, Msg, Status, Resp, Time) :-
   Status < 3,
   format(string(Report), 'Response code: ~a, Response time: ~a s', [Resp, Time]),
   priv_msg(Me, Report, Rec).
-
-

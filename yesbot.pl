@@ -1,4 +1,3 @@
-
 :- module(yesbot,
      [ connect/0
       ,main/1 ]).
@@ -49,6 +48,7 @@ connect :-
     thread_join(irc, _),
     disconnect(irc)
   ),
+  flush_output,
   writeln("Connection lost, attempting to reconnect ..."),
   sleep(120),
   connect.
@@ -71,5 +71,3 @@ join_channels :-
   bot_realname(Rn),
   Names = [Hn,Sn,Rn],
   connect(Host, Port, Pass, Nick, Names, Chans).
-
-
