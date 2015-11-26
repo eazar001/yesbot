@@ -71,7 +71,7 @@ news_trigger(Msg) :-
 %  status is already up, then assert it as down. A corresponding message is also
 %  sent to the channel regarding this state.
 
-update_line_status(Me, Status) :-
+update_line_status(_Me, Status) :-
   \+line_status(_),
   (  Status = up,
      asserta(line_status(up))
@@ -79,7 +79,7 @@ update_line_status(Me, Status) :-
      asserta(line_status(down))
   ), !.
 
-update_line_status(Me, up) :-
+update_line_status(_Me, up) :-
   line_status(Status),
   (  Status = down
   -> retractall(line_status(_)),
@@ -89,7 +89,7 @@ update_line_status(Me, up) :-
   ;  asserta(line_status(up))
   ), !.
   
-update_line_status(Me, down) :-
+update_line_status(_Me, down) :-
   line_status(Status),
   (  Status = up
   -> retractall(line_status(_)),
