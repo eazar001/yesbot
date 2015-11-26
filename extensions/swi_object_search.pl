@@ -62,7 +62,7 @@ swi_object_search_(Me-Msg) :-
 %--------------------------------------------------------------------------------%
 
 
-%% do_search(+Msg, -Link, -Query, -Quiet, -Rec, -Stream) is semidet.
+%% do_search(+Id, +Msg, -Link, -Query, -Quiet, -Rec, -Stream) is semidet.
 %
 %  do_search/6 listens for the appropriate search patterns and arguments.
 %  Certain patterns will correspond with implicit or explicit quietness options.
@@ -131,7 +131,7 @@ do_search(Me, Msg, Link, Query, Quiet, Rec, Stream) :-
   ).
 
 
-%% parse_structure(+Link, +Query, +Quiet, +Rec, +Stream) is semidet.
+%% parse_structure(+Id, +Link, +Query, +Quiet, +Rec, +Stream) is semidet.
 %
 %  Load incoming search information as an HTML structure. Scrape information from
 %  the HTML and determine whether or not there is a match for the user's request.
@@ -143,7 +143,7 @@ parse_structure(Me, Link, Query, Quiet, Rec, Stream) :-
   found_object(Me, Structure, Link, Query, Quiet, Rec).
 
 
-%% found_object(+Structure, +Link, +Query, +Quiet, +Rec) is det.
+%% found_object(+Id, +Structure, +Link, +Query, +Quiet, +Rec) is det.
 %
 %  If a matching object was found for the user's requests then the necessary
 %  side-effects would have been performed by found/4. If not, then the user is
@@ -160,7 +160,7 @@ found_object(Me, Structure, Link, Query, Quiet, Rec) :-
   ).
 
 
-%% found(+Link, +Rec, +Quiet, +Structure) is semidet.
+%% found(+Id, +Link, +Rec, +Quiet, +Structure) is semidet.
 %
 %  Determine if relevant information is found with respect to the user's query.
 %  Display formats vary according to quietness options.
@@ -189,7 +189,7 @@ found(Me, Link, Rec, Qlevel, Structure) :-
   ).
 
 
-%% try_again(+Query, +Rec) is semidet.
+%% try_again(+Id, +Query, +Rec) is semidet.
 %
 %  Attempts to search for possible matches if a user has entered a query that
 %  does not lead to a direct match. Possible results are displayed to the user
@@ -261,7 +261,7 @@ try_other_candidate(Structure, Invalids, Sugg) :-
   atom_string(A, Sugg).
   
 
-%% write_first_sentence(+Structure, +Rec) is semidet.
+%% write_first_sentence(+Id, +Structure, +Rec) is semidet.
 %
 %  Search for a dd tag that's classified as "defbody" (definition body), attempt
 %  to extract the first sentence and display it to the channel. If the first

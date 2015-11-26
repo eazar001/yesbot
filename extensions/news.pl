@@ -64,7 +64,7 @@ news_trigger(Msg) :-
   ).
 
 
-%% update_line_status(+Status) is det.
+%% update_line_status(+Id, +Status) is det.
 %
 %  If swi-prolog line is down then retract it to signify that it is now up.
 %  A message is displayed to the channel that the line is now up. If the line
@@ -100,7 +100,7 @@ update_line_status(Me, down) :-
   ).
 
 
-%% news_(Msg:compound) is semidet.
+%% news_(+Msg) is semidet.
 %
 %  True if the message is a ping message to the bot, then run a persistent
 %  thread in the background that checks for news and download updates.
@@ -110,7 +110,7 @@ news_(Me-Msg) :-
   thread_create(news_loop(Me), _, [alias(news), detached(true)]).
 
 
-%% news_loop is det.
+%% news_loop(+Me) is det.
 %
 %  Check the news feed on startup and evalute for side effects. Check the news feed
 %  every hour for updates. This predicate is always true.
@@ -135,7 +135,7 @@ news_loop(Me) :-
   news_check(Me, T1, Limit).
 
 
-%% news_check(+T1:float, +Limit:integer) is det.
+%% news_check(+Id, +T1:float, +Limit:integer) is det.
 news_check(Me, T1, Limit) :-
   sleep(0.05),
   compare_days,
@@ -150,7 +150,7 @@ news_check(Me, T1, Limit) :-
   ).
 
 
-%% news_feed(+Date) is det.
+%% news_feed(+Id, +Date) is det.
 %
 %  Attempt to scan swi-prolog.org news archive for updates and display to channel.
 news_feed(Me, Date) :-
@@ -167,7 +167,7 @@ news_feed(Me, Date) :-
   ignore(fetch_swi_issue(Me)).
 
 
-%% fetch_news(+Link:string, +Chan:string) is semidet.
+%% fetch_news(+Id, +Link:string, +Chan:string) is semidet.
 fetch_news(Me, Link, Chan) :-
   setup_call_cleanup(
     http_open(Link, Stream, [timeout(20)]),
@@ -176,13 +176,13 @@ fetch_news(Me, Link, Chan) :-
   ).
 
 
-%% fetch_version is det.
+%% fetch_version(+Id) is det.
 fetch_version(Me) :-
   ignore(get_latest_version(Me, stable)),
   ignore(get_latest_version(Me, development)).
 
 
-%% fetch_king_james is semidet.
+%% fetch_king_james(+Id) is semidet.
 %
 %  Get the latest quote from the KJV site and pass the Quote to fetch_kv_quote/1.
 fetch_king_james(Me) :-
@@ -197,7 +197,7 @@ fetch_king_james(Me) :-
   ).
 
 
-%% fetch_kjv_quote(+Content:atom) is det.
+%% fetch_kjv_quote(+Id, +Content:atom) is det.
 %
 %  Analyzes quotes, and only displays quotes that have not yet been displayed.
 fetch_kjv_quote(Me, Content) :-
@@ -223,7 +223,7 @@ fetch_kjv_quote(Me, Content) :-
   ).
 
 
-%% fetch_swi_commit(+Date) is semidet.
+%% fetch_swi_commit(+Id, +Date) is semidet.
 %
 %  Access swi commits on github using the JSON API. Then print commits.
 fetch_swi_commit(Me, Date) :-
@@ -236,7 +236,7 @@ fetch_swi_commit(Me, Date) :-
   print_swi_commit(Me, Array, Date).
 
 
-%% print_swi_commit(+Array, +Date) is failure.
+%% print_swi_commit(+Id, +Array, +Date) is failure.
 %
 %  Print commits only for this day. Only prints commits that haven't been printed.
 print_swi_commit(Me, Array, Date) :-
@@ -261,7 +261,7 @@ print_swi_commit(Me, Array, Date) :-
   fail.
 
 
-%% fetch_swi_issue is semidet.
+%% fetch_swi_issue(+Id) is semidet.
 %
 %  Access swi issues on github using the JSON API. Then print issues.
 fetch_swi_issue(Me) :-
@@ -274,7 +274,7 @@ fetch_swi_issue(Me) :-
   print_swi_issue(Me, Array).
 
 
-%% print_swi_issue(+Array) is failure.
+%% print_swi_issue(+Id, +Array) is failure.
 %
 %  Print issue opens and closes. Only issue events that haven't been printed.
 print_swi_issue(Me, Array) :-
@@ -332,7 +332,7 @@ handle_stored_issue(Me, State, N, Title, Args) :-
   ).
   
 
-%% valid_post(+Stream, +Chan:string, +Link:string) is semidet.
+%% valid_post(+Id, +Stream, +Chan:string, +Link:string) is semidet.
 %
 %  Run IO side effects for all valid posts. Valid posts are posts that are
 %  determined to match the current day of the month for this year.
@@ -400,7 +400,7 @@ compare_days :-
   ).
 
 
-%% get_latest_version(+Type:atom) is semidet.
+%% get_latest_version(+Id, +Type:atom) is semidet.
 %
 %  Attempt to retrieve latest software version of Type (either stable or devel)
 %  and display the result via IO side effects.
