@@ -1,15 +1,13 @@
-
 :- module(pack_checker, [install_deps/0]).
 
 :- use_module(library(prolog_pack)).
-
 
 pack_deps(
   [ irc_client
    ,func
    ,lambda
    ,list_util
-   ,typedef ]).
+   ,plchatscript ]).
 
 
 install_deps :-
@@ -34,5 +32,3 @@ install_packs([P|_]) :-
   pack_install(P),
   search(Remaining),
   install_packs(Remaining).
-  
-

@@ -1,4 +1,3 @@
-
 %% Submodule for html related utilities
 
 :- module(html,
@@ -131,5 +130,3 @@ invalid_utf8(Char) :-
 
 invalid_utf8(Char) :-
   Char > 0xffff.
-
-

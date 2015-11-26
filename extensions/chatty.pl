@@ -47,12 +47,14 @@
 %
 %  @arg	Msg is a message term, of the form
 %
-%  =|msg(Prefix, Verb, ChannelList, Body)|=
+%  =|Id-msg(Prefix, Verb, ChannelList, Body)|=
 %  or
-%  =|msg(Prefix, Verb, ChannelList)|=
+%  =|Id-msg(Prefix, Verb, ChannelList)|=
 %
 %  The only verb we're interested in is =|"PRIVMSG"|=
 %  which comes as msg/4 above
+%
+%  Id is the alias of the connection the message corresponds to
 %
 %  Prefix is a string of the format
 %       =|  servername / ( nickname [ [ "!" user ] "@" host ])  |=
@@ -83,7 +85,7 @@ in_right_chan(msg(_, _, [Chan])) :-
   connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
   member(Chan, Chans).
 
-%%	respond_privmsg(+Prefix:prefix, +Chan:string, +Body:string) is
+%%	respond_privmsg(+Id, +Prefix:prefix, +Chan:string, +Body:string) is
 %	det
 %
 %	stateful, responds appropriately to user PRIVMSG's

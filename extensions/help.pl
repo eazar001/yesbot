@@ -1,4 +1,3 @@
-
 :- module(help, [help/1]).
 
 :- use_module(library(irc_client)).
@@ -84,5 +83,3 @@ website_status("?isup <domain> to check on the status of a website, e.g. \c
 movies("?movie <MovieTitle> to search for a movie, its plot, and ratings. By default \c
   yesbot will return the title with the newest year. You can search a paritcular year \c
       if desired like such: ?movie casino royale [1967].").
-
-

@@ -1,6 +1,4 @@
-
 %% Parsing modules for SWI docs
-
 
 :- module(docs, [sentence/3]).
 
@@ -64,5 +62,3 @@ decimal([D0,46,D1|_]) -->
 ending([46]) --> `.`.
 ending(``) --> ``.
 newline([10]) --> `\n`.
-
-

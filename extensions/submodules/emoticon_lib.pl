@@ -1,5 +1,4 @@
-:- module(emoticon_lib, [emote//1]
-).
+:- module(emoticon_lib, [emote//1]).
 
 /** <module> Some frequently observed emoticons
 

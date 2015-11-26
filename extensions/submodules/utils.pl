@@ -1,4 +1,3 @@
-
 :- module(utils, [determine_recipient/3]).
 
 :- use_module(library(irc_client)).
@@ -17,4 +16,3 @@ determine_recipient(Mod, msg(_, "PRIVMSG", [Chan], _), Chan) :-
 determine_recipient(Mod, msg(Prefix, "PRIVMSG", [Bot], _), Sender) :-
   Mod:target(_, Bot),
   prefix_id(Prefix, Sender, _, _).
-
