@@ -95,5 +95,3 @@ write_chat_line(Date, Nick, Chan, Log) :-
 
 get_action([1|Log], Action) :-
   append(`ACTION`, Action, selectchk(1) $ Log).
-
-

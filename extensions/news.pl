@@ -1,6 +1,4 @@
-
 %% Extension designed to fetch news and download updates from swi-prolog.org
-
 
 :- module(news,
      [ news/1
@@ -476,5 +474,3 @@ git_io_(Link, Shortened) :-
 %  Kill the thread when no longer needed. Exposed in the API.
 news_abort :-
   core:thread_signal(news, throw(abort)).
-
-

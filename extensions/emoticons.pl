@@ -17,5 +17,3 @@ emoticons_(Me-Msg) :-
   normalize_space(codes(C), Str),
   once(emote(Eng, C, [])),
   send_msg(Me, priv_msg, Eng, Rec).
-
-

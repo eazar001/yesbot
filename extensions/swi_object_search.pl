@@ -291,5 +291,3 @@ get_functor(Original, Functor) :-
 get_functor_([]) --> `/`, !.
 get_functor_([C|Rest]) -->
   [C], get_functor_(Rest).
-
-

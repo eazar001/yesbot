@@ -1,6 +1,4 @@
-
 %% Submodule for General Web/Connection related utilities
-
 
 :- module(web,
      [ visit_url/2
@@ -77,7 +75,3 @@ content_type_opts(Type, Opts) :-
 % Certificate verification
 cert_verify(_SSL, _ProblemCert, _AllCerts, _FirstCert, _Error) :-
   format(user_error, 'Accepting certificate~n', []).
-
-
-
-

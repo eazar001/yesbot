@@ -1,4 +1,3 @@
-
 :- module(greet, [greet/1]).
 
 :- use_module(dispatch).
@@ -208,5 +207,3 @@ add_name(Codes) :-
   -> assert_current_name(Atom)
   ;  true
   ).
-
-

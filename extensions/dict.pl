@@ -1,4 +1,3 @@
-
 :- module(dict, [dict/1]).
 
 :- use_module(library(irc_client)).
@@ -104,5 +103,3 @@ update_session(Nick, []) :-
 update_session(Nick, Rest) :-
   retractall(session(Nick, _)),
   asserta(session(Nick, Rest)).
-
-

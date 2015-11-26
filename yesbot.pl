@@ -1,4 +1,3 @@
-
 :- module(yesbot,
      [ connect/0
       ,main/1 ]).
@@ -71,5 +70,3 @@ join_channels :-
   bot_realname(Rn),
   Names = [Hn,Sn,Rn],
   connect(Host, Port, Pass, Nick, Names, Chans).
-
-
