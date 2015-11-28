@@ -9,6 +9,8 @@
       ,bot_servername/1
       ,bot_realname/1
       ,desired_extensions/1
+      ,extensions/2
+      ,sync_extensions/2
       ,set_extensions/1
       ,time_limit/1
       ,init_extensions/0
@@ -25,6 +27,9 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(func)).
 :- use_module(library(lambda)).
+
+:- dynamic extensions/2.
+:- dynamic sync_extensions/2.
 
 
 %--------------------------------------------------------------------------------%
