@@ -10,14 +10,13 @@
 
 :- reexport(config, [goals_to_concurrent/2]).
 
-/** <module> yesbot
-IRC bot written in prolog.
+/** <module> Yesbot IRC bot
+Extensible IRC bot written in Prolog.
 
 @author Ebrahim Azarisooreh
 @license MIT
 
 @tbd Add support for multiple chat servers
-
 */
 
   
@@ -30,10 +29,10 @@ IRC bot written in prolog.
 
 main(Doc) :-
   asserta(swi_object_search:doc_port(Doc)),
-  thread_create(connect, _, [detached(true),alias(conn)]).
+  thread_create(connect, _, [detached(true), alias(conn)]).
 
 
-%% connect
+%% connect is failure.
 %
 %  Intializes the extensions the user has chosen after consulting config.pl.
 %  Then a connection is spawned on a separate thread and joined on termination.
@@ -41,17 +40,17 @@ main(Doc) :-
 %  persistent and will attempt to reconnect after 2 minutes.
 
 connect :-
-  setup_call_cleanup(
-    (  init_extensions,
-       thread_create(join_channels, _, [alias(irc)])
+  repeat,
+    init_extensions,
+    catch(
+      thread_create(join_channels, _, [alias(irc), at_exit(disconnect(irc))]),
+      Err,
+      print_message(error, Err)
     ),
     thread_join(irc, _),
-    disconnect(irc)
-  ),
-  flush_output,
-  writeln("Connection lost, attempting to reconnect ..."),
-  sleep(120),
-  connect.
+    writeln("Connection lost, attempting to reconnect ..."),
+    sleep(120),
+    fail.
 
 
 %% join_channels is semidet.
