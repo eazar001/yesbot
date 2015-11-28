@@ -14,6 +14,7 @@
       ,init_extensions/0
       ,goals_to_concurrent/2
       ,add_new_extensions/1
+      ,remove_extensions/1
       ,load_new_extensions/1
       ,is_script/1
       ,valid_extensions/1
@@ -182,6 +183,17 @@ set_extensions(Extensions) :-
 add_new_extensions(New) :-
   setting(config:extensions, Es),
   append(New, Es, Extensions),
+  load_new_extensions(Extensions).
+
+
+%% remove_extensions(+Es) is semidet.
+%
+%  Subtract the requested list of extensions Es, from the currently loaded
+%  extensions during runtime.
+
+remove_extensions(Es) :-
+  setting(config:extensions, Current),
+  subtract(Current, Es, Extensions),
   load_new_extensions(Extensions).
 
 
