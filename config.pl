@@ -60,7 +60,7 @@
 :- setting(chans, list(text), [ '##prolog', '##math' ],
      'List of channels to connect to').
 
-:- setting(extensions, list(atom), [link_shortener, sync_chat_log],
+:- setting(extensions, list(atom), [output, link_shortener, sync_chat_log],
      'list of extensions to load').
 
 % Constants for user registration specs
