@@ -165,7 +165,7 @@ goal_to_call(Goal, Call) :-
   Call = (\Msg^call(Goal,Msg)).
 
 
-%% set_extensions(:Extensions:list(atom)) is det.
+%% set_extensions(:Extensions) is det.
 %
 %  Set the extensions to be loaded on startup. (Sanity checked)
 set_extensions(Extensions) :-
@@ -173,7 +173,7 @@ set_extensions(Extensions) :-
   set_setting(config:extensions, Extensions).
 
 
-%% add_new_extensions(+New:list(atom)) is semidet.
+%% add_new_extensions(+New) is semidet.
 %
 %  Adds new extensions on top of whatever extensions are currently loaded in the
 %  the bot at the moment. These settings will not persist on restart; persisting
@@ -185,7 +185,7 @@ add_new_extensions(New) :-
   load_new_extensions(Extensions).
 
 
-%% load_new_extensions(+Es:list(atom)) is semidet.
+%% load_new_extensions(+Es) is semidet.
 %
 %  Load a new set of extensions and initalize them into the current bot session.
 %  This will not save these settings on restart. To make them persistent, this
@@ -204,7 +204,7 @@ load_new_extensions(Es) :-
 %%%%%%%%%%%%%%%%%
 
 
-%% is_sync(+Name:atom) is semidet.
+%% is_sync(+Name) is semidet.
 %
 %  True if the extension name is prefixed with 'sync_'. (synchronous)
 is_sync(Name) :-
@@ -213,7 +213,7 @@ is_sync(Name) :-
 is_sync_ --> `sync_`.
 
 
-%% script_extension(+File:atom, Without:atom) is semidet.
+%% script_extension(+File, Without) is semidet.
 %
 %  True if File ends in `.pl` and Without is an atom devoid of this ending.
 script_extension(File, Without) :-
@@ -221,7 +221,7 @@ script_extension(File, Without) :-
   atom_codes(Without, WO).
 
 
-%% is_script(+File:atom) is semidet.
+%% is_script(+File) is semidet.
 %
 %  True if File is a prolog script file (ending in `.pl`).
 is_script(File) :-
@@ -240,7 +240,7 @@ check_valid_extensions(Es) :-
   ).
 
 
-%% valid_extensions(+Extensions:list(atom)) is semidet.
+%% valid_extensions(+Extensions) is semidet.
 %
 %  True if Extensions is a subset of extensions available to yesbot.
 valid_extensions(Extensions) :-
