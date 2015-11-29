@@ -21,7 +21,9 @@ bot_control_(Id-Msg) :-
 
 control(Me-Chan, '?stop ', Arg) :-
   (  Arg \== bot_control,
-     extensions(Current, _),
+     (  extensions(Current, _)
+     ;  sync_extensions(Current, _)
+     ),
      memberchk(Arg, Current),
      valid_extensions([Arg])
   -> true
