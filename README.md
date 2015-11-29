@@ -63,4 +63,6 @@ the same name as their containing modules. All Yesbot extensions are required to
 Extensions should all take in one argument: a pair containing the Id of the connection and the
 current server line. The pair should be of the form `Id-Msg`. The main extension predicate should
 have the same name as the Prolog module itself (sans the `.pl` portion). The demo extension source
-code is located in the extensions directory.
+code is located in the extensions directory. A warning: The majority of the extensions that come
+with this bot were designed for ##prolog usage. While they can be catered to work generically, they
+may require tinkering to get them to work for your use cases.
