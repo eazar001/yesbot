@@ -37,7 +37,9 @@ control(Me-Chan, '?stop ', Arg) :-
 control(Me-Chan, '?start ', Arg) :-
   (  Arg \== bot_control,
      valid_extensions([Arg]),
-     extensions(Current, _),
+     (  extensions(Current, _)
+     ;  sync_extensions(Current, _)
+     ),
      \+memberchk(Arg, Current)
   -> true
   ;  priv_msg(Me, "I'm afraid I can't do that, Dave", Chan),
