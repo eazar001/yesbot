@@ -9,11 +9,14 @@
       ,bot_servername/1
       ,bot_realname/1
       ,desired_extensions/1
+      ,extensions/2
+      ,sync_extensions/2
       ,set_extensions/1
       ,time_limit/1
       ,init_extensions/0
       ,goals_to_concurrent/2
       ,add_new_extensions/1
+      ,remove_extensions/1
       ,load_new_extensions/1
       ,is_script/1
       ,valid_extensions/1
@@ -24,6 +27,9 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(func)).
 :- use_module(library(lambda)).
+
+:- dynamic extensions/2.
+:- dynamic sync_extensions/2.
 
 
 %--------------------------------------------------------------------------------%
@@ -59,7 +65,8 @@
 :- setting(chans, list(text), [ '##prolog', '##math' ],
      'List of channels to connect to').
 
-:- setting(extensions, list(atom), [link_shortener, sync_chat_log],
+:- setting(extensions, list(atom),
+     [bot_control, output, link_shortener, sync_chat_log],
      'list of extensions to load').
 
 % Constants for user registration specs
@@ -165,7 +172,7 @@ goal_to_call(Goal, Call) :-
   Call = (\Msg^call(Goal,Msg)).
 
 
-%% set_extensions(:Extensions:list(atom)) is det.
+%% set_extensions(:Extensions) is det.
 %
 %  Set the extensions to be loaded on startup. (Sanity checked)
 set_extensions(Extensions) :-
@@ -173,7 +180,7 @@ set_extensions(Extensions) :-
   set_setting(config:extensions, Extensions).
 
 
-%% add_new_extensions(+New:list(atom)) is semidet.
+%% add_new_extensions(+New) is semidet.
 %
 %  Adds new extensions on top of whatever extensions are currently loaded in the
 %  the bot at the moment. These settings will not persist on restart; persisting
@@ -185,7 +192,18 @@ add_new_extensions(New) :-
   load_new_extensions(Extensions).
 
 
-%% load_new_extensions(+Es:list(atom)) is semidet.
+%% remove_extensions(+Es) is semidet.
+%
+%  Subtract the requested list of extensions Es, from the currently loaded
+%  extensions during runtime.
+
+remove_extensions(Es) :-
+  setting(config:extensions, Current),
+  subtract(Current, Es, Extensions),
+  load_new_extensions(Extensions).
+
+
+%% load_new_extensions(+Es) is semidet.
 %
 %  Load a new set of extensions and initalize them into the current bot session.
 %  This will not save these settings on restart. To make them persistent, this
@@ -204,7 +222,7 @@ load_new_extensions(Es) :-
 %%%%%%%%%%%%%%%%%
 
 
-%% is_sync(+Name:atom) is semidet.
+%% is_sync(+Name) is semidet.
 %
 %  True if the extension name is prefixed with 'sync_'. (synchronous)
 is_sync(Name) :-
@@ -213,7 +231,7 @@ is_sync(Name) :-
 is_sync_ --> `sync_`.
 
 
-%% script_extension(+File:atom, Without:atom) is semidet.
+%% script_extension(+File, Without) is semidet.
 %
 %  True if File ends in `.pl` and Without is an atom devoid of this ending.
 script_extension(File, Without) :-
@@ -221,7 +239,7 @@ script_extension(File, Without) :-
   atom_codes(Without, WO).
 
 
-%% is_script(+File:atom) is semidet.
+%% is_script(+File) is semidet.
 %
 %  True if File is a prolog script file (ending in `.pl`).
 is_script(File) :-
@@ -240,7 +258,7 @@ check_valid_extensions(Es) :-
   ).
 
 
-%% valid_extensions(+Extensions:list(atom)) is semidet.
+%% valid_extensions(+Extensions) is semidet.
 %
 %  True if Extensions is a subset of extensions available to yesbot.
 valid_extensions(Extensions) :-
