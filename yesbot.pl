@@ -1,6 +1,7 @@
 :- module(yesbot,
      [ connect/0
-      ,main/1 ]).
+      ,main/1
+      ,yesbot_version/1 ]).
 
 :- use_module(library(irc_client)).
 :- use_module(library(socket)).
@@ -9,6 +10,9 @@
 :- use_module(config).
 
 :- reexport(config, [goals_to_concurrent/2]).
+
+yesbot_version('1.3.0').
+
 
 /** <module> Yesbot IRC bot
 Extensible IRC bot written in Prolog.
