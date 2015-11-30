@@ -67,6 +67,8 @@ expertsystems@expert.
 'expert-systems'@expert.
 'expert-system'@expert.
 swipl@swi.
+top@toplevel.
+'?-'@toplevel.
 
 
 %--------------------------------------------------------------------------------%
@@ -251,3 +253,7 @@ swi &
 lamp &
 "http://www.swi-prolog.org/FAQ/PrologLAMP.txt" &
 "Can I replace a LAMP stack with SWI-Prolog?".
+
+toplevel &
+"http://www.swi-prolog.org/FAQ/ToplevelMode.txt" &
+":- vs ?-, the top level, and files".
