@@ -1,4 +1,5 @@
 *.pl~
+*.sh~
 bump.sh
 /settings.db
 /extensions/chat-logs
