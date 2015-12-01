@@ -5,7 +5,7 @@
 
 :- dynamic yesbot_vsn/1.
 
-target("#testeazarbot", "eazarbot").
+target("##prolog", "yesbot").
 
 yesbot_version(Msg) :-
   thread_create(ignore(yesbot_version_(Msg)), _, [detached(true)]).
