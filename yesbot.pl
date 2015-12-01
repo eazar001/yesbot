@@ -1,7 +1,7 @@
 :- module(yesbot,
      [ connect/0
       ,main/1
-      ,yesbot_version/1 ]).
+      ,yesbot_vsn/1 ]).
 
 :- use_module(library(irc_client)).
 :- use_module(library(socket)).
@@ -11,7 +11,9 @@
 
 :- reexport(config, [goals_to_concurrent/2]).
 
-yesbot_version('1.3.0').
+:- initialization reload_version.
+
+yesbot_vsn('1.3.0').
 
 
 /** <module> Yesbot IRC bot
@@ -32,8 +34,6 @@ Extensible IRC bot written in Prolog.
 %  on a separate instance of SWI prolog listener.
 
 main(Doc) :-
-  yesbot_version(Vsn),
-  asserta(yesbot_version:yesbot_version(Vsn)),
   asserta(swi_object_search:doc_port(Doc)),
   thread_create(connect, _, [detached(true), alias(conn)]).
 
@@ -76,3 +76,13 @@ join_channels :-
   bot_realname(Rn),
   Names = [Hn,Sn,Rn],
   connect(Host, Port, Pass, Nick, Names, Chans).
+
+
+reload_version :-
+  ['extensions/yesbot_version'],
+  (  yesbot_version:yesbot_vsn(_)
+  -> retractall(yesbot_version:yesbot_vsn(_))
+  ;  true
+  ),
+  yesbot_vsn(Vsn),
+  asserta(yesbot_version:yesbot_vsn(Vsn)).
