@@ -3,9 +3,9 @@
 :- use_module(library(irc_client)).
 :- use_module(submodules/utils).
 
-:- dynamic yesbot_version/1.
+:- dynamic yesbot_vsn/1.
 
-target("##prolog", "yesbot").
+target("#testeazarbot", "eazarbot").
 
 yesbot_version(Msg) :-
   thread_create(ignore(yesbot_version_(Msg)), _, [detached(true)]).
@@ -15,6 +15,6 @@ yesbot_version_(Me-Msg) :-
   atom_codes(Atom, Codes),
   normalize_space(string("?version"), Atom),
   determine_recipient(yesbot_version, Msg, Recipient),
-  yesbot_version(Vsn),
+  yesbot_vsn(Vsn),
   format(string(Report), "yesbot version ~a", [Vsn]),
   priv_msg(Me, Report, Recipient).
