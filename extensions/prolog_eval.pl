@@ -1,18 +1,11 @@
 :- module(prolog_eval, [prolog_eval/1]).
 
 :- use_module(library(irc_client)).
-:- use_module(library(pengines)).
 :- use_module(library(solution_sequences)).
 :- use_module(library(lambda)).
 :- use_module(submodules/utils).
-:- use_module(pengine_sandbox:library(time)).
 :- use_module(library(sandbox)).
 
-:- multifile sandbox:safe_meta/1.
-
-sandbox:safe_meta(time:call_with_time_limit(+,0)).
-
-:- dynamic pengine_port/1.
 
 target("##prolog", "yesbot").
 
@@ -25,12 +18,8 @@ prolog_eval_(Me-Msg) :-
   append(`?- `, Rest, Text),
   string_codes(String, Rest),
   term_string(Goal, String, [variable_names(Vars)]),
-  pengine_port(Port),
-  format(string(Engine), "http://localhost:~d", [Port]),
-  pengine_rpc(
-    Engine,
-    call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))
-  ),
+  safe_goal(Goal),
+  call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols)),
   determine_recipient(prolog_eval, Msg, Recip),
   evaluate(Me, Recip, Sols).
 
