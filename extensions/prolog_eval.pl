@@ -21,7 +21,10 @@ prolog_eval_(Me-Msg) :-
   term_string(Goal, String, [variable_names(Vars)]),
   pengine_port(Port),
   format(string(Engine), "http://localhost:~d", [Port]),
-  pengine_rpc(Engine, findall(Vars, limit(7, call(Goal)), Sols)),
+  pengine_rpc(
+    Engine,
+    findall(Vars, limit(7, call_with_time_limit(10, Goal)), Sols)
+  ),
   determine_recipient(prolog_eval, Msg, Recip),
   evaluate(Me, Recip, Sols).
 
