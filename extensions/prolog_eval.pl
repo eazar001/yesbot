@@ -5,6 +5,12 @@
 :- use_module(library(solution_sequences)).
 :- use_module(library(lambda)).
 :- use_module(submodules/utils).
+:- use_module(pengine_sandbox:library(time)).
+:- use_module(library(sandbox)).
+
+:- multifile sandbox:safe_meta/1.
+
+sandbox:safe_meta(time:call_with_time_limit(+,0)).
 
 :- dynamic pengine_port/1.
 
@@ -23,7 +29,7 @@ prolog_eval_(Me-Msg) :-
   format(string(Engine), "http://localhost:~d", [Port]),
   pengine_rpc(
     Engine,
-    findall(Vars, limit(7, call_with_time_limit(10, Goal)), Sols)
+    call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))
   ),
   determine_recipient(prolog_eval, Msg, Recip),
   evaluate(Me, Recip, Sols).
