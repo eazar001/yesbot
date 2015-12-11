@@ -13,7 +13,7 @@
 
 :- initialization reload_version.
 
-yesbot_vsn('v1.4.3').
+yesbot_vsn('1.4.4').
 
 
 /** <module> Yesbot IRC bot

@@ -15,13 +15,14 @@ prolog_eval(Msg) :-
 
 prolog_eval_(Me-Msg) :-
   Msg = msg(_Prefix, "PRIVMSG", _, Text),
-  append(`?- `, Rest, Text),
+  append(`?-`, Rest, Text),
   string_codes(String, Rest),
   term_string(Goal, String, [variable_names(Vars)]),
   safe_goal(Goal),
   call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols)),
   determine_recipient(prolog_eval, Msg, Recip),
-  evaluate(Me, Recip, Sols).
+  maplist(include(nonvar_binding), Sols, Nonvars),
+  evaluate(Me, Recip, Nonvars).
 
 
 evaluate(Me, Recip, []) :-
@@ -40,3 +41,7 @@ evaluate(Me, Recip, Sols) :-
 format_sols([_], []).
 format_sols([X|Xs], [X|Ys]) :-
   format_sols(Xs, Ys).
+
+
+nonvar_binding(_=Binding) :-
+  nonvar(Binding).
