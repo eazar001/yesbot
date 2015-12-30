@@ -153,7 +153,8 @@ args &
 "How do I return if everything’s void?".
 
 module &
-"http://michael.richter.name/tutorials/swiplmod" &
+"https://chiselapp.com/user/ttmrichter/repository/gng/doc/trunk/output/tutorials\c
+/swiplmodtut.html" &
 "Using SWI-Prolog's Modules".
 
 tutorial &
