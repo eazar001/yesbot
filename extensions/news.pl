@@ -207,13 +207,13 @@ fetch_kjv_quote(Me, Content) :-
      kjv_quote(Q)
   -> (  Q \= Quote
      ->	% Current quote is not equal to stored quote
-	      % Therefore delete the old one and store the new one
-	      % Display it to the channel
-	      retract_kjv_quote(Q),
-	      assert_kjv_quote(Quote),
-	      priv_msg(Me, Quote, Chan)
+        % Therefore delete the old one and store the new one
+        % Display it to the channel
+        retract_kjv_quote(Q),
+        assert_kjv_quote(Quote),
+        priv_msg(Me, Quote, Chan)
       ; % Current quote is the same as the stored one
-	      % Therefore succeed and don't do anything
+        % Therefore succeed and don't do anything
         true
       )
   ;   % No stored quote found
@@ -306,17 +306,17 @@ handle_stored_issue(Me, State, N, Title, Args) :-
   (  issue(Stored, N)
   -> (  State \= Stored
      ->	% If the issue has been mentioned in channel, but the state has changed
-	      % retract the issue, and assert it with the new state, while also
-	      % mentioning the issue again.
-	      retract_issue(Stored, N),
-	      assert_issue(State, N),
-	      format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
-	      priv_msg(Me, Report, Chan, [at_most(7)]),
-	      sleep(1),
-	      priv_msg(Me, " ", Chan),
-	      sleep(5)
+        % retract the issue, and assert it with the new state, while also
+        % mentioning the issue again.
+        retract_issue(Stored, N),
+        assert_issue(State, N),
+        format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
+        priv_msg(Me, Report, Chan, [at_most(7)]),
+        sleep(1),
+        priv_msg(Me, " ", Chan),
+        sleep(5)
      ;	% Do nothing if the issue has been mentioned and the state is identical
-	      true
+        true
      )
   ;  State = "open"
   -> % If the issue hasn't been mentioned and the state is open
@@ -363,12 +363,15 @@ count_valid_posts(Stream, Count, Content) :-
   load_html(Stream, Content, []),
   get_time(Stamp2),
   aggregate_all(count,
-  (  xpath(Content, //span(@class=date, normalize_space), Text),
-     parse_time(Text, Stamp1),
-     stamp_date_time(Stamp1, Dt1, local),
-     stamp_date_time(Stamp2, Dt2, local),
-     date_time_value(date, Dt1, Same),
-     date_time_value(date, Dt2, Same)), Count).
+    (  xpath(Content, //span(@class=date, normalize_space), Text),
+       parse_time(Text, Stamp1),
+       stamp_date_time(Stamp1, Dt1, local),
+       stamp_date_time(Stamp2, Dt2, local),
+       date_time_value(date, Dt1, Same),
+       date_time_value(date, Dt2, Same)
+    ),
+    Count
+  ).
 
 
 %% compare_days is semidet.
