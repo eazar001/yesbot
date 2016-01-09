@@ -12,7 +12,7 @@ bot_control(Msg) :-
 
 bot_control_(Id-Msg) :-
   chan(Chan),
-  Msg = msg(_Prefix, "PRIVMSG", _, Codes),
+  Msg = msg(_Prefix, "PRIVMSG", ["##prolog"], Codes),
   string_codes(String, Codes),
   normalize_space(atom(Text), String),
   atom_concat(Cmd, Arg, Text),
@@ -36,10 +36,9 @@ control(Me-Chan, '?stop ', Arg) :-
 
 control(Me-Chan, '?start ', Arg) :-
   (  Arg \== bot_control,
-     valid_extensions([Arg]),
-     (  extensions(Current, _)
-     ;  sync_extensions(Current, _)
-     ),
+     extensions(C0, _),
+     sync_extensions(C1, _),
+     union(C0, C1, Current),
      \+memberchk(Arg, Current)
   -> true
   ;  priv_msg(Me, "I'm afraid I can't do that, Dave", Chan),
