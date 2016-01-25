@@ -43,12 +43,14 @@
 
 
 target("##prolog", "yesbot").
+tiny_form("http://tinyurl.com/api-create.php?url=").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
 kjv_link("http://kingjamesprogramming.tumblr.com/").
 swi_commit_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/commits").
-swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/issues?state=all").
+swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/\c
+  issues?state=all").
 news_time_limit(3600). % Time limit in seconds
 
 
@@ -251,7 +253,7 @@ print_swi_commit(Me, Array, Date) :-
   target(Chan, _),
   format(string(MsgLine), "swipl-devel commit: ~s~n", [Msg]),
   format(string(Url),"~s", [Dict.html_url]),
-  git_io(Url, Shortened),
+  make_tiny(Url, Shortened),
   priv_msg(Me, MsgLine, Chan, [at_most(7)]),
   sleep(1),
   priv_msg(Me, Shortened, Chan, [at_most(7)]),
@@ -457,19 +459,18 @@ latest_version(Link, Version) :-
   atom_string(Atom, Version).
 
 
-%% git_io(+Link:string, -Shortened:string) is det.
+%% make_tiny(+Link:string, -Shortened:string) is det.
 %
 %  Shorten a git link. If the shortening service fails, then Link will be unified
 %  with Shortened.
 
-git_io(Link, Shortened) :-
-  catch(git_io_(Link, Shortened), _Error, Shortened=Link).
+make_tiny(Link, Shortened) :-
+  catch(make_tiny_(Link, Shortened), _Error, Shortened=Link).
 
-git_io_(Link, Shortened) :-
-  http_post("http://git.io/", form([url=Link]), _Reply,
-    [timeout(20), reply_header(Header)]),
-  memberchk(location(Short), Header),
-  atom_string(Short, Shortened).
+make_tiny_(Link, Shortened) :-
+  tiny_form(F),
+  visit_url(string_concat(F) $ Link, T),
+  format(string(Shortened), "~s", [T]).
 
 
 %% news_abort is det.
