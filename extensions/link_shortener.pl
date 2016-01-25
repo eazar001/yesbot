@@ -45,8 +45,7 @@ link_shortener_(Me-Msg) :-
   has_link(_, L, M, _),
   atom_codes(Link, L),
   length(L, N),
-  (
-     % shorten link if 100 or more characters in length
+  (  % shorten link if 100 or more characters in length
      (  N >= 100
      -> make_tiny(Me, Link, Chan)
      ;  get_time(T1),
@@ -55,10 +54,10 @@ link_shortener_(Me-Msg) :-
         (  T = []
         -> true
         ;  D is T2 - T1,
-	   format(string(Title), "Title: ~s (~2fs)",
-	     [clean_sequence $ unescape_title $ T, D]),
-	   normalize_space(string(T0), Title),
-	   send_msg(Me, priv_msg, T0, Chan)
+           format(string(Title), "Title: ~s (~2fs)",
+	           [clean_sequence $ unescape_title $ T, D]),
+           normalize_space(string(T0), Title),
+           send_msg(Me, priv_msg, T0, Chan)
         )
      )
   ).
@@ -75,8 +74,8 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 
 %% make_tiny(+Id, +Link, +Chan) is semidet.
 %
-%  Attempt to extract the title of the link. If a title is extracted, then send the
-%  link to tinyurl to shorten the link if the link is determined to be valid.
+%  Attempt to extract the title of the link. If a title is extracted, then send
+%  the link to tinyurl to shorten the link if the link is determined to be valid.
 
 make_tiny(Me, Link, Chan) :-
   thread_create(make_tiny_(Me, Link, Chan), Id, []),
@@ -90,7 +89,7 @@ make_tiny(Me, Link, Chan) :-
   thread_join(Id, _Status),
   send_msg(Me, priv_msg, T0, Chan).
 
-  
+
 make_tiny_(Me, Link, Chan) :-
   get_time(T1),
   url_get_title(Link, T),
@@ -100,6 +99,6 @@ make_tiny_(Me, Link, Chan) :-
   ;  D is T2 - T1,
      format(string(Title), "Title: ~s (~2fs)",
        [clean_sequence $ unescape_title $ T, D]),
-     normalize_space(string(T0), Title),  
+     normalize_space(string(T0), Title),
      send_msg(Me, priv_msg, T0, Chan)
   ).
