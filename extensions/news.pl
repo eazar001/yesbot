@@ -43,12 +43,14 @@
 
 
 target("##prolog", "yesbot").
+tiny_form("http://tinyurl.com/api-create.php?url=").
 news_link("http://www.swi-prolog.org/news/archive").
 version_link(stable, "http://www.swi-prolog.org/download/stable/src/").
 version_link(development, "http://www.swi-prolog.org/download/devel/src/").
 kjv_link("http://kingjamesprogramming.tumblr.com/").
 swi_commit_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/commits").
-swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/issues?state=all").
+swi_issue_link("https://api.github.com/repos/SWI-Prolog/swipl-devel/\c
+  issues?state=all").
 news_time_limit(3600). % Time limit in seconds
 
 
@@ -88,7 +90,7 @@ update_line_status(_Me, up) :-
   -> true
   ;  asserta(line_status(up))
   ), !.
-  
+
 update_line_status(_Me, down) :-
   line_status(Status),
   (  Status = up
@@ -207,19 +209,19 @@ fetch_kjv_quote(Me, Content) :-
      kjv_quote(Q)
   -> (  Q \= Quote
      ->	% Current quote is not equal to stored quote
-	% Therefore delete the old one and store the new one
-	% Display it to the channel
-	retract_kjv_quote(Q),
-	assert_kjv_quote(Quote),  
-	priv_msg(Me, Quote, Chan)
-     ;	% Current quote is the same as the stored one
-	% Therefore succeed and don't do anything
+        % Therefore delete the old one and store the new one
+        % Display it to the channel
+        retract_kjv_quote(Q),
+        assert_kjv_quote(Quote),
+        priv_msg(Me, Quote, Chan)
+      ; % Current quote is the same as the stored one
+        % Therefore succeed and don't do anything
         true
-     )
-  ;  % No stored quote found
-     % Therefore store the new quote and display to channel
-     assert_kjv_quote(Quote),
-     priv_msg(Me, Quote, Chan)
+      )
+  ;   % No stored quote found
+      % Therefore store the new quote and display to channel
+      assert_kjv_quote(Quote),
+      priv_msg(Me, Quote, Chan)
   ).
 
 
@@ -251,12 +253,12 @@ print_swi_commit(Me, Array, Date) :-
   target(Chan, _),
   format(string(MsgLine), "swipl-devel commit: ~s~n", [Msg]),
   format(string(Url),"~s", [Dict.html_url]),
-  git_io(Url, Shortened),
+  make_tiny(Url, Shortened),
   priv_msg(Me, MsgLine, Chan, [at_most(7)]),
   sleep(1),
   priv_msg(Me, Shortened, Chan, [at_most(7)]),
   sleep(1),
-  priv_msg(Me, "***", Chan),
+  priv_msg(Me, " ", Chan),
   sleep(5),
   fail.
 
@@ -306,31 +308,31 @@ handle_stored_issue(Me, State, N, Title, Args) :-
   (  issue(Stored, N)
   -> (  State \= Stored
      ->	% If the issue has been mentioned in channel, but the state has changed
-	% retract the issue, and assert it with the new state, while also
-	% mentioning the issue again.
-	retract_issue(Stored, N),
-	assert_issue(State, N),
-	format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
-	priv_msg(Me, Report, Chan, [at_most(7)]),
-	sleep(1),
-	priv_msg(Me, "***", Chan),
-	sleep(5)
+        % retract the issue, and assert it with the new state, while also
+        % mentioning the issue again.
+        retract_issue(Stored, N),
+        assert_issue(State, N),
+        format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
+        priv_msg(Me, Report, Chan, [at_most(7)]),
+        sleep(1),
+        priv_msg(Me, " ", Chan),
+        sleep(5)
      ;	% Do nothing if the issue has been mentioned and the state is identical
-	true
+        true
      )
   ;  State = "open"
-  -> % If the issue hasn't been mentioned and the state is open 
+  -> % If the issue hasn't been mentioned and the state is open
      % assert the issue and mention it in the channel
      format(string(Report), "~s[~s]~n~s~n~s~n~s", [Title,State|Args]),
      assert_issue(State, N),
      priv_msg(Me, Report, Chan, [at_most(7)]),
      sleep(1),
-     priv_msg(Me, "***", Chan),
+     priv_msg(Me, " ", Chan),
      sleep(5)
   ;  % If the issue hasn't been mentioned and has a closed state, do nothing.
      true
   ).
-  
+
 
 %% valid_post(+Id, +Stream, +Chan:string, +Link:string) is semidet.
 %
@@ -345,7 +347,7 @@ valid_post(Me, Stream, Chan, Link) :-
     (  atom_string(H, Heading),
        \+heading(Heading),
        assert_heading(Heading),
-       format(string(Report), "News Update: ~s~n***", [Heading]),
+       format(string(Report), "News Update: ~s~n ", [Heading]),
        priv_msg(Me, Report, Chan),
        sleep(5)
     )
@@ -363,12 +365,15 @@ count_valid_posts(Stream, Count, Content) :-
   load_html(Stream, Content, []),
   get_time(Stamp2),
   aggregate_all(count,
-  (  xpath(Content, //span(@class=date, normalize_space), Text),
-     parse_time(Text, Stamp1),
-     stamp_date_time(Stamp1, Dt1, local),
-     stamp_date_time(Stamp2, Dt2, local),
-     date_time_value(date, Dt1, Same),
-     date_time_value(date, Dt2, Same)), Count).
+    (  xpath(Content, //span(@class=date, normalize_space), Text),
+       parse_time(Text, Stamp1),
+       stamp_date_time(Stamp1, Dt1, local),
+       stamp_date_time(Stamp2, Dt2, local),
+       date_time_value(date, Dt1, Same),
+       date_time_value(date, Dt2, Same)
+    ),
+    Count
+  ).
 
 
 %% compare_days is semidet.
@@ -419,7 +424,7 @@ get_latest_version(Me, Type) :-
      -> send_msg(Me, priv_msg, "http://www.swi-prolog.org/download/stable", Chan)
      ;  send_msg(Me, priv_msg, "http://www.swi-prolog.org/download/devel", Chan)
      ),
-     priv_msg(Me, "***", Chan)
+     priv_msg(Me, " ", Chan)
   ;  true
   ).
 
@@ -454,19 +459,18 @@ latest_version(Link, Version) :-
   atom_string(Atom, Version).
 
 
-%% git_io(+Link:string, -Shortened:string) is det.
+%% make_tiny(+Link:string, -Shortened:string) is det.
 %
 %  Shorten a git link. If the shortening service fails, then Link will be unified
 %  with Shortened.
 
-git_io(Link, Shortened) :-
-  catch(git_io_(Link, Shortened), _Error, Shortened=Link).
+make_tiny(Link, Shortened) :-
+  catch(make_tiny_(Link, Shortened), _Error, Shortened=Link).
 
-git_io_(Link, Shortened) :-
-  http_post("http://git.io/", form([url=Link]), _Reply,
-    [timeout(20), reply_header(Header)]),
-  memberchk(location(Short), Header),
-  atom_string(Short, Shortened).
+make_tiny_(Link, Shortened) :-
+  tiny_form(F),
+  visit_url(string_concat(F) $ Link, T),
+  format(string(Shortened), "~s", [T]).
 
 
 %% news_abort is det.

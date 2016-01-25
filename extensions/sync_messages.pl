@@ -103,9 +103,9 @@ messages_(Me-Msg) :-
      with_output_to(codes(Codes, Diff), write(Line)),
      (  session(S, In-Rest)
      -> Rest = Codes,
-	retractall(session(S, _)),
-	asserta(session(S, In-Diff))
-     ;	asserta(session(S, Codes-Diff))
+        retractall(session(S, _)),
+        asserta(session(S, In-Diff))
+     ;  asserta(session(S, Codes-Diff))
      ),
      priv_msg(Me, "Line recorded.", Recipient), !
   ;  % Closing an open session and completing recording

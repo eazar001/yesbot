@@ -208,17 +208,17 @@ try_again(Me, Query, Rec) :-
        % Find all solutions and write them on one line to avoid flooding
        findall(Sugg, find_candidate(Structure, Fcodes, Sugg), Ss),
        (  % We have suggestions
-	  Ss = [_|_],
-	  findnsols(10, C, try_other_candidate(Structure, [39], C), Last),
-	  maplist(list_to_set, [Ss, Last], [S1, S2]),
-	  union(S1, S2, L), !
+          Ss = [_|_],
+          findnsols(10, C, try_other_candidate(Structure, [39], C), Last),
+          maplist(list_to_set, [Ss, Last], [S1, S2]),
+          union(S1, S2, L), !
        ;  % No initial suggestions, so let's find some
           Ss = [],
-	  findnsols(10, C, try_other_candidate(Structure, [39,58], C), Cs),
-	  (  Cs = []
-	  -> findnsols(10, C, try_other_candidate(Structure, [39], C), L)
-	  ;  L = Cs
-	  )
+          findnsols(10, C, try_other_candidate(Structure, [39,58], C), Cs),
+          (  Cs = []
+          -> findnsols(10, C, try_other_candidate(Structure, [39], C), L)
+          ;  L = Cs
+          )
        ),
        L = [_|_],
        atomic_list_concat(L, ', ', AtomList),
@@ -259,7 +259,7 @@ try_other_candidate(Structure, Invalids, Sugg) :-
   atom_codes(Atom, Functor_Arity),
   uri_encoded(query_value, A, Atom),
   atom_string(A, Sugg).
-  
+
 
 %% write_first_sentence(+Id, +Structure, +Rec) is semidet.
 %
