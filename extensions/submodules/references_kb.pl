@@ -258,3 +258,7 @@ lamp &
 toplevel &
 "http://www.swi-prolog.org/FAQ/ToplevelMode.txt" &
 ":- vs ?-, the top level, and files".
+
+chr &
+"http://chr.informatik.uni-ulm.de" &
+"CHR - Constraint Handling Rules".
