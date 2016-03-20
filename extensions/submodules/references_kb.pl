@@ -69,6 +69,8 @@ expertsystems@expert.
 swipl@swi.
 top@toplevel.
 '?-'@toplevel.
+'CHR'@chr.
+'PTTP'@pttp.
 
 
 %--------------------------------------------------------------------------------%
@@ -262,3 +264,7 @@ toplevel &
 chr &
 "http://chr.informatik.uni-ulm.de" &
 "CHR - Constraint Handling Rules".
+
+pttp &
+"http://www.ai.sri.com/~stickel/pttp.html" &
+"Prolog Technology Theorem Prover".
