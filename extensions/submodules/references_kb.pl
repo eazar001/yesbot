@@ -262,7 +262,7 @@ toplevel &
 ":- vs ?-, the top level, and files".
 
 chr &
-"http://chr.informatik.uni-ulm.de" &
+"https://dtai.cs.kuleuven.be/CHR/" &
 "CHR - Constraint Handling Rules".
 
 pttp &
