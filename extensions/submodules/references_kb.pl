@@ -27,8 +27,9 @@ web@webapps.
 modules@module.
 tutorials@tutorial.
 webapp@webapps.
-hammers@hammer.
-false@hammer.
+hammers@false.
+hammer@false.
+true@false.
 result@results.
 loop@loops.
 looping@loops.
@@ -37,6 +38,7 @@ returns@returning.
 hello@'hello-world'.
 which@'which-prolog'.
 cheat@'cheat-sheet'.
+syntax@'cheat-sheet'.
 repl@'not-repl'.
 hang@hung.
 hangs@hung.
@@ -45,15 +47,20 @@ hangs@hung.
 debugging@debug.
 debugger@debug.
 string@strings.
+atom@strings.
+atoms@strings.
+variable@strings.
+variables@strings.
 term@terms.
+wtf@terms.
+arith@terms.
+arithmetic@terms.
+math@terms.
 'if-statement'@if.
 control@if.
 'control-flow'@if.
 conditional@if.
 conditionals@if.
-arg@args.
-argument@args.
-arguments@args.
 pack@packs.
 addon@packs.
 addons@packs.
@@ -71,6 +78,7 @@ top@toplevel.
 '?-'@toplevel.
 'CHR'@chr.
 'PTTP'@pttp.
+cuts@cut.
 
 
 %--------------------------------------------------------------------------------%
@@ -87,23 +95,23 @@ faq &
 "Frequently Asked Questions for ##Prolog".
 
 advice &
-"http://www.pathwayslms.com/swipltuts/student/index.html#strong_advice" &
-"Strong Advice for Students on ##prolog".
+"http://www.pathwayslms.com/swipltuts/student/index.html#_asking_questions_on_prolog" &
+"Asking Questions on ##prolog".
 
 regulars &
-"http://www.pathwayslms.com/swipltuts/student/index.html#regulars" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#_and_a_plea_to_the_regulars" &
 "And a Plea to the Regulars".
 
-hammer &
-"http://www.pathwayslms.com/swipltuts/student/index.html#blue" &
+false &
+"http://www.pathwayslms.com/swipltuts/student/index.html#_i_get_true_then_false_when_i_expected_just_true" &
 "I get true, then false when I expected just true".
 
 recursion &
-"http://www.pathwayslms.com/swipltuts/student/index.html#recursion" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#_the_standard_recursion_pattern" &
 "The Standard Recursion Pattern".
 
 results &
-"http://www.pathwayslms.com/swipltuts/student/index.html#list" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#aggregate" &
 "How Do I get all the Results in a List?".
 
 loops &
@@ -119,11 +127,11 @@ returning &
 "Hello World".
 
 'which-prolog' &
-"http://www.pathwayslms.com/swipltuts/student/index.html#which" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#whichprolog" &
 "Which Prolog to Use".
 
 'cheat-sheet' &
-"http://www.pathwayslms.com/swipltuts/student/index.html#cheat" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#syntax" &
 "Ten Second Syntax Cheat Sheet".
 
 'not-repl' &
@@ -135,23 +143,23 @@ hung &
 "Prolog Hung".
 
 debug &
-"http://www.pathwayslms.com/swipltuts/student/index.html#debug" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#debugger" &
 "How can I see what my code is doing?".
 
 strings &
-"http://www.pathwayslms.com/swipltuts/student/index.html#howdy" &
+"http://www.pathwayslms.com/swipltuts/student/index.html#variablesatomsstrings" &
 "Difference between \"hello\", hello, HowAreYa, and 'Howdy!'".
 
 terms &
-"http://www.pathwayslms.com/swipltuts/student/index.html#wtf" &
-"WTF, 4 = 2 + 2 fails?".
+"http://www.pathwayslms.com/swipltuts/student/index.html#arithmetic" &
+"Why can’t I do arithmetic?".
 
 if &
 "http://www.pathwayslms.com/swipltuts/student/index.html#if" &
 "How do I make an if statement?".
 
-args &
-"http://www.pathwayslms.com/swipltuts/student/index.html#args" &
+void &
+"http://www.pathwayslms.com/swipltuts/student/index.html#void" &
 "How do I return if everything’s void?".
 
 module &
@@ -268,3 +276,7 @@ chr &
 pttp &
 "http://www.ai.sri.com/~stickel/pttp.html" &
 "Prolog Technology Theorem Prover".
+
+cut &
+"http://www.pathwayslms.com/swipltuts/student/index.html#_the_cut" &
+"The Cut".
