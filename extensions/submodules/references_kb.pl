@@ -80,9 +80,9 @@ top@toplevel.
 'PTTP'@pttp.
 cuts@cut.
 message@messages.
-error_messages@message.
-error_message@message.
-printing@message.
+error_messages@messages.
+error_message@messages.
+printing@messages.
 
 
 %--------------------------------------------------------------------------------%
