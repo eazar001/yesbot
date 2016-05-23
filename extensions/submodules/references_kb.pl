@@ -79,6 +79,10 @@ top@toplevel.
 'CHR'@chr.
 'PTTP'@pttp.
 cuts@cut.
+message@messages.
+error_messages@message.
+error_message@message.
+printing@message.
 
 
 %--------------------------------------------------------------------------------%
@@ -280,3 +284,7 @@ pttp &
 cut &
 "http://www.pathwayslms.com/swipltuts/student/index.html#_the_cut" &
 "The Cut".
+
+messages &
+"http://www.pathwayslms.com/swipltuts/message/index.html" &
+"Printing Messages in SWI-Prolog".
