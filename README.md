@@ -10,7 +10,7 @@ Yesbot
 Configuration
 =============
 
-The first required step is to configure the bot using the settings tools in SWI-Prolog. 
+The first required step is to configure the bot using the settings tools in SWI-Prolog.
 
 Examine `config.pl` (using `swipl config.pl`)
 
@@ -24,6 +24,11 @@ If you would like to change which extensions are loaded on bot startup you must 
 Any other settings you need to change, you can change by doing:
 ```prolog
 
+?- set_setting(config:nick, examplebot).
+
+```
+You can _check_ your current settings with:
+```prolog
 ?- setting(config:nick, examplebot).
 
 ```
@@ -57,8 +62,8 @@ Extending the bot
 =================
 
 There are numerous demo plugins that come with Yesbot. A few of which includes a basic chat-logging
-extension and a TinyURL powered link shortener. The default setting for these extensions are the 
-abovementioned. Extensions for Yesbot are very simple. They are basically Prolog predicates with 
+extension and a TinyURL powered link shortener. The default setting for these extensions are the
+abovementioned. Extensions for Yesbot are very simple. They are basically Prolog predicates with
 the same name as their containing modules. All Yesbot extensions are required to have an arity of 1.
 Extensions should all take in one argument: a pair containing the Id of the connection and the
 current server line. The pair should be of the form `Id-Msg`. The main extension predicate should
