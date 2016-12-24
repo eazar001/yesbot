@@ -10,7 +10,12 @@ Yesbot
 Configuration
 =============
 
-The first required step is to configure the bot using the settings tools in SWI-Prolog.
+Before doing anything, you must first install the `irc_client` pack for SWI-Prolog from the interpreter
+```prolog
+?- pack_install(irc_client).
+```
+
+Aferwards, you must configure the bot using the settings tools in SWI-Prolog.
 
 Examine `config.pl` (using `swipl config.pl`)
 
