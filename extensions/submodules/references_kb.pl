@@ -83,6 +83,7 @@ message@messages.
 error_messages@messages.
 error_message@messages.
 printing@messages.
+'11'@eleventh.
 
 
 %--------------------------------------------------------------------------------%
@@ -288,3 +289,7 @@ cut &
 messages &
 "http://www.pathwayslms.com/swipltuts/message/index.html" &
 "Printing Messages in SWI-Prolog".
+
+eleventh &
+"http://imgur.com/f2qcmlt" &
+"Richter\'s Eleventh Rule".
