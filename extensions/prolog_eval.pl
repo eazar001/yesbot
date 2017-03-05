@@ -2,7 +2,7 @@
 
 :- use_module(library(irc_client)).
 :- use_module(library(solution_sequences)).
-:- use_module(library(lambda)).
+:- use_module(library(yall)).
 :- use_module(submodules/utils).
 :- use_module(library(sandbox)).
 
@@ -18,24 +18,8 @@ prolog_eval_(Me-Msg) :-
 	append(`?-`, Rest, Text),
 	string_codes(String, Rest),
 	term_string(Goal, String, [variable_names(Vars)]),
-	catch(
-		safe_goal(Goal),
-		Error,
-		(	message_to_string(Error, ErrorString),
-			determine_recipient(prolog_eval, Msg, Recip),
-			priv_msg(Me, ErrorString, Recip),
-			fail
-		)
-	),
-	catch(
-		call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols)),
-		Error,
-		(	message_to_string(Error, ErrorString),
-			determine_recipient(prolog_eval, Msg, Recip),
-			priv_msg(Me, ErrorString, Recip),
-			fail
-		)
-	),
+	evaluate_with_errors(Me-Msg, safe_goal(Goal)),
+	evaluate_with_errors(Me-Msg, call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))),
 	call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols)),
 	determine_recipient(prolog_eval, Msg, Recip),
 	maplist(include(nonvar_binding), Sols, Nonvars),
@@ -51,14 +35,8 @@ evaluate(Me, Recip, [[]]) :-
 evaluate(Me, Recip, Sols) :-
 	maplist(term_string, Sols, Strings),
 	maplist(string_codes, Strings, Codes),
-	maplist(\Code^F^(Code=[_|R], format_sols(R,F)), Codes, FormattedCodes),
-	maplist(\Msg^(priv_msg(Me, Msg, Recip), sleep(1)), FormattedCodes).
-
-
-format_sols([_], []).
-format_sols([X|Xs], [X|Ys]) :-
-	format_sols(Xs, Ys).
-
+	maplist([Code, F]>>( Code=[_|R], append(F, [_], R) ), Codes, FormattedCodes),
+	maplist([Msg]>>( priv_msg(Me, Msg, Recip), sleep(1) ), FormattedCodes).
 
 nonvar_binding(_=Binding) :-
 	nonvar(Binding).
