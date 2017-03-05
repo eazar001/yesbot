@@ -20,7 +20,6 @@ prolog_eval_(Me-Msg) :-
 	term_string(Goal, String, [variable_names(Vars)]),
 	evaluate_with_errors(Me-Msg, safe_goal(Goal)),
 	evaluate_with_errors(Me-Msg, call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))),
-	call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols)),
 	determine_recipient(prolog_eval, Msg, Recip),
 	maplist(include(nonvar_binding), Sols, Nonvars),
 	evaluate(Me, Recip, Nonvars).
