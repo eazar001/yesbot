@@ -11,8 +11,8 @@
 % target(Channel, Bot).
 
 determine_recipient(Mod, msg(_, "PRIVMSG", [Chan], _), Chan) :-
-  Mod:target(Chan, _).
+	Mod:target(Chan, _).
 
 determine_recipient(Mod, msg(Prefix, "PRIVMSG", [Bot], _), Sender) :-
-  Mod:target(_, Bot),
-  prefix_id(Prefix, Sender, _, _).
+	Mod:target(_, Bot),
+	prefix_id(Prefix, Sender, _, _).

@@ -5,19 +5,22 @@
 :- use_module(library(dcg/basics)).
 
 sentence(Diff) -->
-  fragment(R),
-  sentence(Rest),
-  { append(R, Rest, Diff) }, !.
+	fragment(R),
+	sentence(Rest),
+	{ append(R, Rest, Diff) },
+	!.
 
 sentence(Rest) -->
-  fragment(R),
-  ending(E),
-  { append(R, E, Rest) }, !.
+	fragment(R),
+	ending(E),
+	{ append(R, E, Rest) },
+	!.
 
 sentence(Rest) -->
-  fragment(R),
-  newline(E),
-  { append(R, E, Rest) }, !.
+	fragment(R),
+	newline(E),
+	{ append(R, E, Rest) },
+	!.
 
 sentence(Rest) --> ending(Rest).
 
@@ -27,16 +30,16 @@ fragment(Rest) --> decimal(Rest).
 fragment(Rest) --> dot_sequence(Rest).
 
 fragment([C|Rest]) -->
-  [C,A],
-  {
-     ending(_, [C], []),
-     (  punctuation(Rest, [A], [])
-     ;  ending(Rest, [A], [])
-     )
-  }.
+	[C,A],
+	{
+		ending(_, [C], []),
+		(  punctuation(Rest, [A], [])
+		;  ending(Rest, [A], [])
+		)
+	}.
 
 fragment([C|_]) -->
-  [C], { \+ending(_, [C], []) }.
+	[C], { \+ending(_, [C], []) }.
 
 
 dot_sequence([40,39,46,39,41|_]) --> `('.')`.
@@ -50,13 +53,13 @@ punctuation([41|_]) --> `)`.
 punctuation([40|_]) --> `(`.
 
 decimal([D0,46,D1|_]) -->
-  [D0,46,D1],
-  {
-     (  between(48,57,D0)
-     -> between(48,57,D1)
-     ;  fail
-     )
-  }.
+	[D0,46,D1],
+	{
+		(  between(48,57,D0)
+		-> between(48,57,D1)
+		;  fail
+		)
+	}.
 
 
 ending([46]) --> `.`.

@@ -18,17 +18,17 @@ Japanese (^_^) style emoticons not covered.
 
 emote("Annie is her usual happy self") --> "8cD".
 emote(General) -->
-  "-C:^{",
-  part(mouth, Say),
-  {format(codes(General), 'The General, ~s', [Say])}.
+	"-C:^{",
+	part(mouth, Say),
+	{format(codes(General), 'The General, ~s', [Say])}.
 
 emote(A) -->
-  part(hat, H),
-  part(eyebrows, Eb),
-  part(eyes, E),
-  part(nose, N),
-  part(mouth, M),
-  {format(codes(A), '~s ~s ~s ~s ~s', [H,Eb,E,N,M])}.
+	part(hat, H),
+	part(eyebrows, Eb),
+	part(eyes, E),
+	part(nose, N),
+	part(mouth, M),
+	{format(codes(A), '~s ~s ~s ~s ~s', [H,Eb,E,N,M])}.
 
 emote("darned if I know, half the time they confuse me too") --> ... .
 
@@ -36,8 +36,8 @@ emote("darned if I know, half the time they confuse me too") --> ... .
 ... --> [_], ... .
 
 part(Type, Say) -->
-  {meaning(Type, X, Say)},
-  X.
+	{meaning(Type, X, Say)},
+	X.
 
 meaning(hat, "", "").
 meaning(hat, "d", "baseball cap worn sideways, or hat in general").
@@ -100,4 +100,4 @@ meaning(
   "tongue hanging out (delicious, distaste, or concentration)"
 ).
 meaning(mouth, [X], "irony"):-
-  member(X, `/\\`).
+	member(X, `/\\`).

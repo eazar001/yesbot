@@ -23,7 +23,7 @@
 
 
 link_shortener(Msg) :-
-  thread_create(ignore(link_shortener_(Msg)), _, [detached(true)]).
+	thread_create(ignore(link_shortener_(Msg)), _, [detached(true)]).
 
 
 
@@ -39,28 +39,27 @@ link_shortener(Msg) :-
 %  This predicate will only succeed if Recip is identical to Chan
 
 link_shortener_(Me-Msg) :-
-  Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
-  connection(Me, _Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
-  member(Chan, Chans), !,
-  has_link(_, L, M, _),
-  atom_codes(Link, L),
-  length(L, N),
-  (  % shorten link if 100 or more characters in length
-     (  N >= 100
-     -> make_tiny(Me, Link, Chan)
-     ;  get_time(T1),
-        url_get_title(Link, T),
-        get_time(T2) ->
-        (  T = []
-        -> true
-        ;  D is T2 - T1,
-           format(string(Title), "Title: ~s (~2fs)",
-	           [clean_sequence $ unescape_title $ T, D]),
-           normalize_space(string(T0), Title),
-           send_msg(Me, priv_msg, T0, Chan)
-        )
-     )
-  ).
+	Msg = msg(_Prefix, "PRIVMSG", [Chan], M),
+	connection(Me, _Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+	member(Chan, Chans), !,
+	has_link(_, L, M, _),
+	atom_codes(Link, L),
+	length(L, N),
+	(  % shorten link if 100 or more characters in length
+		(  N >= 100
+		-> make_tiny(Me, Link, Chan)
+		;  get_time(T1),
+			url_get_title(Link, T),
+			get_time(T2) ->
+			(	T = []
+			-> 	true
+			;  	D is T2 - T1,
+				format(string(Title), "Title: ~s (~2fs)", [clean_sequence $ unescape_title $ T, D]),
+				normalize_space(string(T0), Title),
+				send_msg(Me, priv_msg, T0, Chan)
+			)
+		)
+	).
 
 
 %--------------------------------------------------------------------------------%
@@ -78,27 +77,26 @@ tiny_form("http://tinyurl.com/api-create.php?url=").
 %  the link to tinyurl to shorten the link if the link is determined to be valid.
 
 make_tiny(Me, Link, Chan) :-
-  thread_create(make_tiny_(Me, Link, Chan), Id, []),
-  tiny_form(F),
-  get_time(T1),
-  visit_url(string_concat(F) $ Link, T),
-  get_time(T2),
-  D is T2 - T1,
-  format(string(Tiny), "~s (~2fs)", [T, D]),
-  normalize_space(string(T0), Tiny),
-  thread_join(Id, _Status),
-  send_msg(Me, priv_msg, T0, Chan).
+	thread_create(make_tiny_(Me, Link, Chan), Id, []),
+	tiny_form(F),
+	get_time(T1),
+	visit_url(string_concat(F) $ Link, T),
+	get_time(T2),
+	D is T2 - T1,
+	format(string(Tiny), "~s (~2fs)", [T, D]),
+	normalize_space(string(T0), Tiny),
+	thread_join(Id, _Status),
+	send_msg(Me, priv_msg, T0, Chan).
 
 
 make_tiny_(Me, Link, Chan) :-
-  get_time(T1),
-  url_get_title(Link, T),
-  get_time(T2),
-  (  T = []
-  -> true
-  ;  D is T2 - T1,
-     format(string(Title), "Title: ~s (~2fs)",
-       [clean_sequence $ unescape_title $ T, D]),
-     normalize_space(string(T0), Title),
-     send_msg(Me, priv_msg, T0, Chan)
-  ).
+	get_time(T1),
+	url_get_title(Link, T),
+	get_time(T2),
+	(	T = []
+	-> 	true
+	;  	D is T2 - T1,
+		format(string(Title), "Title: ~s (~2fs)", [clean_sequence $ unescape_title $ T, D]),
+		normalize_space(string(T0), Title),
+		send_msg(Me, priv_msg, T0, Chan)
+	).

@@ -20,40 +20,45 @@ google_end(`&btnI=I\'m+Feeling+Lucky`).
 
 
 google_search(Msg) :-
-  thread_create(ignore(google_search_(Msg)), _, [detached(true)]).
+	thread_create(ignore(google_search_(Msg)), _, [detached(true)]).
 
 google_search_(Me-Msg) :-
-  Msg = msg(_Prefix, "PRIVMSG", _, Text),
-  append(`?google `, Q0, Text),
-  determine_recipient(google_search, Msg, Rec),
-  atom_codes(Atom, Q0),
-  google_start(Start),
-  google_end(End),
-  append(atom_codes $ uri_encoded(query_value) $ Atom, Diff, Query),
-  append(Start, Query, L),
-  Diff = End,
-  string_codes(Link, L),
-  setup_call_cleanup(
-    http_open(Link, Stream,
-      [ final_url(URL)
-       ,request_header(referer='http://www.google.com')
-       ,header('Content-Type', Type)
-       ,cert_verify_hook(cert_verify)
-       ,timeout(20) ]),
-    (  content_type_opts(Type, Opts)
-    -> (  URL \= Link
-       -> load_html(Stream, Structure, Opts),
-          (  xpath_chk(Structure, //title(normalize_space), T0),
-             string_codes(T0, T1),
-             unescape_title(T1, T2),
-             clean_sequence(T2, Title)
-             -> send_msg(Me, priv_msg, Title, Rec)
-             ;  true
-          ),
-          send_msg(Me, priv_msg, URL, Rec)
-       ;  send_msg(Me, priv_msg, "Result not valid", Rec)
-       )
-    ;  send_msg(Me, priv_msg, URL, Rec)
-    ),
-    close(Stream)
-  ).
+	Msg = msg(_Prefix, "PRIVMSG", _, Text),
+	append(`?google `, Q0, Text),
+	determine_recipient(google_search, Msg, Rec),
+	atom_codes(Atom, Q0),
+	google_start(Start),
+	google_end(End),
+	append(atom_codes $ uri_encoded(query_value) $ Atom, Diff, Query),
+	append(Start, Query, L),
+	Diff = End,
+	string_codes(Link, L),
+	setup_call_cleanup(
+		http_open(
+			Link,
+			Stream,
+			[
+				final_url(URL),
+				request_header(referer='http://www.google.com'),
+				header('Content-Type', Type),
+				cert_verify_hook(cert_verify),
+				timeout(20)
+			]
+		),
+		(	content_type_opts(Type, Opts)
+		->	(	URL \= Link
+			->	load_html(Stream, Structure, Opts),
+			(	xpath_chk(Structure, //title(normalize_space), T0),
+				string_codes(T0, T1),
+				unescape_title(T1, T2),
+				clean_sequence(T2, Title)
+			->	send_msg(Me, priv_msg, Title, Rec)
+			;	true
+			),
+				send_msg(Me, priv_msg, URL, Rec)
+			;	send_msg(Me, priv_msg, "Result not valid", Rec)
+			)
+		;	send_msg(Me, priv_msg, URL, Rec)
+		),
+		close(Stream)
+	).

@@ -11,11 +11,11 @@ term_expansion(Ref&Value&Title, ref(Ref, Value, Title)).
 % True if Name corresponds to a Value-Title pair.
 
 name_pair(Name, Value-Title) :-
-  ref(Name, Value, Title).
+	ref(Name, Value, Title).
 
 name_pair(Name, Value-Title) :-
-  alias_name(Name, Ref),
-  ref(Ref, Value, Title).
+	alias_name(Name, Ref),
+	ref(Ref, Value, Title).
 
 
 %% alias_name(?Alias:atom, ?Name:atom)

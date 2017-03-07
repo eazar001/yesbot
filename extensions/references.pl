@@ -20,22 +20,23 @@
 target("##prolog", "yesbot").
 
 references(Msg) :-
-  thread_create(ignore(references_(Msg)), _, [detached(true)]).
+	thread_create(ignore(references_(Msg)), _, [detached(true)]).
 
 
 references_(Me-Msg) :-
-  determine_recipient(references, Msg, Rec),
-  (  Msg = msg(_Prefix, "PRIVMSG", _, [63|Codes]),
-     atom_codes(R0, Codes),
-     normalize_space(atom(R), R0),
-     name_pair(R, Value-Title),
-     send_msg(Me, priv_msg, Title, Rec),
-     send_msg(Me, priv_msg, Value, Rec), !
-  ;  Msg = msg(_Prefix, "PRIVMSG", [Rec], V),
-     has_link(_, Link, V, _),
-     string_codes(Value, Link),
-     name_pair(R, Value-_),
-     format(string(S), 'Hey there! I just wanted to let you know that you can \c
-       use the "?~s" keyword. Pardon my interruption.', [R]),
-     send_msg(Me, priv_msg, S, Rec)
-  ).
+	determine_recipient(references, Msg, Rec),
+	(	Msg = msg(_Prefix, "PRIVMSG", _, [63|Codes]),
+		atom_codes(R0, Codes),
+		normalize_space(atom(R), R0),
+		name_pair(R, Value-Title),
+		send_msg(Me, priv_msg, Title, Rec),
+		send_msg(Me, priv_msg, Value, Rec),
+		!
+	;	Msg = msg(_Prefix, "PRIVMSG", [Rec], V),
+		has_link(_, Link, V, _),
+		string_codes(Value, Link),
+		name_pair(R, Value-_),
+		format(string(S), 'Hey there! I just wanted to let you know that you can \c
+		use the "?~s" keyword. Pardon my interruption.', [R]),
+		send_msg(Me, priv_msg, S, Rec)
+	).

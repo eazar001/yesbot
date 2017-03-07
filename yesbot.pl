@@ -1,7 +1,8 @@
-:- module(yesbot,
-     [ connect/0
-      ,main/1
-      ,yesbot_vsn/1 ]).
+:- module(yesbot, [
+	connect/0,
+	main/1,
+	yesbot_vsn/1
+]).
 
 :- use_module(library(irc_client)).
 :- use_module(library(socket)).
@@ -25,7 +26,7 @@ Extensible IRC bot written in Prolog.
 @tbd Add support for multiple chat servers
 */
 
-  
+
 %% main(+Doc) is det.
 %
 %  Start a connection and join the ##prolog channel on freenode. Doc is a port
@@ -34,8 +35,8 @@ Extensible IRC bot written in Prolog.
 %  on a separate instance of SWI prolog listener.
 
 main(Doc) :-
-  asserta(swi_object_search:doc_port(Doc)),
-  thread_create(connect, _, [detached(true), alias(conn)]).
+	asserta(swi_object_search:doc_port(Doc)),
+	thread_create(connect, _, [detached(true), alias(conn)]).
 
 
 %% connect is failure.
@@ -46,17 +47,17 @@ main(Doc) :-
 %  persistent and will attempt to reconnect after 2 minutes.
 
 connect :-
-  repeat,
-    init_extensions,
-    catch(
-      thread_create(join_channels, _, [alias(irc), at_exit(disconnect(irc))]),
-      Err,
-      print_message(error, Err)
-    ),
-    thread_join(irc, _),
-    writeln("Connection lost, attempting to reconnect ..."),
-    sleep(120),
-    fail.
+	repeat,
+		init_extensions,
+		catch(
+			thread_create(join_channels, _, [alias(irc), at_exit(disconnect(irc))]),
+			Err,
+			print_message(error, Err)
+		),
+		thread_join(irc, _),
+		writeln("Connection lost, attempting to reconnect ..."),
+		sleep(120),
+		fail.
 
 
 %% join_channels is semidet.
@@ -66,23 +67,23 @@ connect :-
 %  are available in config.pl.
 
 join_channels :-
-  host(Host),
-  port(Port),
-  pass(Pass),
-  nick(Nick),
-  chans(Chans),
-  bot_hostname(Hn),
-  bot_servername(Sn),
-  bot_realname(Rn),
-  Names = [Hn,Sn,Rn],
-  connect(Host, Port, Pass, Nick, Names, Chans).
+	host(Host),
+	port(Port),
+	pass(Pass),
+	nick(Nick),
+	chans(Chans),
+	bot_hostname(Hn),
+	bot_servername(Sn),
+	bot_realname(Rn),
+	Names = [Hn,Sn,Rn],
+	connect(Host, Port, Pass, Nick, Names, Chans).
 
 
 reload_version :-
-  ['extensions/yesbot_version'],
-  (  yesbot_version:yesbot_vsn(_)
-  -> retractall(yesbot_version:yesbot_vsn(_))
-  ;  true
-  ),
-  yesbot_vsn(Vsn),
-  asserta(yesbot_version:yesbot_vsn(Vsn)).
+	['extensions/yesbot_version'],
+	(  yesbot_version:yesbot_vsn(_)
+	-> retractall(yesbot_version:yesbot_vsn(_))
+	;  true
+	),
+	yesbot_vsn(Vsn),
+	asserta(yesbot_version:yesbot_vsn(Vsn)).

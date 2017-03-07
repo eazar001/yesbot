@@ -3,7 +3,7 @@
 :- use_module(library(irc_client)).
 
 output(Msg) :-
-  thread_create(output_(Msg), _, [detached(true)]).
+	thread_create(output_(Msg), _, [detached(true)]).
 
 
 output_(Id-Msg) :-

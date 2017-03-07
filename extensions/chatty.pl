@@ -69,21 +69,21 @@
 %
 
 chatty(Msg) :-
-  debug(chatty(any), '~w', [Msg]),
-  thread_create(ignore(chatty_(Msg)), _, [detached(true)]).
+	debug(chatty(any), '~w', [Msg]),
+	thread_create(ignore(chatty_(Msg)), _, [detached(true)]).
 
 chatty_(Me-Msg) :-
-  Msg = msg(Prefix, "PRIVMSG", [Chan], Body),
-  debug(chatty(msg), '~w in ~w: ~s', [Prefix, Chan, Body]),
-  in_right_chan(Msg),
-  respond_privmsg(Me, Prefix, Chan, Body).
+	Msg = msg(Prefix, "PRIVMSG", [Chan], Body),
+	debug(chatty(msg), '~w in ~w: ~s', [Prefix, Chan, Body]),
+	in_right_chan(Msg),
+	respond_privmsg(Me, Prefix, Chan, Body).
 
 in_right_chan(msg(_, _, [Chan], _)) :-
-  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
-  member(Chan, Chans).
+	connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+	member(Chan, Chans).
 in_right_chan(msg(_, _, [Chan])) :-
-  connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
-  member(Chan, Chans).
+	connection(_Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
+	member(Chan, Chans).
 
 %%	respond_privmsg(+Id, +Prefix:prefix, +Chan:string, +Body:string) is
 %	det
@@ -98,34 +98,34 @@ in_right_chan(msg(_, _, [Chan])) :-
 % user ends conversation
 % has to be first because ?chatty is a prefix of ?chatty bye
 respond_privmsg(Me, Prefix, Chan, Body) :-
-  currently_talking_with_speaker(Prefix, Chan),
-  this_message_ends_a_conversation(Body),
-  !,
-  do_end_conversation(Me, Prefix, Chan).
+	currently_talking_with_speaker(Prefix, Chan),
+	this_message_ends_a_conversation(Body),
+	!,
+	do_end_conversation(Me, Prefix, Chan).
 % start a new conversation
 respond_privmsg(Me, Prefix, Chan, Body) :-
-  \+ currently_talking_with_speaker(Prefix, Chan),
-  this_message_starts_a_conversation(Body),
-  do_start_conversation(Me, Prefix, Chan),
-  !.
+	\+ currently_talking_with_speaker(Prefix, Chan),
+	this_message_starts_a_conversation(Body),
+	do_start_conversation(Me, Prefix, Chan),
+	!.
 % user asks to start a conversation and one is going
 % so we do nothing
 respond_privmsg(_Me, Prefix, Chan, Body) :-
-  currently_talking_with_speaker(Prefix, Chan),
-  this_message_starts_a_conversation(Body),
-  !.
+	currently_talking_with_speaker(Prefix, Chan),
+	this_message_starts_a_conversation(Body),
+	!.
 % user talks and we're not in a conversation
 respond_privmsg(_Me, Prefix, Chan, _Body) :-
-  \+ currently_talking_with_speaker(Prefix, Chan),
-  !, fail.
+	\+ currently_talking_with_speaker(Prefix, Chan),
+	!, fail.
 % bot ends conversation
 respond_privmsg(Me, Prefix, Chan, Body) :-
-  currently_talking_with_speaker(Prefix, Chan),
-  !,
-  talk_with_bot(Me, Prefix, Chan, Body, EndConversation),
-  (   EndConversation = true ->
-      do_end_conversation(Me, Prefix, Chan)
-  ).
+	currently_talking_with_speaker(Prefix, Chan),
+	!,
+	talk_with_bot(Me, Prefix, Chan, Body, EndConversation),
+	(   EndConversation = true ->
+		do_end_conversation(Me, Prefix, Chan)
+	).
 
 		 /*******************************
 		 *  Conversation Management	*
@@ -179,10 +179,10 @@ talk_with_bot(Prefix, Chan, Body, EndConversation) :-
 	string_codes(Reply, CReply),
 	(   phrase(bot_ends_convo(CParthianShot), CReply)
 	->  EndConversation = true,
-	    string_codes(ParthianShot, CParthianShot),
-	    priv_msg(Me, ParthianShot, Chan, [auto_nl(true), at_most(8)])
+		string_codes(ParthianShot, CParthianShot),
+		priv_msg(Me, ParthianShot, Chan, [auto_nl(true), at_most(8)])
 	;   EndConversation = false,
-	    priv_msg(Me, Reply, Chan, [auto_nl(true), at_most(8)])
+		priv_msg(Me, Reply, Chan, [auto_nl(true), at_most(8)])
 	).
 
 bot_ends_convo(ParthianShot) -->
@@ -201,11 +201,11 @@ bot_ends_convo(ParthianShot) -->
 %
 :- (current_prolog_flag(version, V), V >= 70300) ; writeln('Requires SWI-Prolog 7.3.0 or better').
 :- setting(chatty:chatscript_server_location, acyclic, localhost:5678,
-	   'The location of the chatscript server, as a term atom:number, the host and port').
+	'The location of the chatscript server, as a term atom:number, the host and port').
 
 :- initialization
 	setting(chatty:chatscript_server_location, Loc),
 	set_chatscript_address(Loc).
 
 :- setting(chatty:chatscript_bot_name, atom, 'Yesbot',
-	   'Name of the bot as chatscript knows it').
+	'Name of the bot as chatscript knows it').
