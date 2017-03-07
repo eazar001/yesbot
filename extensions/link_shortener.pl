@@ -46,9 +46,9 @@ link_shortener_(Me-Msg) :-
 	atom_codes(Link, L),
 	length(L, N),
 	(  % shorten link if 100 or more characters in length
-		(  N >= 100
-		-> make_tiny(Me, Link, Chan)
-		;  get_time(T1),
+		(	N >= 100
+		->	make_tiny(Me, Link, Chan)
+		;	get_time(T1),
 			url_get_title(Link, T),
 			get_time(T2) ->
 			(	T = []

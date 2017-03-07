@@ -39,9 +39,9 @@ sync_chat_log_(_-Msg) :-
 	connection(_Me, _Nick, _Pass, Chans, _Hostname, _Servername, _Realname),
 	member(Chan, Chans), !,
 	prefix_id(Prefix, Nick, _, _),
-	(  exists_directory('extensions/chat-logs')
-	-> true
-	;  make_directory('extensions/chat-logs')
+	(	exists_directory('extensions/chat-logs')
+	-> 	true
+	;  	make_directory('extensions/chat-logs')
 	),
 	get_time(Time),
 	stamp_date_time(Time, Date, local),
@@ -76,7 +76,7 @@ write_chat_line(Date, Nick, Chan, Log) :-
 	known(yes, _, Filename),
 	setup_call_cleanup(
 		open(Filename, append, Fstream, []),
-		(	(  get_action(Log, Action)
+		(	(	get_action(Log, Action)
 			->	format(Fstream, '~a *~s ~s~n', [Stamp, Nick, Action])
 			;	format(Fstream, '~a <~s> ~s~n', [Stamp, Nick, Log])
 			),

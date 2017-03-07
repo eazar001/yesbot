@@ -23,9 +23,9 @@ omdb_(Me-Msg) :-
 	prefix_id(Prefix, Nick, _, _),
 	append(`?movie `, Q0, Text),
 	determine_recipient(omdb, Msg, Recipient),
-	(  session(Nick)
-	-> retractall(session(Nick, _))
-	;  asserta(session(Nick))
+	(	session(Nick)
+	->	retractall(session(Nick, _))
+	;  	asserta(session(Nick))
 	),
 	atom_codes(Q, Q0),
 	normalize_space(codes(Req), Q),
@@ -49,17 +49,18 @@ omdb_(Me-Msg) :-
 	determine_recipient(omdb, Msg, Rec),
 	string_codes(Text, Codes),
 	normalize_space(string("?more"), Text),
-	(  session(Nick)
-	-> display(Me, Nick, Rec)
-	;  true
-	), !. % can only succeed once
+	(	session(Nick)
+	-> 	display(Me, Nick, Rec)
+	;	true
+	),
+	!. % can only succeed once
 
 % Handle anything else that is not a valid request that pertains to dict
 omdb_(_-msg(Prefix, "PRIVMSG", _, _)) :-
 	prefix_id(Prefix, Nick, _, _),
-	(  session(Nick)
-	-> maplist(retractall, [session(Nick), session(Nick,_)])
-	;  true
+	(	session(Nick)
+	-> 	maplist(retractall, [session(Nick), session(Nick,_)])
+	;  	true
 	).
 
 
@@ -103,9 +104,9 @@ decode(Me, Dict, Nick, Recipient) :-
 display(Me, Nick, Rec) :-
 	session(Nick, [Line|Rest]),
 	priv_msg(Me, Line, Rec, [auto_nl(false)]),
-	(  Rest \= []
-	-> priv_msg(Me, "You can type ?more for the next line.", Rec)
-	;  priv_msg(Me, "End of output.", Rec)
+	(	Rest \= []
+	-> 	priv_msg(Me, "You can type ?more for the next line.", Rec)
+	;  	priv_msg(Me, "End of output.", Rec)
 	),
 	update_session(Nick, Rest).
 

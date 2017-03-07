@@ -30,9 +30,9 @@ sarcasm_(Me-Msg) :-
 	string_codes(Str, Rest),
 	normalize_space(string(Norm), Str),
 	Norm = "?whatsup",
-	(  random_member(0, [0,1])
-	-> display_public_action(Me), fail
-	;  true
+	(	random_member(0, [0,1])
+	-> 	display_public_action(Me), fail
+	;  	true
 	),
 	whatsup(Rs),
 	random_member(R, Rs),

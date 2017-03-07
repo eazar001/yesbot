@@ -23,9 +23,9 @@ wiki_search_(Me-Msg) :-
 	append(`?wiki `, Q0, Text),
 	prefix_id(Prefix, Nick, _, _),
 	determine_recipient(wiki_search, Msg, Rec),
-	(  session(Nick)
-	-> retractall(session(Nick,_))
-	;  asserta(session(Nick))
+	(	session(Nick)
+	-> 	retractall(session(Nick,_))
+	;	asserta(session(Nick))
 	),
 	atom_codes(Atom, Q0),
 	uri_encoded(query_value, Atom, Query),
@@ -52,7 +52,7 @@ wiki_search_(Me-Msg) :-
 	normalize_space(codes(`?more`), Text),
 	(	session(Nick)
 	-> 	display(Me, Nick, Rec)
-	;  	true
+	;	true
 	), !. % can only succeed once
 
 
@@ -61,7 +61,7 @@ wiki_search_(_-msg(Prefix, "PRIVMSG", _, _)) :-
 	prefix_id(Prefix, Nick, _, _),
 	(  	session(Nick)
 	-> 	maplist(retractall, [session(Nick), session(Nick,_)])
-	;  	true
+	;	true
 	).
 
 
@@ -79,7 +79,7 @@ search(Me, Nick, Rec, Stream) :-
 			priv_msg_rest(irc, Paragraph, Rec, Rest, [auto_nl(true), at_most(1)]),
 			(	Rest \= []
 			-> 	priv_msg(Me, "You can type ?more for the next line.", Rec)
-			;  	priv_msg(Me, "End of output.", Rec)
+			;	priv_msg(Me, "End of output.", Rec)
 			),
 			update_session(Nick, Rest)
 		),
@@ -91,9 +91,9 @@ search(Me, Nick, Rec, Stream) :-
 display(Me, Nick, Rec) :-
 	session(Nick, [Line|Rest]),
 	priv_msg(Me, Line, Rec, [auto_nl(false)]),
-	(  Rest \= []
-	-> priv_msg(Me, "You can type ?more for the next line.", Rec)
-	;  priv_msg(Me, "End of output.", Rec)
+	(	Rest \= []
+	->	priv_msg(Me, "You can type ?more for the next line.", Rec)
+	;	priv_msg(Me, "End of output.", Rec)
 	),
 	update_session(Nick, Rest).
 

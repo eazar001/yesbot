@@ -23,9 +23,9 @@ dict_(Me-Msg) :-
 	prefix_id(Prefix, Nick, _, _),
 	is_question(Text, Query),
 	determine_recipient(dict, Msg, Recip),
-	(  session(Nick)
-	-> retractall(session(Nick,_))
-	;  asserta(session(Nick))
+	(	session(Nick)
+	-> 	retractall(session(Nick,_))
+	;  	asserta(session(Nick))
 	),
 	format(string(Link),
 	"http://dictionary.reference.com/browse/~a?s=t",
@@ -44,9 +44,9 @@ dict_(Me-Msg) :-
 	determine_recipient(dict, Msg, Rec),
 	string_codes(Text, Codes),
 	normalize_space(codes(`?more`), Text),
-	(  session(Nick)
-	-> display(Me, Nick, Rec)
-	;  true
+	(	session(Nick)
+	-> 	display(Me, Nick, Rec)
+	;  	true
 	),
 	!. % can only succeed once
 
@@ -54,9 +54,9 @@ dict_(Me-Msg) :-
 % Handle anything else that is not a valid request that pertains to dict
 dict_(_-msg(Prefix, "PRIVMSG", _, _)) :-
 	prefix_id(Prefix, Nick, _, _),
-	(  session(Nick)
-	-> maplist(retractall, [session(Nick), session(Nick,_)])
-	;  true
+	(	session(Nick)
+	-> 	maplist(retractall, [session(Nick), session(Nick,_)])
+	;  	true
 	).
 
 
@@ -76,12 +76,13 @@ do_search(Me, _, _, _, Recip) :-
 
 dict_search(Me, Link, Stream, Nick, Recip) :-
 	load_html(Stream, Content, []),
-	findall(Paragraph,
-	(  xpath(Content, //div(@class='def-content', normalize_space), P),
-	atom_codes(P, Seq),
-	clean_sequence(Seq, Paragraph)
-	),
-	Paragraphs
+	findall(
+		Paragraph,
+		(  	xpath(Content, //div(@class='def-content', normalize_space), P),
+			atom_codes(P, Seq),
+			clean_sequence(Seq, Paragraph)
+		),
+		Paragraphs
 	),
 	Paragraphs = [_|_],
 	priv_msg(Me, Link, Recip),
@@ -92,9 +93,9 @@ dict_search(Me, Link, Stream, Nick, Recip) :-
 display(Me, Nick, Rec) :-
 	session(Nick, [Line|Rest]),
 	priv_msg(Me, Line, Rec, [auto_nl(false)]),
-	(  Rest \= []
-	-> priv_msg(Me, "You can type ?more for the next line.", Rec)
-	;  priv_msg(Me, "End of output.", Rec)
+	(	Rest \= []
+	->	priv_msg(Me, "You can type ?more for the next line.", Rec)
+	;	priv_msg(Me, "End of output.", Rec)
 	),
 	update_session(Nick, Rest).
 

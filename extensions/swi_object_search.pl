@@ -227,9 +227,9 @@ try_again(Me, Query, Rec) :-
 			;	% No initial suggestions, so let's find some
 				Ss = [],
 				findnsols(10, C, try_other_candidate(Structure, [39,58], C), Cs),
-				(  Cs = []
-				-> findnsols(10, C, try_other_candidate(Structure, [39], C), L)
-				;  L = Cs
+				(	Cs = []
+				-> 	findnsols(10, C, try_other_candidate(Structure, [39], C), L)
+				;  	L = Cs
 				)
 			),
 			L = [_|_],
@@ -282,9 +282,9 @@ try_other_candidate(Structure, Invalids, Sugg) :-
 write_first_sentence(Me, Structure, Rec) :-
 	xpath_chk(Structure, //dd(@class=defbody,normalize_space), D),
 	atom_codes(D, Codes),
-	(  sentence(Sentence, Codes, _)
-	-> priv_msg(Me, Sentence, Rec)
-	;  priv_msg(Me, Codes, Rec)
+	(	sentence(Sentence, Codes, _)
+	-> 	priv_msg(Me, Sentence, Rec)
+	;  	priv_msg(Me, Codes, Rec)
 	).
 
 
@@ -295,9 +295,9 @@ write_first_sentence(Me, Structure, Rec) :-
 %  input will be assumed a functor. Search will proceed in this manner.
 
 get_functor(Original, Functor) :-
-	(  get_functor_(Functor, Original, _)
-	-> true
-	;  Original = Functor
+	(	get_functor_(Functor, Original, _)
+	-> 	true
+	;  	Original = Functor
 	).
 
 get_functor_([]) --> `/`, !.
