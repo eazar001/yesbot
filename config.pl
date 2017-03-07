@@ -101,16 +101,16 @@ chans(Chans) :-
 
 bot_hostname(Name) :-
 	setting(bot_hostname, BotHostName),
-	(  BotHostName = use_host
-	-> setting(host, Name)
-	;  Name = BotHostName
+	(	BotHostName = use_host
+	->	setting(host, Name)
+	;	Name = BotHostName
 	).
 
 bot_servername(Name) :-
 	setting(bot_servername, BotServerName),
-	(  BotServerName = use_host
-	-> setting(host, Name)
-	;  Name = BotServerName
+	(	BotServerName = use_host
+	->	setting(host, Name)
+	;	Name = BotServerName
 	).
 
 bot_realname(Name) :-
@@ -156,11 +156,11 @@ init_extensions :-
 
 goals_to_concurrent(Goals, Msg) :-
 	sync_extensions(_, N),
-	(  N > 0
-	-> goals_to_calls(Goals, Calls),
-	maplist(call_with_msg(Msg), Calls, RunCalls),
-	concurrent(N, RunCalls, [])
-	;  true
+	(	N > 0
+	->	goals_to_calls(Goals, Calls),
+		maplist(call_with_msg(Msg), Calls, RunCalls),
+		concurrent(N, RunCalls, [])
+	;	true
 	).
 
 call_with_msg(Msg, Call, call(Call, Msg)).
@@ -252,9 +252,9 @@ is_script(File) :-
 %  otherwise.
 
 check_valid_extensions(Es) :-
-	(  valid_extensions(Es)
-	-> true
-	;  existence_error(invalid_subset, Es)
+	(	valid_extensions(Es)
+	->	true
+	;	existence_error(invalid_subset, Es)
 	).
 
 
