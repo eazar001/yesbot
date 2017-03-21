@@ -2,7 +2,6 @@
 
 :- use_module(library(irc_client)).
 :- use_module(library(solution_sequences)).
-:- use_module(library(yall)).
 :- use_module(submodules/utils).
 :- use_module(library(sandbox)).
 
