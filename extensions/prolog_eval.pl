@@ -34,8 +34,8 @@ evaluate(Me, Recip, [[]]) :-
 evaluate(Me, Recip, Sols) :-
 	maplist(term_string, Sols, Strings),
 	maplist(string_codes, Strings, Codes),
-	maplist([Code, F]>>( Code=[_|R], append(F, [_], R) ), Codes, FormattedCodes),
-	maplist([Msg]>>( priv_msg(Me, Msg, Recip), sleep(1) ), FormattedCodes).
+	maplist(\Code^F]^( Code=[_|R], append(F, [_], R) ), Codes, FormattedCodes),
+	maplist(\Msg^( priv_msg(Me, Msg, Recip), sleep(1) ), FormattedCodes).
 
 nonvar_binding(_=Binding) :-
 	nonvar(Binding).
