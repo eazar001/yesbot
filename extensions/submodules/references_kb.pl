@@ -293,3 +293,11 @@ messages &
 eleventh &
 "http://imgur.com/f2qcmlt" &
 "Richter\'s Eleventh Rule".
+
+logtalk &
+"https://learnxinyminutes.com/docs/logtalk/" &
+"Learn Logtalk in Y Minutes".
+
+logtalk &
+"https://learnxinyminutes.com/docs/logtalk" &
+"Learn Logtalk in Y Minutes".
