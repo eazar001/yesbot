@@ -84,6 +84,13 @@ error_messages@messages.
 error_message@messages.
 printing@messages.
 '11'@eleventh.
+'lgt'@logtalk.
+'logtalk-gitter'@'logtalk-chat'.
+'logtalk-discussion'@'logtalk-chat'.
+'lgt-chat'@'logtalk-chat'.
+'lgt-discussion'@'logtalk-chat'.
+'lgt-gitter'@'logtalk-chat'.
+
 
 
 %--------------------------------------------------------------------------------%
@@ -301,3 +308,7 @@ logtalk &
 logtalk &
 "https://learnxinyminutes.com/docs/logtalk" &
 "Learn Logtalk in Y Minutes".
+
+'logtalk-chat' &
+"https://gitter.im/LogtalkDotOrg/logtalk3" &
+"Logtalk Live Discussion".
