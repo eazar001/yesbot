@@ -90,7 +90,10 @@ printing@messages.
 'lgt-chat'@'logtalk-chat'.
 'lgt-discussion'@'logtalk-chat'.
 'lgt-gitter'@'logtalk-chat'.
-
+'lgt-forum'@'logtalk-forum'.
+'theexpanse'@expanse.
+'the-expanse'@expanse.
+syfy@expanse.
 
 
 %--------------------------------------------------------------------------------%
@@ -302,13 +305,33 @@ eleventh &
 "Richter\'s Eleventh Rule".
 
 logtalk &
+"http://www.logtalk.org" &
+"Logtalk Website".
+
+logtalk &
+"http://www.logtalk.org/" &
+"Logtalk Website".
+
+'learn-logtalk' &
 "https://learnxinyminutes.com/docs/logtalk/" &
 "Learn Logtalk in Y Minutes".
 
-logtalk &
+'learn-logtalk' &
 "https://learnxinyminutes.com/docs/logtalk" &
 "Learn Logtalk in Y Minutes".
 
 'logtalk-chat' &
 "https://gitter.im/LogtalkDotOrg/logtalk3" &
 "Logtalk Live Discussion".
+
+'logtalk-forum' &
+"http://http://forums.logtalk.org/ &
+"Lotalk Discussion Forum".
+
+'logtalk-forum' &
+"http://http://forums.logtalk.org &
+"Lotalk Discussion Forum".
+
+'expanse' &
+"http://www.syfy.com/theexpanse" &
+"The Expanse TV Series".
