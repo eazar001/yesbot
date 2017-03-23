@@ -330,7 +330,7 @@ logtalk &
 "Lotalk Discussion Forum".
 
 'logtalk-forum' &
-"http://http://forums.logtalk.org" &
+"http://forums.logtalk.org" &
 "Lotalk Discussion Forum".
 
 'expanse' &
