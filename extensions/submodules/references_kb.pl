@@ -326,12 +326,12 @@ logtalk &
 "Logtalk Live Discussion".
 
 'logtalk-forum' &
-"http://http://forums.logtalk.org/" &
-"Lotalk Discussion Forum".
+"http://forums.logtalk.org/" &
+"Logtalk Discussion Forum".
 
 'logtalk-forum' &
 "http://forums.logtalk.org" &
-"Lotalk Discussion Forum".
+"Logtalk Discussion Forum".
 
 'expanse' &
 "http://www.syfy.com/theexpanse" &
