@@ -325,11 +325,11 @@ logtalk &
 "Logtalk Live Discussion".
 
 'logtalk-forum' &
-"http://http://forums.logtalk.org/ &
+"http://http://forums.logtalk.org/" &
 "Lotalk Discussion Forum".
 
 'logtalk-forum' &
-"http://http://forums.logtalk.org &
+"http://http://forums.logtalk.org" &
 "Lotalk Discussion Forum".
 
 'expanse' &
