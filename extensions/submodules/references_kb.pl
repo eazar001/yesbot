@@ -91,6 +91,7 @@ printing@messages.
 'lgt-discussion'@'logtalk-chat'.
 'lgt-gitter'@'logtalk-chat'.
 'lgt-forum'@'logtalk-forum'.
+'learn-lgt'@'learn-logtalk'.
 'theexpanse'@expanse.
 'the-expanse'@expanse.
 syfy@expanse.
