@@ -12,6 +12,8 @@ comeback(1, "lol.").
 comeback(2, "Say what?").
 comeback(3, "New prescription glasses?").
 comeback(4, "Please see this website: http://www.learnprolognow.org/").
+comeback(5, "2 + 2 = 5.").
+comeback(6, "FAIL ... in a non-logical sort of way.").
 
 prolog_eval(Msg) :-
 	thread_create(ignore(prolog_eval_(Msg)), _, [detached(true)]).
@@ -21,7 +23,15 @@ prolog_eval_(Me-Msg) :-
 	Msg = msg(_Prefix, "PRIVMSG", _, Text),
 	append(`?-`, Rest, Text),
 	string_codes(String, Rest),
-	catch(term_string(Goal, String, [variable_names(Vars)]), _, fail),
+	catch(
+		term_string(Goal, String, [variable_names(Vars)]),
+		Error,
+		(	message_to_string(Error, ErrorString),
+			determine_recipient(prolog_eval, Msg, Recip),
+			priv_msg(Me, ErrorString, Recip),
+			fail
+		)
+	),
 	evaluate_with_errors(Me-Msg, safe_goal(Goal)),
 	evaluate_with_errors(Me-Msg, call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))),
 	determine_recipient(prolog_eval, Msg, Recip),
