@@ -8,6 +8,11 @@
 
 target("##prolog", "yesbot").
 
+comeback(1, "lol.").
+comeback(2, "Say what?").
+comeback(3, "New prescription glasses?").
+comeback(4, "Please see this website: http://www.learnprolognow.org/").
+
 prolog_eval(Msg) :-
 	thread_create(ignore(prolog_eval_(Msg)), _, [detached(true)]).
 
@@ -21,7 +26,15 @@ prolog_eval_(Me-Msg) :-
 	evaluate_with_errors(Me-Msg, call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))),
 	determine_recipient(prolog_eval, Msg, Recip),
 	maplist(include(nonvar_binding), Sols, Nonvars),
-	evaluate(Me, Recip, Nonvars).
+	evaluate(Me, Recip, Nonvars),
+	!.
+prolog_eval_(Me-Msg) :-
+	Msg = msg(_Prefix, "PRIVMSG", _, Text),
+	append(`?-`, _, Text),
+	random_between(1, 4, X),
+	comeback(X, String),
+	determine_recipient(prolog_eval, Msg, Recip),
+	priv_msg(Me, String, Recip).
 
 
 evaluate(Me, Recip, []) :-
