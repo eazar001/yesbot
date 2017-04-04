@@ -21,7 +21,7 @@ prolog_eval_(Me-Msg) :-
 	Msg = msg(_Prefix, "PRIVMSG", _, Text),
 	append(`?-`, Rest, Text),
 	string_codes(String, Rest),
-	term_string(Goal, String, [variable_names(Vars)]),
+	catch(term_string(Goal, String, [variable_names(Vars)]), _, fail),
 	evaluate_with_errors(Me-Msg, safe_goal(Goal)),
 	evaluate_with_errors(Me-Msg, call_with_time_limit(10, findall(Vars, limit(7, Goal), Sols))),
 	determine_recipient(prolog_eval, Msg, Recip),
