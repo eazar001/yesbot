@@ -41,7 +41,7 @@ prolog_eval_(Me-Msg) :-
 prolog_eval_(Me-Msg) :-
 	Msg = msg(_Prefix, "PRIVMSG", _, Text),
 	append(`?-`, _, Text),
-	random_between(1, 4, X),
+	random_between(1, 6, X),
 	comeback(X, String),
 	determine_recipient(prolog_eval, Msg, Recip),
 	priv_msg(Me, String, Recip).
