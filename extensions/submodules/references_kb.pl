@@ -95,6 +95,7 @@ printing@messages.
 'theexpanse'@expanse.
 'the-expanse'@expanse.
 syfy@expanse.
+comic@cartoon.
 
 
 %--------------------------------------------------------------------------------%
@@ -336,3 +337,7 @@ logtalk &
 'expanse' &
 "http://www.syfy.com/theexpanse" &
 "The Expanse TV Series".
+
+'cartoon' &
+"http://www.pathwayslms.com/swipltuts/teacher/" &
+"cartoon".
