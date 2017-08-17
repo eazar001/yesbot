@@ -96,6 +96,7 @@ printing@messages.
 'the-expanse'@expanse.
 syfy@expanse.
 comic@cartoon.
+playing@pwp.
 
 
 %--------------------------------------------------------------------------------%
@@ -341,3 +342,7 @@ logtalk &
 'cartoon' &
 "http://www.pathwayslms.com/swipltuts/teacher/" &
 "cartoon".
+
+'pwp' &
+"youtube.com/channel/UCfWpIHmy5MEx2p9c_GJrE_g" &
+"Playing with Prolog".
