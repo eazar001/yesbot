@@ -35,7 +35,7 @@ Extensible IRC bot written in Prolog.
 %  on a separate instance of SWI prolog listener.
 
 main(Doc) :-
-	asserta(swi_object_search:doc_port(Doc)),
+	ignore((integer(Doc),asserta(swi_object_search:doc_port(Doc)))),
 	thread_create(connect, _, [detached(true), alias(conn)]).
 
 

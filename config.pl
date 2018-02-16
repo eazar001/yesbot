@@ -60,13 +60,14 @@
 % Constants for general server connection specs
 :- setting(host, atom, 'chat.freenode.net', 'IRC host to connect to').
 :- setting(port, between(1,0x7FFF), 6667, 'Port to connect to').
-:- setting(nick, text, mybot, 'Bots nick (name) on IRC').
+:- setting(nick, text, yesbot, 'Bots nick (name) on IRC').
 :- setting(pass, text, notpassword, 'Bots password.').
-:- setting(chans, list(text), [ '##prolog', '##math' ],
+:- setting(chans, list(text), [ '##prolog' ],
 	'List of channels to connect to').
 
 :- setting(extensions, list(atom),
-	[bot_control, output, link_shortener, sync_chat_log],
+	[bot_control, output, link_shortener,
+          prolog_eval, yesbot_version, isup, dict, swi_object_search, wiki_search, references, help],
 	'list of extensions to load').
 
 % Constants for user registration specs

@@ -39,9 +39,9 @@
 target("##prolog", "yesbot").
 
 
-swi_object_search(Msg) :-
+swi_object_search(Msg) :- 
 	with_mutex(doc_lock,
-		(	doc_port(_)
+		(	noop(doc_port(_))
 		-> 	true
 		;  	doc_server(Port),
 			retractall(doc_port(Port)),
@@ -61,6 +61,7 @@ swi_object_search_(Me-Msg) :-
 
 %--------------------------------------------------------------------------------%
 
+noop(_).
 
 %% do_search(+Id, +Msg, -Link, -Query, -Quiet, -Rec, -Stream) is semidet.
 %
@@ -98,44 +99,45 @@ do_search(Me, Msg, Link, Query, Quiet, Rec, Stream) :-
 	atom_codes(A, Rest),
 	uri_encoded(query_value, A, Encoded),
 	atom_string(Encoded, Str),
+        Link0 = _,
 	normalize_space(string(Query), Str),
-	doc_port(Port),
+	noop(doc_port(Port)),
 	% Determine appropriate search link
 	(	Quiet = lib
 	->	% Will do a library specific search with no suggestions
-		format(string(Link0),
-		"http://localhost:~d/man?section=~s.pl", [Port,Query]),
+		noop(format(string(Link0),
+		"http://localhost:~d/man?section=~s.pl", [Port,Query])),
 		format(string(Link),
 		"http://www.swi-prolog.org/pldoc/doc/swi/library/~s.pl", [Query])
 	;	Quiet = man
 	->	% Will do a manual specific search with no suggestions
-		format(
+		noop(format(
 			string(Link0),
 			"http://localhost:~d/man?section=~s", [Port,Query]
-		),
+		)),
 		format(
 			string(Link),
 			"http://www.swi-prolog.org/pldoc/man?section=~s", [Query]
 		)
 	;	% Will do a regular search with suggestions
-		format(
+		noop(format(
 			string(Link0),
 			"http://localhost:~d/doc_for?object=~s", [Port,Query]
-		),
+		)),
 		format(
 			string(Link),
 			"http://www.swi-prolog.org/pldoc/doc_for?object=~s", [Query]
 		)
 	),
 	% Get the results from a search using the appropriate link from above
-	http_open(Link0, Stream, [timeout(20), status_code(Status)]),
+	http_open(Link, Stream, [timeout(20), status_code(Status)]),
 	(	% Non-lib/man searches
 		\+member(Quiet, [lib, man]), !
 	;	% Lib/man searches with successful requests
 		Status = 200, !
 	;	% Lib/man searches that fail to generate a page
 		Status = 404,
-		priv_msg(Me, "No matching object found.", Rec),
+		writeln(priv_msg(Me, "No matching object found.", Rec)),
 		fail
 	).
 
@@ -162,7 +164,7 @@ parse_structure(Me, Link, Query, Quiet, Rec, Stream) :-
 found_object(Me, Structure, Link, Query, Quiet, Rec) :-
 	(	found(Me, Link, Rec, Quiet, Structure)
 	-> 	true
-	;  	priv_msg(Me, "No matching object found. ", Rec),
+	;  	noop((priv_msg(Me, "No matching object found. ", Rec))),
 		% Try alternative suggestions only if search is not library or man-specific
 		\+memberchk(Quiet, [lib, man]),
 		try_again(Me, Query, Rec)
@@ -208,10 +210,10 @@ try_again(Me, Query, Rec) :-
 	get_functor(string_codes $ Query, Fcodes),
 	% Get the pure functor from the query
 	string_codes(Functor, Fcodes),
-	doc_port(Port),
+	noop((doc_port(_Port))),
 	format(
 		string(Retry),
-		"http://localhost:~d/search?for=~s&in=all&match=name", [Port, Functor]
+		"http://eu.swi-prolog.org/pldoc/search?for=~s&in=all&match=name", [Functor]
 	),
 	setup_call_cleanup(
 		http_open(Retry, Stream, [timeout(20)]),

@@ -54,6 +54,11 @@ control(Me-Chan, '?reboot', '') :-
 	priv_msg(Me, "Okay, rebooting.", Chan),
 	thread_signal(irc, throw(abort)).
 
+control(Me-Chan, '?make', '') :-
+	priv_msg(Me, "Okay, rebooting.", Chan),
+        make,
+	thread_signal(irc, throw(abort)).
+
 control(Me-Chan, '?off', '') :-
 	priv_msg(Me, "Okay, shutting down.", Chan),
 	thread_signal(irc, halt).

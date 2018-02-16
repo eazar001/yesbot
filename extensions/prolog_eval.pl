@@ -22,6 +22,7 @@ prolog_eval(Msg) :-
 prolog_eval_(Me-Msg) :-
 	Msg = msg(_Prefix, "PRIVMSG", _, Text),
 	append(`?-`, Rest, Text),
+        \+ append(_,`.`, Rest),
 	string_codes(String, Rest),
 	catch(
 		term_string(Goal, String, [variable_names(Vars)]),
@@ -40,7 +41,8 @@ prolog_eval_(Me-Msg) :-
 	!.
 prolog_eval_(Me-Msg) :-
 	Msg = msg(_Prefix, "PRIVMSG", _, Text),
-	append(`?-`, _, Text),
+	append(`?-`, Rest, Text),
+        \+ append(_,`.`, Rest),
 	random_between(1, 6, X),
 	comeback(X, String),
 	determine_recipient(prolog_eval, Msg, Recip),
