@@ -58,7 +58,7 @@
 
 
 % Constants for general server connection specs
-:- setting(host, atom, 'chat.freenode.net', 'IRC host to connect to').
+:- setting(host, atom, 'irc.libera.chat', 'IRC host to connect to').
 :- setting(port, between(1,0x7FFF), 6667, 'Port to connect to').
 :- setting(nick, text, mybot, 'Bots nick (name) on IRC').
 :- setting(pass, text, notpassword, 'Bots password.').
@@ -264,10 +264,10 @@ check_valid_extensions(Es) :-
 valid_extensions(Extensions) :-
   % Get all files from extensions directory
   directory_files(extensions, Files),
-  
+
   % Filter all files by pl scripts
   include(is_script, Files, A),
-  
+
   % Transform all scripts into extension names
   maplist(script_extension, A, B),
   subset(Extensions, B).
@@ -282,7 +282,7 @@ valid_extensions(Extensions) :-
   For those of you whom are curious about the IRC user registration process:
   These are relevant excerpts from Section 4.1.3 of the IRC RFC.
   (This document is available at: https://tools.ietf.org/html/rfc1459)
-  
+
   Command: USER
   Parameters: <username> <hostname> <servername> <realname>
 
@@ -315,7 +315,7 @@ valid_extensions(Extensions) :-
   ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 
   Examples:
-  
+
   USER guest tolmoon tolsun :Ronnie Reagan
 */
 

@@ -7,7 +7,8 @@ pack_deps(
    ,func
    ,lambda
    ,list_util
-   ,plchatscript ]).
+   %,plchatscript  borked at moment
+  ]).
 
 
 install_deps :-
@@ -24,7 +25,7 @@ search(Installs) :-
   pack_deps(Deps),
   subtract(Deps, Packs, Installs).
 
-  
+
 install_packs([]) :-
   writeln('All dependencies are met.').
 
