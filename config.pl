@@ -67,7 +67,9 @@
 
 :- setting(extensions, list(atom),
 	[bot_control, output, link_shortener,
-          prolog_eval, yesbot_version, isup, dict, swi_object_search, wiki_search, references, help],
+          prolog_eval, yesbot_version,
+	 isup, dict, swi_object_search, wiki_search, references, help,
+	emoticons],
 	'list of extensions to load').
 
 % Constants for user registration specs

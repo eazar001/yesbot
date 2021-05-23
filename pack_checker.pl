@@ -6,8 +6,8 @@ pack_deps([
 	irc_client,
 	func,
 	lambda,
-	list_util,
-	plchatscript
+	list_util
+       %, plchatscript removed til plchatscript gets its act together
 ]).
 
 
